@@ -62,7 +62,7 @@ jobs:
 
   deploy-to-prod:
     if: false
-    needs: [setup, build-image, approve-deployment-to-prod]
+    needs: [setup]
     permissions:
       id-token: write
       contents: write
