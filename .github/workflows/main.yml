@@ -9,7 +9,7 @@ env:
   KOSLI_AWS_BETA:  ${{ vars.KOSLI_AWS_BETA }}          # aws-beta
   KOSLI_AWS_PROD:  ${{ vars.KOSLI_AWS_PROD }}          # aws-prod
   KOSLI_DEBUG:     ${{ vars.KOSLI_DEBUG }}             # true/false
-  KOSLI_DRY_RUN:   ${{ vars.KOSLI_DRY_RUN }}           # false
+  KOSLI_DRY_RUN:   true # ${{ vars.KOSLI_DRY_RUN }}           # false
   KOSLI_HOST:      ${{ vars.KOSLI_HOST }}              # https://app.kosli.com
   KOSLI_ORG:       ${{ vars.KOSLI_ORG }}               # cyber-dojo
   KOSLI_FLOW:      todo  # ${{ vars.KOSLI_FLOW }}
@@ -31,9 +31,9 @@ jobs:
       aws_region:               ${{ steps.vars.outputs.aws_region }}
       gh_actions_iam_role_name: ${{ steps.vars.outputs.gh_actions_iam_role_name }}
     steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          fetch-depth: 1
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Prepare outputs for workflow jobs
         id: vars
