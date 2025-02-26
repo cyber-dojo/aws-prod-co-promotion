@@ -1,0 +1,37 @@
+
+exit_non_zero_unless_installed()
+{
+  for dependent in "$@"
+  do
+    if ! installed "${dependent}" ; then
+      stderr "${dependent} is not installed"
+      exit 42
+    fi
+  done
+}
+
+installed()
+{
+  local -r dependent="${1}"
+  if hash "${dependent}" 2> /dev/null; then
+    true
+  else
+    false
+  fi
+}
+
+exit_non_zero_unless_file_exists()
+{
+  local -r filename="${1}"
+  if [ ! -f "${filename}" ]; then
+    stderr "${filename} does not exist"
+    exit 42
+  fi
+}
+
+stderr()
+{
+  local -r message="${1}"
+  >&2 echo "ERROR: ${message}"
+}
+
