@@ -105,7 +105,7 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         run:
           kosli assert artifact "${KOSLI_FINGERPRINT}" 
-            --environment="${KOSLI_AWS_PROD}
+            --environment="${KOSLI_AWS_PROD}"
 
 
   approve-deployment:
