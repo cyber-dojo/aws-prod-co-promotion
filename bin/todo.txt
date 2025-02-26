@@ -1,0 +1,24 @@
+
+DONE: Decide on Flow name: prod-promotion
+DONE: Create Flow on kosli staging AND prod
+DONE: Add KOSLI_FLOW repo-level Github Action env-var
+
+Make a forced change on saver (eg) and do not deploy to prod.
+  Check the "kosli diff snapshots" sees a difference
+
+Work on candidates.sh
+
+Create a custom-attestation promotion type in kosli-attestation-types repo.
+
+In workflow, each Artifact will need:
+- kosli assert artifact ${IMAGE_NAME} \
+    --environment="${KOSLI_AWS_PROD}"
+
+Can those be done in parallel?
+
+Then each artifact will need:
+- kosli report approval "${IMAGE_NAME}"
+    --approver="${{ github.actor }}"
+    --environment="${KOSLI_AWS_PROD}"
+
+Then each artifact can be deployed.

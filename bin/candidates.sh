@@ -5,9 +5,11 @@ export ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "${ROOT_DIR}/bin/lib.sh"
 exit_non_zero_unless_installed kosli jq
 
-KOSLI_ORG=cyber-dojo
-KOSLI_AWS_BETA=aws-beta
-KOSLI_AWS_PROD=aws-prod
+KOSLI_HOST="${KOSLI_HOST:-https://app.kosli.com}"
+KOSLI_ORG="${KOSLI_ORG:-cyber-dojo}"
+KOSLI_API_TOKEN="${KOSLI_API_TOKEN:-read-only-dummy}"
+KOSLI_AWS_BETA="${KOSLI_AWS_BETA:-aws-beta}"
+KOSLI_AWS_PROD="${KOSLI_AWS_PROD:-aws-prod}"
 
 show_help()
 {
@@ -41,9 +43,14 @@ check_args()
 
 candidates()
 {
-  check_args $@
-  diff="$(kosli diff snapshots ${KOSLI_AWS_BETA} ${KOSLI_AWS_PROD} --org=${KOSLI_ORG} --api-token=${KOSLI_API_TOKEN:-sdsdf} --output=json)"
+  check_args "$@"
+  diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
+      --host="${KOSLI_HOST}" \
+      --org="${KOSLI_ORG}" \
+      --api-token="${KOSLI_API_TOKEN}" \
+       --output=json)"
+
   echo "${diff}" | jq .
 }
 
-candidates $@
+candidates "$@"
