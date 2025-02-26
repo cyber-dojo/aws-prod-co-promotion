@@ -30,8 +30,8 @@ jobs:
       aws_region:               ${{ steps.vars.outputs.aws_region }}
       gh_actions_iam_role_name: ${{ steps.vars.outputs.gh_actions_iam_role_name }}
       service:                  dashboard
-      image_name:               244531986313.dkr.ecr.eu-central-1.amazonaws.com/dashboard:5f1340b@sha256:43f9c5207ad814c6b71fcdc6d8420d7f8ebcdd0ee470aff398e1eb35ab5766e6
-      fingerprint:              43f9c5207ad814c6b71fcdc6d8420d7f8ebcdd0ee470aff398e1eb35ab5766e6
+      image_name:               244531986313.dkr.ecr.eu-central-1.amazonaws.com/dashboard:2f08b66@sha256:758b92c52b1081a174428f2f86de38726853e48758d9e268bb36cc5df6890cf9
+      fingerprint:              758b92c52b1081a174428f2f86de38726853e48758d9e268bb36cc5df6890cf9
 
     steps:
       - uses: actions/checkout@v4
@@ -42,8 +42,6 @@ jobs:
         id: vars
         run: |
           ECR_REGISTRY="${AWS_ECR_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"          
-          IMAGE_TAG="${GITHUB_SHA:0:7}"                  
-          IMAGE_NAME="${ECR_REGISTRY}/${{ env.SERVICE_NAME }}:${IMAGE_TAG}"
           
           echo "aws_account_id_beta=${AWS_ACCOUNT_ID_BETA}"   >> ${GITHUB_OUTPUT}          
           echo "aws_account_id_prod=${AWS_ACCOUNT_ID_PROD}"   >> ${GITHUB_OUTPUT}                    
