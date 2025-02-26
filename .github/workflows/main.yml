@@ -64,6 +64,7 @@ jobs:
 
   attest-promotion:
     needs: [setup]
+    runs-on: ubuntu-latest
     env:
       KOSLI_FINGERPRINT: ${{ needs.setup.outputs.fingerprint }}
       SERVICE:           ${{ needs.setup.outputs.service }}
@@ -87,6 +88,7 @@ jobs:
 
   sdlc-control-gate:
     needs: [setup, attest-promotion]
+    runs-on: ubuntu-latest
     env:
       KOSLI_FINGERPRINT: ${{ needs.setup.outputs.fingerprint }}
     steps:
@@ -108,6 +110,7 @@ jobs:
 
   approve-deployment:
     needs: [setup, sdlc-control-gate]
+    runs-on: ubuntu-latest
     env:
       KOSLI_FINGERPRINT: ${{ needs.setup.outputs.fingerprint }}
     steps:
@@ -147,6 +150,7 @@ jobs:
 
 
 
+#  JOB showing matrix: parallelization
 #  deploy-static:
 #    needs: [build, assert-artifact]
 #    if: ${{ github.ref == 'refs/heads/master' }}
