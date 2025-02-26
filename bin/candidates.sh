@@ -44,13 +44,29 @@ check_args()
 candidates()
 {
   check_args "$@"
-  diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
-      --host="${KOSLI_HOST}" \
-      --org="${KOSLI_ORG}" \
-      --api-token="${KOSLI_API_TOKEN}" \
-       --output=json)"
+#  diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
+#      --host="${KOSLI_HOST}" \
+#      --org="${KOSLI_ORG}" \
+#      --api-token="${KOSLI_API_TOKEN}" \
+#       --output=json)"
 
-  echo "${diff}" | jq .
+  diff="$(cat "${ROOT_DIR}/docs/snapshot-diff.json")"
+  from="$(echo "${diff}" | jq -r '.snappish1.snapshot_id')"
+  to="$(echo "${diff}" | jq -r '.snappish2.snapshot_id')"
+
+  echo "FROM: ${from}"
+  echo "  TO: ${to}"
+
+  local -r artifacts_length=$(echo "${diff}" | jq -r '.snappish1.artifacts | length')
+  for a in $(seq 0 $(( ${artifacts_length} - 1 )))
+  do
+      artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$a]")"
+      name="$(echo "${artifact}" | jq -r '.name')"
+      fingerprint="$(echo "${artifact}" | jq -r '.fingerprint')"
+      echo "${name}"
+      echo "${fingerprint}"
+  done
+
 }
 
 candidates "$@"
