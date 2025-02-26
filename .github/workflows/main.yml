@@ -29,6 +29,10 @@ jobs:
       ecr_registry:             ${{ steps.vars.outputs.ecr_registry }}
       aws_region:               ${{ steps.vars.outputs.aws_region }}
       gh_actions_iam_role_name: ${{ steps.vars.outputs.gh_actions_iam_role_name }}
+      service:                  dashboard
+      image_name:               244531986313.dkr.ecr.eu-central-1.amazonaws.com/dashboard:5f1340b@sha256:43f9c5207ad814c6b71fcdc6d8420d7f8ebcdd0ee470aff398e1eb35ab5766e6
+      fingerprint:              43f9c5207ad814c6b71fcdc6d8420d7f8ebcdd0ee470aff398e1eb35ab5766e6
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -59,8 +63,10 @@ jobs:
 
 
   attest-promotion:
-    if: false
     needs: [setup]
+    env:
+      KOSLI_FINGERPRINT: ${{ needs.setup.outputs.fingerprint }}
+      SERVICE:           ${{ needs.setup.outputs.service }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -73,13 +79,16 @@ jobs:
 
       - name: Attest promotion to Kosli
         if: ${{ github.ref == 'refs/heads/main' }}
-        run: |
-          kosli attest artifact "${KOSLI_FINGERPRINT}" --name="${NAME}
+        run:
+          kosli attest artifact "${KOSLI_FINGERPRINT}" 
+            --name="${SERVICE}"
+            --dry-run=true
           
 
   sdlc-control-gate:
-    if: false
-    needs: [attest-promotion]
+    needs: [setup, attest-promotion]
+    env:
+      KOSLI_FINGERPRINT: ${{ needs.setup.outputs.fingerprint }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -93,12 +102,14 @@ jobs:
       - name: Kosli SDLC gate to short-circuit the workflow
         if: ${{ github.ref == 'refs/heads/main' }}
         run:
-          kosli assert artifact "${KOSLI_FINGERPRINT}" --environment="${KOSLI_AWS_PROD}
+          kosli assert artifact "${KOSLI_FINGERPRINT}" 
+            --environment="${KOSLI_AWS_PROD}
 
 
   approve-deployment:
-    if: false
-    needs: [sdlc-control-gate]
+    needs: [setup, sdlc-control-gate]
+    env:
+      KOSLI_FINGERPRINT: ${{ needs.setup.outputs.fingerprint }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -117,20 +128,40 @@ jobs:
             --environment="${KOSLI_AWS_PROD}"
 
 
-#  promote:
-#    if: false
-#    needs: [approve-deployment]
-#    permissions:
-#      id-token: write
-#      contents: write
-#    uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.22
+  promote:
+    needs: [setup, approve-deployment]
+    permissions:
+      id-token: write
+      contents: write
+    uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.22
+    with:
+      checkout_repository:    "cyber-dojo/dashboard"
+      aws_region:             ${{ needs.setup.outputs.aws_region }}
+      aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
+      aws_default_region:     ${{ needs.setup.outputs.aws_region }}
+      aws_role_duration:      900
+      working_directory:      deployment/terraform/
+      tf_apply:               true
+      tf_version:             v1.9.1
+      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ needs.setup.outputs.image_name }}"}'
+
+
+
+#  deploy-static:
+#    needs: [build, assert-artifact]
+#    if: ${{ github.ref == 'refs/heads/master' }}
+#    uses: kosli-dev/server/.github/workflows/upload-static-template.yml@master
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        environment: [staging, azure-staging]
+#        include:
+#          - AWS_ACCOUNT_ID: 772819027869
+#            environment: staging
+#          - AWS_ACCOUNT_ID: 749993776354
+#            environment: azure-staging
 #    with:
-#      checkout_repository:    "cyber-dojo/saver"
-#      aws_region:             ${{ needs.setup.outputs.aws_region }}
-#      aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
-#      aws_default_region:     ${{ needs.setup.outputs.aws_region }}
-#      aws_role_duration:      900
-#      working_directory:      deployment/terraform/
-#      tf_apply:               true
-#      tf_version:             v1.9.1
-#      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ needs.setup.outputs.ecr_registry }}/${{ needs.setup.outputs.service_name }}:${{ needs.setup.outputs.image_tag }}@sha256:${{ needs.build-image.outputs.digest }}"}'
+#      AWS_ACCOUNT_ID: ${{ matrix.AWS_ACCOUNT_ID }}
+#      AWS_REGION: eu-central-1
+#      ARTIFACTS_BUCKET_NAME: ${{ vars.ARTIFACTS_BUCKET_NAME }}
+#      TAG: ${{ needs.build.outputs.tag }}
