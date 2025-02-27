@@ -1,0 +1,114 @@
+
+Ideally I would like to create a custom-attestation which record
+the time that all N artifacts ran in aws-beta together, at the same time.
+This should be possible.
+The API for an individual Artifact:
+https://app.kosli.com/api/v2/artifacts/cyber-dojo/saver-ci/fingerprint/b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef?trail=6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+
+Gives you the json below.
+You can verify that the Artifact is still running in aws-beta (this one isn't)
+You can iterate through the events and find the sequence of time-periods when
+the Artifact was running in aws-beta.
+
+You can then find the common time-periods.
+
+This could be done as a script associated with the custom-attestation type.
+- In the kosli-attestation-types repo.
+- Script in what language? bash?
+- Script will create json in format matching the schema for the cat.
+- Can add shunit2 tests
+
+This would make another nice blog post.
+
+Next step after this would be to run the script inside the workflow
+  which could be triggered manually.
+
+Next step after this would be to be able to do things more directly from the Kosli UX.
+
+
+    {
+      "event": "Artifact saver started running in aws-beta#4719",
+      "type": "artifact_started_running",
+      "timestamp": 1740565630.895599
+    },
+    {
+      "event": "Artifact saver exited from aws-beta#4724",
+      "type": "artifact_stopped_running",
+      "timestamp": 1740603983.9305794
+    }
+
+
+
+
+{
+  "flow_name": "saver-ci",
+  "state_info": null,
+  "approvals": [
+    181
+  ],
+  "running": [],
+  "exited": [
+    {
+      "environment_name": "aws-beta",
+      "snapshot_index": 4724
+    }
+  ],
+  "history": [
+    {
+      "event": "saver reported",
+      "type": "artifact_creation_reported",
+      "timestamp": 1740565440.81417
+    },
+    {
+      "event": "saver.snyk-container-scan attested (snyk)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565490.9630709
+    },
+    {
+      "event": "saver.integration-test attested (junit)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565499.2439299
+    },
+    {
+      "event": "saver.unit-test attested (junit)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565499.747607
+    },
+    {
+      "event": "saver.integration-test-metrics attested (custom:test-metrics)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565501.499956
+    },
+    {
+      "event": "saver.unit-test-metrics attested (custom:test-metrics)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565502.914462
+    },
+    {
+      "event": "saver.integration-test-coverage-metrics attested (custom:coverage-metrics)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565503.8448617
+    },
+    {
+      "event": "saver.unit-test-coverage-metrics attested (custom:coverage-metrics)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565504.765146
+    },
+    {
+      "event": "Approval #181 to aws-beta environment created by external://JonJagger",
+      "type": "artifact_approval_reported",
+      "timestamp": 1740565532.4643753
+    },
+    {
+      "event": "Artifact saver started running in aws-beta#4719",
+      "type": "artifact_started_running",
+      "timestamp": 1740565630.895599
+    },
+    {
+      "event": "Artifact saver exited from aws-beta#4724",
+      "type": "artifact_stopped_running",
+      "timestamp": 1740603983.9305794
+    }
+  ],
+
+
