@@ -24,10 +24,30 @@ DONE: Check the "kosli diff snapshots" sees a difference
         }
 
 
-Create a custom-attestation promotion type in kosli-attestation-types repo.
-  Name?
 
-Work on candidates.sh
+MVP DONE
+--------
+- No custom attestation
+- Manually triggered workflow
+- What is the Trail name? github sha not good. Timestamp?
+- [make candidates] runs inside the workflow, prints what it will do as well as creating json files
+- How to iterate N times in bash
+  for a in $(seq 0 $(( ${artifacts_length} - 1 )))
+  doesn't work when artifacts_length==0
+
+MVP DOING
+---------
+- Figure out how to pass name of all services to matrix
+- All deployments in parallel via matrix
+- Turn off dry-run
+
+LATER
+-----
+- do approval for each artifact in parallel via matrix
+- do custom attestation on overlapping time-period
+   - Does this also get attested on each Artifact? I guess so.
+- make workflow reusable, pass in all KOSLI arguments as inputs.
+
 
 In workflow, each Artifact will need (can these be done in parallel?):
 
@@ -45,8 +65,12 @@ In workflow, each Artifact will need (can these be done in parallel?):
 
 
 Then each artifact will need:
+
 - kosli report approval "${IMAGE_NAME}"
     --approver="${{ github.actor }}"
     --environment="${KOSLI_AWS_PROD}"
 
 Then each artifact can be deployed.
+
+Create a custom-attestation promotion type in kosli-attestation-types repo.
+  Name?

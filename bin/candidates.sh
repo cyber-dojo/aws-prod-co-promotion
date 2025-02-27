@@ -19,7 +19,14 @@ show_help()
     Use: ${MY_NAME}
 
     Overview:
-      TODO
+    Uses the Kosli CLI to find which Artifacts are running in cyber-dojo's https://beta.cyber-dojo.org
+    AWS staging environment that are NOT also running in cyber-dojo's https://cyber-dojo.org AWS prod environment.
+    Creates a json file in the bin/json/ directory containing information on each Artifact. Viz, the Artifact's
+    full name (in its AWS ECR registry), it fingerprint (sha256 digest), and its service-name. Eg
+
+             name: 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0...7a5b6ef
+      fingerprint: b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+          service: saver
 
 EOF
 }
@@ -50,7 +57,7 @@ candidates()
 #      --api-token="${KOSLI_API_TOKEN}" \
 #       --output=json)"
 
-  diff="$(cat "${ROOT_DIR}/docs/snapshot-diff.json")"
+  diff="$(cat "${ROOT_DIR}/docs/empty-diff-snapshot.json")"
   from="$(echo "${diff}" | jq -r '.snappish1.snapshot_id')"
   to="$(echo "${diff}" | jq -r '.snappish2.snapshot_id')"
 
@@ -58,15 +65,24 @@ candidates()
   echo "  TO: ${to}"
 
   local -r artifacts_length=$(echo "${diff}" | jq -r '.snappish1.artifacts | length')
-  for a in $(seq 0 $(( ${artifacts_length} - 1 )))
+  for ((n=0; n < ${artifacts_length}; n++))
   do
-      artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$a]")"
-      name="$(echo "${artifact}" | jq -r '.name')"
-      fingerprint="$(echo "${artifact}" | jq -r '.fingerprint')"
-      echo "${name}"
-      echo "${fingerprint}"
+      artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$n]")"  # eg {...}
+      name="$(echo "${artifact}" | jq -r '.name')"                     # eg 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+      fingerprint="$(echo "${artifact}" | jq -r '.fingerprint')"       # eg b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+      flow="$(echo "${artifact}" | jq -r '.flow')"                     # eg saver-ci
+      service="${flow::-3}"                                            # eg saver
+      filename="${ROOT_DIR}/bin/json/${service}.json"
+      {
+        echo '{'
+        echo "  \"flow\": \"${flow}\","
+        echo "  \"service\": \"${service}\","
+        echo "  \"fingerprint\": \"${fingerprint}\""
+        echo "  \"name\": \"${name}\","
+        echo '}'
+      } > "${filename}"
+      cat "${filename}"
   done
-
 }
 
 candidates "$@"

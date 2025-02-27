@@ -1,7 +1,7 @@
 name: Main
 
 on:
-  push:
+  workflow_dispatch:
 
 env:
   KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
@@ -11,12 +11,11 @@ env:
   KOSLI_DRY_RUN:   true # ${{ vars.KOSLI_DRY_RUN }}           # false
   KOSLI_HOST:      ${{ vars.KOSLI_HOST }}              # https://app.kosli.com
   KOSLI_ORG:       ${{ vars.KOSLI_ORG }}               # cyber-dojo
-  KOSLI_FLOW:      ${{ vars.KOSLI_FLOW }}
-  KOSLI_TRAIL:     ${{ github.sha }}
+  KOSLI_FLOW:      ${{ vars.KOSLI_FLOW }}              # prod-promotion
+#  KOSLI_TRAIL:     ${{ github.sha }}
 
   AWS_ECR_ID:          ${{ vars.AWS_ECR_ID }}
   AWS_REGION:          ${{ vars.AWS_REGION }}
-  AWS_ACCOUNT_ID_BETA: ${{ vars.AWS_ACCOUNT_ID_BETA }}
   AWS_ACCOUNT_ID_PROD: ${{ vars.AWS_ACCOUNT_ID_PROD }}
 
 jobs:
@@ -24,11 +23,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: []
     outputs:
-      aws_account_id_beta:      ${{ steps.vars.outputs.aws_account_id_beta }}
       aws_account_id_prod:      ${{ steps.vars.outputs.aws_account_id_prod }}
       ecr_registry:             ${{ steps.vars.outputs.ecr_registry }}
       aws_region:               ${{ steps.vars.outputs.aws_region }}
       gh_actions_iam_role_name: ${{ steps.vars.outputs.gh_actions_iam_role_name }}
+      kosli_trail:              ${{ steps.vars.outputs.kosli_trail }}
       service:                  dashboard
       image_name:               244531986313.dkr.ecr.eu-central-1.amazonaws.com/dashboard:2f08b66@sha256:758b92c52b1081a174428f2f86de38726853e48758d9e268bb36cc5df6890cf9
       fingerprint:              758b92c52b1081a174428f2f86de38726853e48758d9e268bb36cc5df6890cf9
@@ -55,15 +54,30 @@ jobs:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest pull-request evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' }}
-        run:
+        run: |
+          export KOSLI_TRAIL="$(date +"%Y-%m-%d-T-%H-%M-%S")"   
+          echo "kosli_trail="${KOSLI_TRAIL}" >> ${GITHUB_OUTPUT}
           kosli begin trail "${KOSLI_TRAIL}"
 
 
-  attest-promotion:
+  find-artifacts-to-be-deployed:
     needs: [setup]
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Generate json file for each deployment
+        run:
+          make candidates
+
+
+  attest-artifacts:
+    needs: [find-artifacts-to-be-deployed]
+    runs-on: ubuntu-latest
     env:
+      KOSLI_TRAIL:       ${{ needs.setup.outputs.kosli_trail }}
       KOSLI_FINGERPRINT: ${{ needs.setup.outputs.fingerprint }}
       SERVICE:           ${{ needs.setup.outputs.service }}
     steps:
@@ -77,7 +91,6 @@ jobs:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest promotion to Kosli
-        if: ${{ github.ref == 'refs/heads/main' }}
         run:
           kosli attest artifact "${KOSLI_FINGERPRINT}" 
             --name="${SERVICE}"
@@ -85,9 +98,10 @@ jobs:
           
 
   sdlc-control-gate:
-    needs: [setup, attest-promotion]
+    needs: [setup, attest-artifacts]
     runs-on: ubuntu-latest
     env:
+      KOSLI_TRAIL:       ${{ needs.setup.outputs.kosli_trail }}
       KOSLI_FINGERPRINT: ${{ needs.setup.outputs.fingerprint }}
     steps:
       - uses: actions/checkout@v4
@@ -100,16 +114,16 @@ jobs:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Kosli SDLC gate to short-circuit the workflow
-        if: ${{ github.ref == 'refs/heads/main' }}
         run:
           kosli assert artifact "${KOSLI_FINGERPRINT}" 
             --environment="${KOSLI_AWS_PROD}"
 
 
-  approve-deployment:
+  approve-deployment-to-prod:
     needs: [setup, sdlc-control-gate]
     runs-on: ubuntu-latest
     env:
+      KOSLI_TRAIL:       ${{ needs.setup.outputs.kosli_trail }}
       KOSLI_FINGERPRINT: ${{ needs.setup.outputs.fingerprint }}
     steps:
       - uses: actions/checkout@v4
@@ -122,15 +136,14 @@ jobs:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Attest pull-request evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' }}
         run:
           kosli report approval "${KOSLI_FINGERPRINT}"
             --approver="${{ github.actor }}"
             --environment="${KOSLI_AWS_PROD}"
 
 
-  promote:
-    needs: [setup, approve-deployment]
+  deploy-to-prod:
+    needs: [setup, approve-deployment-to-prod]
     permissions:
       id-token: write
       contents: write
