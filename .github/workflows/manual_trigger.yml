@@ -5,6 +5,7 @@ on:
 
 jobs:
   setup:
+    needs: []
     runs-on: ubuntu-latest
     outputs:
       kosli_trail: ${{ steps.vars.outputs.kosli_trail }}
@@ -16,6 +17,7 @@ jobs:
 
   trigger:
     needs: [setup]
+    runs-on: ubuntu-latest
     uses: ./.github/workflows/main.yml
     with:
       KOSLI_TRAIL: ${{ needs.setup.outputs.kosli_trail }}
