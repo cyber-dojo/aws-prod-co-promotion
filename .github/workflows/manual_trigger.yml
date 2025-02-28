@@ -13,7 +13,7 @@ jobs:
       - name: Set the kosli-trail env-var
         id: vars
         run:
-          echo "kosli_trail=$($(date +"%Y-%m-%d-T-%H-%M-%S"))" >> ${GITHUB_OUTPUT}
+          echo "kosli_trail=$(date +"%Y-%m-%d-T-%H-%M-%S")" >> ${GITHUB_OUTPUT}
 
   trigger:
     needs: [setup]
