@@ -89,10 +89,20 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
     steps:
+      - name: Show parameters
+        run: | 
+          echo "       name=${{ matrix.name }}"
+          echo "    service=${{ matrix.service }}"
+          echo "fingerprint=${{ matrix.fingerprint }}"
+
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
+
+      - uses: actions/checkout@v4  # Needed for [kosli attest artifact] & [kosli report approval]
+        with:
+          fetch-depth: 1
 
       - name: Attest promotion to Kosli  # Needed for [kosli assert artifact]
         run:
@@ -101,18 +111,10 @@ jobs:
             --name="${{ matrix.service }}"
 
       - name: Assert Artifact is compliant for aws-prod
-        run: | 
-          echo "       name=${{ matrix.name }}"
-          echo "    service=${{ matrix.service }}"
-          echo "fingerprint=${{ matrix.fingerprint }}"
-          
-          kosli assert artifact \
-            --fingerprint="${{ matrix.fingerprint }}" \
+        run:
+          kosli assert artifact
+            --fingerprint="${{ matrix.fingerprint }}"
             --environment="${KOSLI_AWS_PROD}"
-
-      - uses: actions/checkout@v4  # Needed for kosli-report-approval
-        with:
-          fetch-depth: 1
 
       - name: Report approval to Kosli
         run:
