@@ -43,10 +43,12 @@ MVP DOING
 
 LATER
 -----
+- check each service has only Artifact running in aws-beta (not mid blue/green deployment)
 - do approval for each artifact in parallel via matrix
 - do custom attestation on overlapping time-period
    - Does this also get attested on each Artifact? I guess so.
 - make workflow reusable, pass in all KOSLI arguments as inputs.
+   - Passing in KOSLI_TRAIL will simplify setup: job
 
 
 In workflow, each Artifact will need (can these be done in parallel?):

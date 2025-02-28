@@ -21,7 +21,7 @@ show_help()
     Overview:
     Uses the Kosli CLI to find which Artifacts are running in cyber-dojo's https://beta.cyber-dojo.org
     AWS staging environment that are NOT also running in cyber-dojo's https://cyber-dojo.org AWS prod environment.
-    Creates a json file in the bin/json/ directory containing information on each Artifact. Viz, the Artifact's
+    Creates a json file in the bin/json/ directory for on each Artifact. Viz, the Artifact's
     full name (in its AWS ECR registry), it fingerprint (sha256 digest), and its service-name. Eg
 
              name: 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0...7a5b6ef
