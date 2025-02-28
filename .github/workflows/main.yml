@@ -89,22 +89,16 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
     steps:
-      - name: Show parameters
-        run: | 
-          echo "       name=${{ matrix.name }}"
-          echo "    service=${{ matrix.service }}"
-          echo "fingerprint=${{ matrix.fingerprint }}"
-
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - uses: actions/checkout@v4  # Needed for [kosli attest artifact] & [kosli report approval]
+      - uses: actions/checkout@v4  # Currently needed for [kosli attest artifact] & [kosli report approval]
         with:
           fetch-depth: 1
 
-      - name: Attest promotion to Kosli  # Needed for [kosli assert artifact]
+      - name: Attest promotion to Kosli  # Currently needed for [kosli assert artifact]
         run:
           kosli attest artifact "${{ matrix.name }}"
             --fingerprint="${{ matrix.fingerprint }}"
