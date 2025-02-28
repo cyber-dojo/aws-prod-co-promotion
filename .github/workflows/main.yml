@@ -27,8 +27,8 @@ env:
 
 jobs:
   setup:
-    runs-on: ubuntu-latest
     needs: []
+    runs-on: ubuntu-latest
     outputs:
       aws_account_id_prod:      ${{ steps.vars.outputs.aws_account_id_prod }}
       ecr_registry:             ${{ steps.vars.outputs.ecr_registry }}
@@ -112,6 +112,7 @@ jobs:
 
   deploy-to-prod:
     needs: [setup, find-artifacts, sdlc-control-gate]
+    runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
     steps:
