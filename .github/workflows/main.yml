@@ -96,7 +96,7 @@ jobs:
 
       - name: Attest promotion to Kosli  # Needed for [kosli assert artifact]
         run:
-          kosli attest artifact
+          kosli attest artifact "${{ matrix.name }}"
             --fingerprint="${{ matrix.fingerprint }}"
             --name="${{ matrix.service }}"
 
