@@ -15,7 +15,7 @@ env:
   KOSLI_AWS_BETA:  ${{ vars.KOSLI_AWS_BETA }}          # aws-beta
   KOSLI_AWS_PROD:  ${{ vars.KOSLI_AWS_PROD }}          # aws-prod
   KOSLI_DEBUG:     ${{ vars.KOSLI_DEBUG }}             # true/false
-  KOSLI_DRY_RUN:   true # ${{ vars.KOSLI_DRY_RUN }}           # false
+  KOSLI_DRY_RUN:   ${{ vars.KOSLI_DRY_RUN }}           # false
   KOSLI_HOST:      ${{ vars.KOSLI_HOST }}              # https://app.kosli.com
   KOSLI_ORG:       ${{ vars.KOSLI_ORG }}               # cyber-dojo
   KOSLI_FLOW:      ${{ vars.KOSLI_FLOW }}              # aws-prod-co-promotion
@@ -94,6 +94,12 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
+      - name: Attest promotion to Kosli  # Needed for [kosli assert artifact]
+        run:
+          kosli attest artifact
+            --fingerprint="${{ matrix.fingerprint }}"
+            --name="${{ matrix.service }}"
+
       - name: Assert Artifact is compliant for aws-prod
         run: | 
           echo "       name=${{ matrix.name }}"
@@ -104,11 +110,9 @@ jobs:
             --fingerprint="${{ matrix.fingerprint }}" \
             --environment="${KOSLI_AWS_PROD}"
 
-      - name: Attest promotion to Kosli
-        run:
-          kosli attest artifact
-            --fingerprint="${{ matrix.fingerprint }}"
-            --name="${{ matrix.service }}"
+      - uses: actions/checkout@v4  # Needed for kosli-report-approval
+        with:
+          fetch-depth: 1
 
       - name: Report approval to Kosli
         run:
