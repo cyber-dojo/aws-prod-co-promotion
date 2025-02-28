@@ -100,17 +100,20 @@ jobs:
           echo "    service=${{ matrix.service }}"
           echo "fingerprint=${{ matrix.fingerprint }}"
           
-          kosli assert artifact "${{ matrix.fingerprint }}" 
+          kosli assert artifact \
+            --fingerprint="${{ matrix.fingerprint }}" \
             --environment="${KOSLI_AWS_PROD}"
 
       - name: Attest promotion to Kosli
         run:
-          kosli attest artifact "${{ matrix.fingerprint }}" 
+          kosli attest artifact
+            --fingerprint="${{ matrix.fingerprint }}"
             --name="${{ matrix.service }}"
 
       - name: Report approval to Kosli
         run:
-          kosli report approval "${{ matrix.fingerprint }}"
+          kosli report approval
+            --fingerprint="${{ matrix.fingerprint }}"
             --approver="${{ github.actor }}"
             --environment="${KOSLI_AWS_PROD}"
 
