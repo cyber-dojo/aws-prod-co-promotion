@@ -74,7 +74,7 @@ jobs:
       - name: Generate json file for each deployment
         id: vars
         run: |
-          make find_artifacts
+          make find-artifacts
           echo "matrix_include=$(cat ./bin/json/matrix-include.json)" >> ${GITHUB_OUTPUT}
 
 
