@@ -1,0 +1,27 @@
+name: Manual Trigger
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      kosli_trail: ${{ steps.vars.outputs.kosli_trail }}
+    steps:
+      - name: Set the kosli-trail env-var
+        id: vars
+        run:
+          echo "kosli_trail=$($(date +"%Y-%m-%d-T-%H-%M-%S"))" >> ${GITHUB_OUTPUT}
+
+  trigger:
+    needs: [setup]
+    uses: ./.github/workflows/main.yml
+    with:
+      KOSLI_TRAIL: ${{ needs.setup.outputs.kosli_trail }}
+    secrets:
+      DOCKER_USER:     ${{ secrets.DOCKER_USER }}
+      DOCKER_PASS:     ${{ secrets.DOCKER_PASS }}
+      KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
+
+

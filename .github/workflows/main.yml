@@ -1,7 +1,18 @@
 name: Main
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      KOSLI_TRAIL:
+        required: true
+        type: string
+    secrets:
+      DOCKER_USER:
+        required: true
+      DOCKER_PASS:
+        required: true
+      KOSLI_API_TOKEN:
+        required: true
 
 env:
   KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
@@ -12,7 +23,7 @@ env:
   KOSLI_HOST:      ${{ vars.KOSLI_HOST }}              # https://app.kosli.com
   KOSLI_ORG:       ${{ vars.KOSLI_ORG }}               # cyber-dojo
   KOSLI_FLOW:      ${{ vars.KOSLI_FLOW }}              # aws-prod-co-promotion
-#  KOSLI_TRAIL:     ${{ github.sha }}
+  KOSLI_TRAIL:     ${{ inputs.kosli_trail }}
 
   AWS_ECR_ID:          ${{ vars.AWS_ECR_ID }}
   AWS_REGION:          ${{ vars.AWS_REGION }}
@@ -27,7 +38,6 @@ jobs:
       ecr_registry:             ${{ steps.vars.outputs.ecr_registry }}
       aws_region:               ${{ steps.vars.outputs.aws_region }}
       gh_actions_iam_role_name: ${{ steps.vars.outputs.gh_actions_iam_role_name }}
-      kosli_trail:              ${{ steps.vars.outputs.kosli_trail }}
       service:                  dashboard
       image_name:               244531986313.dkr.ecr.eu-central-1.amazonaws.com/dashboard:2f08b66@sha256:758b92c52b1081a174428f2f86de38726853e48758d9e268bb36cc5df6890cf9
       fingerprint:              758b92c52b1081a174428f2f86de38726853e48758d9e268bb36cc5df6890cf9
@@ -53,10 +63,8 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Attest pull-request evidence to Kosli
-        run: |
-          export KOSLI_TRAIL="$(date +"%Y-%m-%d-T-%H-%M-%S")"   
-          echo "kosli_trail="${KOSLI_TRAIL}" >> ${GITHUB_OUTPUT}
+      - name: Begin Kosli Trail
+        run:
           kosli begin trail "${KOSLI_TRAIL}"
 
 
