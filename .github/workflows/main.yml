@@ -7,10 +7,6 @@ on:
         required: true
         type: string
     secrets:
-      DOCKER_USER:
-        required: true
-      DOCKER_PASS:
-        required: true
       KOSLI_API_TOKEN:
         required: true
 
@@ -38,9 +34,6 @@ jobs:
       ecr_registry:             ${{ steps.vars.outputs.ecr_registry }}
       aws_region:               ${{ steps.vars.outputs.aws_region }}
       gh_actions_iam_role_name: ${{ steps.vars.outputs.gh_actions_iam_role_name }}
-      service:                  dashboard
-      image_name:               244531986313.dkr.ecr.eu-central-1.amazonaws.com/dashboard:2f08b66@sha256:758b92c52b1081a174428f2f86de38726853e48758d9e268bb36cc5df6890cf9
-      fingerprint:              758b92c52b1081a174428f2f86de38726853e48758d9e268bb36cc5df6890cf9
 
     steps:
       - uses: actions/checkout@v4
@@ -68,123 +61,84 @@ jobs:
           kosli begin trail "${KOSLI_TRAIL}"
 
 
-  find-artifacts-to-be-deployed:
-    needs: [setup]
+  find-artifacts:
+    needs: []
     runs-on: ubuntu-latest
+    outputs:
+      matrix_include: "${{ steps.vars.outputs.matrix_include }}"
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
       - name: Generate json file for each deployment
-        run:
-          make candidates
+        id: vars
+        run: |
+          make find_artifacts
+          echo "matrix_include=$(cat ./bin/json/matrix-include.json)" >> ${GITHUB_OUTPUT}
 
 
-  attest-artifacts:
-    needs: [find-artifacts-to-be-deployed]
+  sdlc-control-gate:
+    needs: [find-artifacts]
     runs-on: ubuntu-latest
-    env:
-      KOSLI_TRAIL:       ${{ needs.setup.outputs.kosli_trail }}
-      KOSLI_FINGERPRINT: ${{ needs.setup.outputs.fingerprint }}
-      SERVICE:           ${{ needs.setup.outputs.service }}
+    strategy:
+      matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
+
+      - name: Assert Artifact is compliant for aws-prod
+        run: | 
+          echo "       name=${{ matrix.name }}"
+          echo "    service=${{ matrix.service }}"
+          echo "fingerprint=${{ matrix.fingerprint }}"
+          
+          kosli assert artifact "${{ matrix.fingerprint }}" 
+            --environment="${KOSLI_AWS_PROD}"
 
       - name: Attest promotion to Kosli
         run:
-          kosli attest artifact "${KOSLI_FINGERPRINT}" 
-            --name="${SERVICE}"
-            --dry-run=true
-          
+          kosli attest artifact "${{ matrix.fingerprint }}" 
+            --name="${{ matrix.service }}"
 
-  sdlc-control-gate:
-    needs: [setup, attest-artifacts]
-    runs-on: ubuntu-latest
-    env:
-      KOSLI_TRAIL:       ${{ needs.setup.outputs.kosli_trail }}
-      KOSLI_FINGERPRINT: ${{ needs.setup.outputs.fingerprint }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v2
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
-
-      - name: Kosli SDLC gate to short-circuit the workflow
+      - name: Report approval to Kosli
         run:
-          kosli assert artifact "${KOSLI_FINGERPRINT}" 
-            --environment="${KOSLI_AWS_PROD}"
-
-
-  approve-deployment-to-prod:
-    needs: [setup, sdlc-control-gate]
-    runs-on: ubuntu-latest
-    env:
-      KOSLI_TRAIL:       ${{ needs.setup.outputs.kosli_trail }}
-      KOSLI_FINGERPRINT: ${{ needs.setup.outputs.fingerprint }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v2
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
-
-      - name: Attest pull-request evidence to Kosli
-        run:
-          kosli report approval "${KOSLI_FINGERPRINT}"
+          kosli report approval "${{ matrix.fingerprint }}"
             --approver="${{ github.actor }}"
             --environment="${KOSLI_AWS_PROD}"
 
 
   deploy-to-prod:
-    needs: [setup, approve-deployment-to-prod]
-    permissions:
-      id-token: write
-      contents: write
-    uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.22
-    with:
-      checkout_repository:    "cyber-dojo/dashboard"
-      aws_region:             ${{ needs.setup.outputs.aws_region }}
-      aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
-      aws_default_region:     ${{ needs.setup.outputs.aws_region }}
-      aws_role_duration:      900
-      working_directory:      deployment/terraform/
-      tf_apply:               true
-      tf_version:             v1.9.1
-      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ needs.setup.outputs.image_name }}"}'
+    needs: [setup, find-artifacts, sdlc-control-gate]
+    strategy:
+      matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
+    steps:
+      - name: Dummy deployment
+        run: |
+          echo "       name=${{ matrix.name }}"
+          echo "       flow=${{ matrix.flow }}"
+          echo "    service=${{ matrix.service }}"
+          echo "fingerprint=${{ matrix.fingerprint }}"
 
 
-
-#  JOB showing matrix: parallelization
-#  deploy-static:
-#    needs: [build, assert-artifact]
-#    if: ${{ github.ref == 'refs/heads/master' }}
-#    uses: kosli-dev/server/.github/workflows/upload-static-template.yml@master
+#  deploy-to-prod:
+#    needs: [setup, find-artifacts, sdlc-control-gate]
 #    strategy:
-#      fail-fast: false
-#      matrix:
-#        environment: [staging, azure-staging]
-#        include:
-#          - AWS_ACCOUNT_ID: 772819027869
-#            environment: staging
-#          - AWS_ACCOUNT_ID: 749993776354
-#            environment: azure-staging
+#      matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
+#    permissions:
+#      id-token: write
+#      contents: write
+#    uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.22
 #    with:
-#      AWS_ACCOUNT_ID: ${{ matrix.AWS_ACCOUNT_ID }}
-#      AWS_REGION: eu-central-1
-#      ARTIFACTS_BUCKET_NAME: ${{ vars.ARTIFACTS_BUCKET_NAME }}
-#      TAG: ${{ needs.build.outputs.tag }}
+#      checkout_repository:    "cyber-dojo/${{ matrix.service }}"
+#      aws_region:             ${{ needs.setup.outputs.aws_region }}
+#      aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
+#      aws_default_region:     ${{ needs.setup.outputs.aws_region }}
+#      aws_role_duration:      900
+#      working_directory:      deployment/terraform/
+#      tf_apply:               true
+#      tf_version:             v1.9.1
+#      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.name }}"}'
+

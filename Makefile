@@ -1,3 +1,3 @@
 
-candidates:
-	@${PWD}/bin/candidates.sh
+find-artifacts:
+	@${PWD}/bin/find-artifacts.sh

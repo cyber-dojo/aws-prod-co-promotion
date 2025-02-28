@@ -20,8 +20,6 @@ jobs:
     with:
       KOSLI_TRAIL: ${{ needs.setup.outputs.kosli_trail }}
     secrets:
-      DOCKER_USER:     ${{ secrets.DOCKER_USER }}
-      DOCKER_PASS:     ${{ secrets.DOCKER_PASS }}
       KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
 
 
