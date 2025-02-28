@@ -71,6 +71,11 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Setup Kosli CLI
+        uses: kosli-dev/setup-cli-action@v2
+        with:
+          version: ${{ vars.KOSLI_CLI_VERSION }}
+
       - name: Generate json file for each deployment
         id: vars
         run: |
