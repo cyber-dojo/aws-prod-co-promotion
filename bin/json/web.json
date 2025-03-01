@@ -2,5 +2,6 @@
   "flow": "web-ci",
   "service": "web",
   "fingerprint": "02cfa72b7907e22c3ff2dd66138f307945a28e26519077f5770eb6ce176f41c4",
+  "commit_sha": "59ba013400d06f9fe56b3ff516271bca2523c5c2",
   "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:59ba013@sha256:02cfa72b7907e22c3ff2dd66138f307945a28e26519077f5770eb6ce176f41c4"
 }

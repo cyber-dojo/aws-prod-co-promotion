@@ -2,5 +2,6 @@
   "flow": "saver-ci",
   "service": "saver",
   "fingerprint": "b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef",
+  "commit_sha": "6e191a0a86cf3d264955c4910bc3b9df518c4bcd",
   "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef"
 }

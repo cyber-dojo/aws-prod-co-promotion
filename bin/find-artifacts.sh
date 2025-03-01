@@ -69,16 +69,21 @@ write_json_files()
   for ((n=0; n < ${artifacts_length}; n++))
   do
       artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$n]")"  # eg {...}
+      commit_url="$(echo "${artifact}" | jq -r '.commit_url')"         # eg https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+
       name="$(echo "${artifact}" | jq -r '.name')"                     # eg 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
       fingerprint="$(echo "${artifact}" | jq -r '.fingerprint')"       # eg b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
       flow="$(echo "${artifact}" | jq -r '.flow')"                     # eg saver-ci
       service="${flow::-3}"                                            # eg saver
+      commit_sha="${commit_url:(-40)}"                                 # eg 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+
       filename="${ROOT_DIR}/bin/json/${service}.json"
       {
         echo '{'
         echo "  \"flow\": \"${flow}\","
         echo "  \"service\": \"${service}\","
         echo "  \"fingerprint\": \"${fingerprint}\","
+        echo "  \"commit_sha\": \"${commit_sha}\","
         echo "  \"name\": \"${name}\""
         echo '}'
       } > "${filename}"
@@ -98,15 +103,19 @@ write_matrix_include_file()
 
         separator=","
         artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$n]")"  # eg {...}
+        commit_url="$(echo "${artifact}" | jq -r '.commit_url')"         # eg https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+
         name="$(echo "${artifact}" | jq -r '.name')"                     # eg 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
         fingerprint="$(echo "${artifact}" | jq -r '.fingerprint')"       # eg b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
         flow="$(echo "${artifact}" | jq -r '.flow')"                     # eg saver-ci
         service="${flow::-3}"                                            # eg saver
+        commit_sha="${commit_url:(-40)}"                                 # eg 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
 
         echo -n '{'
         echo -n "  \"flow\": \"${flow}\","
         echo -n "  \"service\": \"${service}\","
         echo -n "  \"fingerprint\": \"${fingerprint}\","
+        echo -n "  \"commit_sha\": \"${commit_sha}\","
         echo -n "  \"name\": \"${name}\""
         echo -n '}'
     done
