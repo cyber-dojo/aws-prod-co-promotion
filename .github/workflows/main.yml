@@ -135,10 +135,12 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - uses: actions/checkout@v4  # Needed for [kosli report approval]
+      # Needed for [kosli report approval]
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
+      # This approval does not appear in the Kosli Trail
       - name: Report approval to Kosli
         run:
           kosli report approval
@@ -180,11 +182,3 @@ jobs:
 #      tf_apply:               true
 #      tf_version:             v1.9.1
 #      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.name }}"}'
-
-#  approve-deployment:
-#    needs: [sdlc-control-gate]
-#    runs-on: ubuntu-latest
-#    environment:
-#      name: production
-#      url:  https://cyber-dojo.org
-#
