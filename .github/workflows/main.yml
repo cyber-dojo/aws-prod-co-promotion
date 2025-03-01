@@ -140,13 +140,14 @@ jobs:
         with:
           fetch-depth: 1
 
-      # This approval does not appear in the Kosli Trail
-      - name: Report approval to Kosli
-        run:
-          kosli report approval
-            --fingerprint="${{ matrix.fingerprint }}"
-            --approver="${{ github.actor }}"
-            --environment="${KOSLI_AWS_PROD}"
+# This approval does not appear in the Kosli Trail
+# This also requires a previous [kosli attest artifact]
+#      - name: Report approval to Kosli
+#        run:
+#          kosli report approval
+#            --fingerprint="${{ matrix.fingerprint }}"
+#            --approver="${{ github.actor }}"
+#            --environment="${KOSLI_AWS_PROD}"
 
 
   deploy-to-prod:
