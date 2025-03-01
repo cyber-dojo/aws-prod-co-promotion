@@ -128,6 +128,5 @@ write_matrix_include_file()
 }
 
 check_args "$@"
-set -x
 write_json_files "$@"
 write_matrix_include_file "$@"
