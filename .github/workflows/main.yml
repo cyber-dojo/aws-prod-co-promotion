@@ -151,34 +151,34 @@ jobs:
 
   deploy-to-prod:
     needs: [setup, find-artifacts, approve]
-    runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
-    steps:
-      - name: Dummy deployment
-        run: |
-          echo "       name=${{ matrix.name }}"
-          echo "       flow=${{ matrix.flow }}"
-          echo "    service=${{ matrix.service }}"
-          echo " commit_sha=${{ matrix.commit_sha }}"
-          echo "fingerprint=${{ matrix.fingerprint }}"
+    permissions:
+      id-token: write
+      contents: write
+    uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.22
+    with:
+      checkout_repository:    "cyber-dojo/${{ matrix.service }}"
+      aws_region:             ${{ needs.setup.outputs.aws_region }}
+      aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
+      aws_default_region:     ${{ needs.setup.outputs.aws_region }}
+      aws_role_duration:      900
+      working_directory:      deployment/terraform/
+      tf_apply:               true
+      tf_version:             v1.9.1
+      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.name }}"}'
 
 
 #  deploy-to-prod:
 #    needs: [setup, find-artifacts, approve]
+#    runs-on: ubuntu-latest
 #    strategy:
 #      matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
-#    permissions:
-#      id-token: write
-#      contents: write
-#    uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.22
-#    with:
-#      checkout_repository:    "cyber-dojo/${{ matrix.service }}"
-#      aws_region:             ${{ needs.setup.outputs.aws_region }}
-#      aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
-#      aws_default_region:     ${{ needs.setup.outputs.aws_region }}
-#      aws_role_duration:      900
-#      working_directory:      deployment/terraform/
-#      tf_apply:               true
-#      tf_version:             v1.9.1
-#      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.name }}"}'
+#    steps:
+#      - name: Dummy deployment
+#        run: |
+#          echo "       name=${{ matrix.name }}"
+#          echo "       flow=${{ matrix.flow }}"
+#          echo "    service=${{ matrix.service }}"
+#          echo " commit_sha=${{ matrix.commit_sha }}"
+#          echo "fingerprint=${{ matrix.fingerprint }}"
