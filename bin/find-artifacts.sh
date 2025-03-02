@@ -12,7 +12,6 @@ KOSLI_AWS_BETA="${KOSLI_AWS_BETA:-aws-beta}"
 KOSLI_AWS_PROD="${KOSLI_AWS_PROD:-aws-prod}"
 
 diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
-    --debug=false \
     --host="${KOSLI_HOST}" \
     --org="${KOSLI_ORG}" \
     --api-token="${KOSLI_API_TOKEN}" \
