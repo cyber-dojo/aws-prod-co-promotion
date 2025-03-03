@@ -27,3 +27,27 @@ all (at the same time) from the former to latter.
     Also creates the file 'matrix-include.json' ready to be used in a
     Github Action matrix to run a parallel job for each Artifact.
 ```
+
+After the workflow has completed there should be no difference between the Artifacts
+running in https://beta.cyber-dojo.org and https://cyber-dojo.org
+(unless new Artifacts have appeared in the former during the promotion!)
+
+You can check this by running:
+```bash
+make find_artifacts
+```
+which prints the current latest Kosli snapshot number for 
+[aws-beta](https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/) which is the Kosli Environment for https://beta.cyber-dojo.org and
+[aws-prod](https://app.kosli.com/cyber-dojo/environments/aws-prod/snapshots/) which is the Kosli Environment for https://cyber-dojo.org
+For example:
+```bash
+FROM: aws-beta#4754
+  TO: aws-prod#3553
+```
+
+together with the contents of the matrix-include.json file which should be an empty list, eg
+```json
+{
+  "include": []
+}
+```
