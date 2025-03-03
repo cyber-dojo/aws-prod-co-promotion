@@ -9,7 +9,7 @@ all (at the same time) from the former to latter.
 ```
 
 ```
-    Use: find-artifacts.sh
+    Use: find_artifacts.sh
 
     Uses the Kosli CLI to find which Artifacts are running in cyber-dojo's
     https://beta.cyber-dojo.org AWS staging environment that are NOT also

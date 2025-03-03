@@ -77,7 +77,7 @@ jobs:
       - name: Generate Artifact json for each entry in following job's matrix-include
         id: vars
         run: |
-          make find-artifacts
+          make find_artifacts
           echo "matrix_include=$(cat ./json/matrix-include.json)" >> ${GITHUB_OUTPUT}
 
 

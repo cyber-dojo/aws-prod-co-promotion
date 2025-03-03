@@ -1,3 +1,3 @@
 
-find-artifacts:
-	@${PWD}/bin/find-artifacts.sh
+find_artifacts:
+	@${PWD}/bin/find_artifacts.sh
