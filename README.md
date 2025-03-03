@@ -8,7 +8,7 @@ Workflow to find out which Artifacts:
 - deploy them all, at the same time, into the latter.
 
 ```shell
-./bin/find_artifacts.sh --help
+$ ./bin/find_artifacts.sh --help
 ```
 
 ```
@@ -27,32 +27,64 @@ Workflow to find out which Artifacts:
           "service": "saver"
     }
 
-    Also creates the file 'matrix-include.json' ready to be used in a
-    Github Action matrix to run a parallel job for each Artifact.
+    Also creates (and prints) the file 'matrix-include.json' ready to be used in
+    a Github Action matrix to run a parallel job for each Artifact.
 ```
 
-After the workflow has completed there should be no difference between the Artifacts
-running in https://beta.cyber-dojo.org and https://cyber-dojo.org
-(unless new Artifacts have appeared in the former during the promotion!)
+Example where four Artifacts were found:
 
-You can check this by running:
+```bash
+$ make find_artifacts
+```
+
+```json
+{
+  "include": [
+    {
+      "flow": "nginx-ci",
+      "service": "nginx",
+      "fingerprint": "0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
+      "repo_url": "https://github.com/cyber-dojo/nginx/",
+      "commit_sha": "fa32058a046015786d1589e16af7da0973f2e726",
+      "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:fa32058@sha256:0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1"
+    },
+    {
+      "flow": "web-ci",
+      "service": "web",
+      "fingerprint": "337fa91d02fa59729aca2941bbfebf999d1c5ae74b1492a4c99a33a925c7f052",
+      "repo_url": "https://github.com/cyber-dojo/web/",
+      "commit_sha": "ed1878bd4aba3cada1e6ae7bc510f6354c61c484",
+      "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:ed1878b@sha256:337fa91d02fa59729aca2941bbfebf999d1c5ae74b1492a4c99a33a925c7f052"
+    },
+    {
+      "flow": "custom-start-points-ci",
+      "service": "custom-start-points",
+      "fingerprint": "47849582a3804b2091b68e97dab36789e2346229df6d2c398c256a51c884e5ce",
+      "repo_url": "https://github.com/cyber-dojo/custom-start-points/",
+      "commit_sha": "df95ef1e16c367e9c1bda5de2b67c168ab17174b",
+      "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/custom-start-points:df95ef1@sha256:47849582a3804b2091b68e97dab36789e2346229df6d2c398c256a51c884e5ce"
+    },
+    {
+      "flow": "languages-start-points-ci",
+      "service": "languages-start-points",
+      "fingerprint": "8fc546c2adeec10f8a52201e8e7fea854a804a929ab692275b61cbce141c9182",
+      "repo_url": "https://github.com/cyber-dojo/languages-start-points/",
+      "commit_sha": "9c270699fa10888b1c270ae69f8c13988bc4a26b",
+      "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/languages-start-points:9c27069@sha256:8fc546c2adeec10f8a52201e8e7fea854a804a929ab692275b61cbce141c9182"
+    }
+  ]
+}
+```
+
+Example where NO Artifacts were found. This will occur once the deployments have occurred
+(unless new Artifacts have appeared in aws-beta during the promotion!)
+
 ```bash
 make find_artifacts
 ```
-which prints two things.
 
-1. the current latest Kosli snapshot numbers for 
-    [aws-beta](https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/) which is the Kosli Environment for https://beta.cyber-dojo.org and
-    [aws-prod](https://app.kosli.com/cyber-dojo/environments/aws-prod/snapshots/) which is the Kosli Environment for https://cyber-dojo.org
-    For example:
-    ```bash
-    FROM: aws-beta#4754
-      TO: aws-prod#3553
-    ```
-2. The contents of the matrix-include.json file which should be an empty list. 
-    For example:
-    ```json
-    {
-      "include": []
-    }
-    ```
+```json
+{
+  "include": []
+}
+```

@@ -65,12 +65,6 @@ check_args()
 
 write_json_files()
 {
-  from="$(echo "${diff}" | jq -r '.snappish1.snapshot_id')"
-  to="$(echo "${diff}" | jq -r '.snappish2.snapshot_id')"
-
-  echo "FROM: ${from}"
-  echo "  TO: ${to}"
-
   local -r artifacts_length=$(echo "${diff}" | jq -r '.snappish1.artifacts | length')
   for ((n=0; n < ${artifacts_length}; n++))
   do
@@ -133,7 +127,6 @@ write_matrix_include_file()
     echo -n ']}'
   } > "${matrix_include_filename}"
 
-  echo "matrix-include"
   cat "${matrix_include_filename}" | jq .
 }
 
