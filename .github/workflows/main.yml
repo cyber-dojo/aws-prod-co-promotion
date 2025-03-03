@@ -166,7 +166,7 @@ jobs:
       aws_default_region:     ${{ needs.setup.outputs.aws_region }}
       aws_role_duration:      900
       working_directory:      deployment/terraform/
-      tf_apply:               false
+      tf_apply:               true
       tf_version:             v1.9.1
       tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.name }}"}'
 
