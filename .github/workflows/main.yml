@@ -165,9 +165,12 @@ jobs:
       checkout_repository:    "cyber-dojo/nginx"
       checkout_commit_sha:    "fa32058a046015786d1589e16af7da0973f2e726"
       checkout_fetch_depth:   "0"
-      aws_region:             ${{ needs.setup.outputs.aws_region }}
-      aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
-      aws_default_region:     ${{ needs.setup.outputs.aws_region }}
+      # aws_region:             ${{ needs.setup.outputs.aws_region }}
+      aws_region:             eu-central-1
+      # aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
+      aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/gh_actions_services
+      # aws_default_region:     ${{ needs.setup.outputs.aws_region }}
+      aws_default_region:     eu-central-1
       aws_role_duration:      900
       working_directory:      deployment/terraform/
       tf_apply:               false
