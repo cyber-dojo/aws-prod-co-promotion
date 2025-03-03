@@ -11,13 +11,13 @@ KOSLI_API_TOKEN="${KOSLI_API_TOKEN:-read-only-dummy}"
 KOSLI_AWS_BETA="${KOSLI_AWS_BETA:-aws-beta}"
 KOSLI_AWS_PROD="${KOSLI_AWS_PROD:-aws-prod}"
 
-diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
-    --host="${KOSLI_HOST}" \
-    --org="${KOSLI_ORG}" \
-    --api-token="${KOSLI_API_TOKEN}" \
-    --output=json)"
+#diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
+#    --host="${KOSLI_HOST}" \
+#    --org="${KOSLI_ORG}" \
+#    --api-token="${KOSLI_API_TOKEN}" \
+#    --output=json)"
 
-#diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
+diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
 
 show_help()
 {
@@ -28,11 +28,12 @@ show_help()
 
     Uses the Kosli CLI to find which Artifacts are running in cyber-dojo's https://beta.cyber-dojo.org
     AWS staging environment that are NOT also running in cyber-dojo's https://cyber-dojo.org AWS prod environment.
-    Creates a json file in the bin/json/ directory for on each Artifact. Viz, the Artifact's
+    Creates a json file in the json/ directory for on each Artifact. Viz, the Artifact's
     full name (in its AWS ECR registry), it fingerprint (sha256 digest), its commit-sha, and its service-name. Eg
 
              name: 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:c3b308d@sha256:8bf657f...e2ea5eb
       fingerprint: 8bf657f7f47a4c32b2ffb0c650be2ced4de18e646309a4dfe11db22dfe2ea5eb
+         repo_url: https://github.com/cyber-dojo/saver/
        commit_sha: c3b308d153f3594afea873d0c55b86dae929a9c5
           service: saver
 
@@ -78,13 +79,16 @@ write_json_files()
       flow="$(echo "${artifact}" | jq -r '.flow')"                     # eg saver-ci
       service="${flow::-3}"                                            # eg saver
       commit_sha="${commit_url:(-40)}"                                 # eg 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+      repo_url="${commit_url:0:(-47)}"                                 # eg https://github.com/cyber-dojo/saver
 
-      filename="${ROOT_DIR}/bin/json/${service}.json"
+      filename="${ROOT_DIR}/json/${service}.json"
+
       {
         echo '{'
         echo "  \"flow\": \"${flow}\","
         echo "  \"service\": \"${service}\","
         echo "  \"fingerprint\": \"${fingerprint}\","
+        echo "  \"repo_url\": \"${repo_url}\","
         echo "  \"commit_sha\": \"${commit_sha}\","
         echo "  \"name\": \"${name}\""
         echo '}'
@@ -94,7 +98,7 @@ write_json_files()
 
 write_matrix_include_file()
 {
-  matrix_include_filename="${ROOT_DIR}/bin/json/matrix-include.json"
+  matrix_include_filename="${ROOT_DIR}/json/matrix-include.json"
   {
     separator=""
     echo -n '{"include": ['
@@ -102,8 +106,8 @@ write_matrix_include_file()
     for ((n=0; n < ${artifacts_length}; n++))
     do
         echo -n "${separator}"
-
         separator=","
+
         artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$n]")"  # eg {...}
         commit_url="$(echo "${artifact}" | jq -r '.commit_url')"         # eg https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
 
@@ -112,11 +116,13 @@ write_matrix_include_file()
         flow="$(echo "${artifact}" | jq -r '.flow')"                     # eg saver-ci
         service="${flow::-3}"                                            # eg saver
         commit_sha="${commit_url:(-40)}"                                 # eg 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+        repo_url="${commit_url:0:(-47)}"                                 # eg https://github.com/cyber-dojo/saver
 
         echo -n '{'
         echo -n "  \"flow\": \"${flow}\","
         echo -n "  \"service\": \"${service}\","
         echo -n "  \"fingerprint\": \"${fingerprint}\","
+        echo -n "  \"repo_url\": \"${repo_url}\","
         echo -n "  \"commit_sha\": \"${commit_sha}\","
         echo -n "  \"name\": \"${name}\""
         echo -n '}'

@@ -2,6 +2,7 @@
   "flow": "web-ci",
   "service": "web",
   "fingerprint": "337fa91d02fa59729aca2941bbfebf999d1c5ae74b1492a4c99a33a925c7f052",
+  "repo_url": "https://github.com/cyber-dojo/web/",
   "commit_sha": "ed1878bd4aba3cada1e6ae7bc510f6354c61c484",
   "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:ed1878b@sha256:337fa91d02fa59729aca2941bbfebf999d1c5ae74b1492a4c99a33a925c7f052"
 }

@@ -2,6 +2,7 @@
   "flow": "nginx-ci",
   "service": "nginx",
   "fingerprint": "0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
+  "repo_url": "https://github.com/cyber-dojo/nginx/",
   "commit_sha": "fa32058a046015786d1589e16af7da0973f2e726",
   "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:fa32058@sha256:0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1"
 }

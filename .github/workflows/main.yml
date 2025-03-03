@@ -78,7 +78,7 @@ jobs:
         id: vars
         run: |
           make find-artifacts
-          echo "matrix_include=$(cat ./bin/json/matrix-include.json)" >> ${GITHUB_OUTPUT}
+          echo "matrix_include=$(cat ./json/matrix-include.json)" >> ${GITHUB_OUTPUT}
 
 
   sdlc-control-gate:
