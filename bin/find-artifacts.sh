@@ -31,7 +31,7 @@ show_help()
     Creates a json file in the json/ directory for each Artifact. Eg
 
     {
-             "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:c3b308d@sha256:8bf657f...e2ea5eb",
+             "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:c3b308d@sha256:8bf657f7f47a4c32b2ffb0c650be2ced4de18e646309a4dfe11db22dfe2ea5eb",
       "fingerprint": "8bf657f7f47a4c32b2ffb0c650be2ced4de18e646309a4dfe11db22dfe2ea5eb",
          "repo_url": "https://github.com/cyber-dojo/saver/",
        "commit_sha": "c3b308d153f3594afea873d0c55b86dae929a9c5",
