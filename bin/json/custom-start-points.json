@@ -1,0 +1,7 @@
+{
+  "flow": "custom-start-points-ci",
+  "service": "custom-start-points",
+  "fingerprint": "47849582a3804b2091b68e97dab36789e2346229df6d2c398c256a51c884e5ce",
+  "commit_sha": "df95ef1e16c367e9c1bda5de2b67c168ab17174b",
+  "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/custom-start-points:df95ef1@sha256:47849582a3804b2091b68e97dab36789e2346229df6d2c398c256a51c884e5ce"
+}

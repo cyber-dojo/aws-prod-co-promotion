@@ -1,0 +1,7 @@
+{
+  "flow": "languages-start-points-ci",
+  "service": "languages-start-points",
+  "fingerprint": "8fc546c2adeec10f8a52201e8e7fea854a804a929ab692275b61cbce141c9182",
+  "commit_sha": "9c270699fa10888b1c270ae69f8c13988bc4a26b",
+  "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/languages-start-points:9c27069@sha256:8fc546c2adeec10f8a52201e8e7fea854a804a929ab692275b61cbce141c9182"
+}
