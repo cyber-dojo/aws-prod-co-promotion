@@ -36,18 +36,19 @@ You can check this by running:
 ```bash
 make find_artifacts
 ```
-which prints the current latest Kosli snapshot number for 
-[aws-beta](https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/) which is the Kosli Environment for https://beta.cyber-dojo.org and
-[aws-prod](https://app.kosli.com/cyber-dojo/environments/aws-prod/snapshots/) which is the Kosli Environment for https://cyber-dojo.org
-For example:
-```bash
-FROM: aws-beta#4754
-  TO: aws-prod#3553
-```
+which prints two things.
 
-together with the contents of the matrix-include.json file which should be an empty list, eg
-```json
-{
-  "include": []
-}
-```
+1. the current latest Kosli snapshot number for 
+    [aws-beta](https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/) which is the Kosli Environment for https://beta.cyber-dojo.org and
+    [aws-prod](https://app.kosli.com/cyber-dojo/environments/aws-prod/snapshots/) which is the Kosli Environment for https://cyber-dojo.org
+    For example:
+    ```bash
+    FROM: aws-beta#4754
+      TO: aws-prod#3553
+    ```
+2. The contents of the matrix-include.json file which should be an empty list, eg
+    ```json
+    {
+      "include": []
+    }
+    ```
