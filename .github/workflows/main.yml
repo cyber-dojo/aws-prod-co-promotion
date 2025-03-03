@@ -168,7 +168,7 @@ jobs:
       # aws_region:             ${{ needs.setup.outputs.aws_region }}
       aws_region:             eu-central-1
       # aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
-      aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/gh_actions_services
+      aws_role_arn:           arn:aws:iam::274425519734:role/gh_actions_services
       # aws_default_region:     ${{ needs.setup.outputs.aws_region }}
       aws_default_region:     eu-central-1
       aws_role_duration:      900
