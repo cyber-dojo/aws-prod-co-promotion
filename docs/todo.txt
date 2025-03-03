@@ -5,24 +5,6 @@ DONE: Add KOSLI_FLOW repo-level Github Action env-var
 
 DONE: Make a forced change on saver (eg) and do not deploy to prod.
 DONE: Check the "kosli diff snapshots" sees a difference
-        {
-          "snappish1": {
-            "snapshot_id": "aws-beta#4967",
-            "artifacts": [
-              {
-                "fingerprint": "b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef",
-                "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef",
-                "most_recent_timestamp": 1740565629,
-                "flow": "saver-ci",
-                "commit_url": "https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd",
-                "instance_count": 1
-              }
-            ]
-          },
-          "snappish2": {
-          ...
-        }
-
 
 
 MVP DONE
@@ -35,18 +17,21 @@ MVP DONE
   for a in $(seq 0 $(( ${artifacts_length} - 1 )))
   doesn't work when artifacts_length==0
 - Figure out how to pass name of all services to matrix
+- Create a makefile target to create the magic-text for Github action matrix.
+    See https://github.com/cyber-dojo/ci-testing/blob/main/.github/workflows/matrix.yml
+- All deployments in parallel via matrix
+- Turn off dry-run
+- Add a manual approval step. Like used for each repo currently.
+
+
 
 MVP DOING
 ---------
-- Create a makefile target to create the magic-text for Github action matrix.
-    See https://github.com/cyber-dojo/ci-testing/blob/main/.github/workflows/matrix.yml
 - Do sdlc-control-gate job using matrix with [kosli assert artifact] in each parallel job
-- Add a manual approval step. Like used for each repo currently.
-- All deployments in parallel via matrix
-- Turn off dry-run
 
-LATER
------
+
+LATER?
+------
 - check each service has only one Artifact (for the service) running in aws-beta (not mid blue/green deployment)
 - do approval for each artifact in parallel via matrix
 - do custom attestation on overlapping time-period
@@ -55,28 +40,120 @@ LATER
    - Passing in KOSLI_TRAIL will simplify setup: job
 
 
-In workflow, each Artifact will need (can these be done in parallel?):
-
-- kosli attest artifact "${KOSLI_FINGERPRINT}" \
-      --name=NAME
-
-- kosli attest custom --type=????
-      --fingerprint="${KOSLI_FINGERPRINT}"
-      --attestation-data=????
-      --name=NAME.????
-
-- kosli assert artifact \
-      --fingerprint="${KOSLI_FINGERPRINT}" \
-      --environment="${KOSLI_AWS_PROD}"
 
 
-Then each artifact will need:
+CUSTOM-ATTESTATION
+------------------
+Ideally I would like to create a custom-attestation which record
+the time that all N artifacts ran in aws-beta together, at the same time.
+This should be possible.
+The API for an individual Artifact:
+https://app.kosli.com/api/v2/artifacts/cyber-dojo/saver-ci/fingerprint/b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef?trail=6e191a0a86cf3d264955c4910bc3b9df518c4bcd
 
-- kosli report approval "${IMAGE_NAME}"
-    --approver="${{ github.actor }}"
-    --environment="${KOSLI_AWS_PROD}"
+Gives you the json below.
+You can verify that the Artifact is still running in aws-beta (this one isn't)
+You can iterate through the events and find the sequence of time-periods when
+the Artifact was running in aws-beta.
 
-Then each artifact can be deployed.
+You can then find the common time-periods.
 
-Create a custom-attestation promotion type in kosli-attestation-types repo.
-  Name?
+This could be done as a script associated with the custom-attestation type.
+- In the kosli-attestation-types repo.
+- Script in what language? bash?
+- Script will create json in format matching the schema for the cat.
+- Can add shunit2 tests
+
+This would make another nice blog post.
+
+Next step after this would be to run the script inside the workflow
+  which could be triggered manually.
+
+Next step after this would be to be able to do things more directly from the Kosli UX.
+
+
+    {
+      "event": "Artifact saver started running in aws-beta#4719",
+      "type": "artifact_started_running",
+      "timestamp": 1740565630.895599
+    },
+    {
+      "event": "Artifact saver exited from aws-beta#4724",
+      "type": "artifact_stopped_running",
+      "timestamp": 1740603983.9305794
+    }
+
+
+
+
+{
+  "flow_name": "saver-ci",
+  "state_info": null,
+  "approvals": [
+    181
+  ],
+  "running": [],
+  "exited": [
+    {
+      "environment_name": "aws-beta",
+      "snapshot_index": 4724
+    }
+  ],
+  "history": [
+    {
+      "event": "saver reported",
+      "type": "artifact_creation_reported",
+      "timestamp": 1740565440.81417
+    },
+    {
+      "event": "saver.snyk-container-scan attested (snyk)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565490.9630709
+    },
+    {
+      "event": "saver.integration-test attested (junit)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565499.2439299
+    },
+    {
+      "event": "saver.unit-test attested (junit)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565499.747607
+    },
+    {
+      "event": "saver.integration-test-metrics attested (custom:test-metrics)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565501.499956
+    },
+    {
+      "event": "saver.unit-test-metrics attested (custom:test-metrics)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565502.914462
+    },
+    {
+      "event": "saver.integration-test-coverage-metrics attested (custom:coverage-metrics)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565503.8448617
+    },
+    {
+      "event": "saver.unit-test-coverage-metrics attested (custom:coverage-metrics)",
+      "type": "artifact_attestation_reported",
+      "timestamp": 1740565504.765146
+    },
+    {
+      "event": "Approval #181 to aws-beta environment created by external://JonJagger",
+      "type": "artifact_approval_reported",
+      "timestamp": 1740565532.4643753
+    },
+    {
+      "event": "Artifact saver started running in aws-beta#4719",
+      "type": "artifact_started_running",
+      "timestamp": 1740565630.895599
+    },
+    {
+      "event": "Artifact saver exited from aws-beta#4724",
+      "type": "artifact_stopped_running",
+      "timestamp": 1740603983.9305794
+    }
+  ],
+
+

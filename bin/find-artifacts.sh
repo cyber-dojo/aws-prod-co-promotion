@@ -17,7 +17,7 @@ diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
     --api-token="${KOSLI_API_TOKEN}" \
     --output=json)"
 
-#diff="$(cat "${ROOT_DIR}/docs/diff-snapshot.json")"
+#diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
 
 show_help()
 {
