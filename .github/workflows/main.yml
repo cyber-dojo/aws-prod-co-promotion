@@ -1,14 +1,16 @@
 name: Main
 
 on:
-  workflow_call:
-    inputs:
-      KOSLI_TRAIL:
-        required: true
-        type: string
-    secrets:
-      KOSLI_API_TOKEN:
-        required: true
+  push:
+    branches: [ test-tf-workflow2 ]
+  # workflow_call:
+  #   inputs:
+  #     KOSLI_TRAIL:
+  #       required: true
+  #       type: string
+  #   secrets:
+  #     KOSLI_API_TOKEN:
+  #       required: true
 
 env:
   KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
@@ -26,133 +28,133 @@ env:
   AWS_ACCOUNT_ID_PROD: ${{ vars.AWS_ACCOUNT_ID_PROD }}
 
 jobs:
-  setup:
-    needs: []
-    runs-on: ubuntu-latest
-    outputs:
-      aws_account_id_prod:      ${{ steps.vars.outputs.aws_account_id_prod }}
-      ecr_registry:             ${{ steps.vars.outputs.ecr_registry }}
-      aws_region:               ${{ steps.vars.outputs.aws_region }}
-      gh_actions_iam_role_name: ${{ steps.vars.outputs.gh_actions_iam_role_name }}
+#   setup:
+#     needs: []
+#     runs-on: ubuntu-latest
+#     outputs:
+#       aws_account_id_prod:      ${{ steps.vars.outputs.aws_account_id_prod }}
+#       ecr_registry:             ${{ steps.vars.outputs.ecr_registry }}
+#       aws_region:               ${{ steps.vars.outputs.aws_region }}
+#       gh_actions_iam_role_name: ${{ steps.vars.outputs.gh_actions_iam_role_name }}
 
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 1
 
-      - name: Prepare outputs for workflow jobs
-        id: vars
-        run: |
-          ECR_REGISTRY="${AWS_ECR_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-          echo "aws_account_id_prod=${AWS_ACCOUNT_ID_PROD}"   >> ${GITHUB_OUTPUT}                    
-          echo "ecr_registry=${ECR_REGISTRY}"                 >> ${GITHUB_OUTPUT}
-          echo "aws_region=${AWS_REGION}"                     >> ${GITHUB_OUTPUT}
-          echo "gh_actions_iam_role_name=gh_actions_services" >> ${GITHUB_OUTPUT}
+#       - name: Prepare outputs for workflow jobs
+#         id: vars
+#         run: |
+#           ECR_REGISTRY="${AWS_ECR_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+#           echo "aws_account_id_prod=${AWS_ACCOUNT_ID_PROD}"   >> ${GITHUB_OUTPUT}                    
+#           echo "ecr_registry=${ECR_REGISTRY}"                 >> ${GITHUB_OUTPUT}
+#           echo "aws_region=${AWS_REGION}"                     >> ${GITHUB_OUTPUT}
+#           echo "gh_actions_iam_role_name=gh_actions_services" >> ${GITHUB_OUTPUT}
 
-      - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v2
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
+#       - name: Setup Kosli CLI
+#         uses: kosli-dev/setup-cli-action@v2
+#         with:
+#           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Begin Kosli Trail
-        run:
-          kosli begin trail "${KOSLI_TRAIL}"
-
-
-  find-artifacts:
-    needs: []
-    runs-on: ubuntu-latest
-    outputs:
-      matrix_include: "${{ steps.vars.outputs.matrix_include }}"
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v2
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
-
-      - name: Generate Artifact json for each entry in following job's matrix-include
-        id: vars
-        run: |
-          make find_artifacts
-          echo "matrix_include=$(cat ./json/matrix-include.json)" >> ${GITHUB_OUTPUT}
+#       - name: Begin Kosli Trail
+#         run:
+#           kosli begin trail "${KOSLI_TRAIL}"
 
 
-  sdlc-control-gate:
-    needs: [find-artifacts]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
-    steps:
-      - name: Placeholder till we can do [kosli assert]
-        run: |
-          echo "       name=${{ matrix.name }}"
-          echo "       flow=${{ matrix.flow }}"
-          echo "    service=${{ matrix.service }}"
-          echo " commit_sha=${{ matrix.commit_sha }}"          
-          echo "fingerprint=${{ matrix.fingerprint }}"
+#   find-artifacts:
+#     needs: []
+#     runs-on: ubuntu-latest
+#     outputs:
+#       matrix_include: "${{ steps.vars.outputs.matrix_include }}"
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 1
 
-# Currently commented out because [kosli attest artifact] causes non-compliance in the [kosli assert artifact]
-# See https://kosli-internal.slack.com/archives/C01UMS1CEN5/p1740773552380869
-#
-#      - name: Setup Kosli CLI
-#        uses: kosli-dev/setup-cli-action@v2
-#        with:
-#          version: ${{ vars.KOSLI_CLI_VERSION }}
-#
-#      - uses: actions/checkout@v4  # Needed for [kosli attest artifact]
-#        with:
-#          fetch-depth: 1
-#
-#      - name: Attest promotion to Kosli  # Needed for [kosli assert artifact]
-#        run:
-#          kosli attest artifact "${{ matrix.name }}"
-#            --fingerprint="${{ matrix.fingerprint }}"
-#            --name="${{ matrix.service }}"
-#
-#      - name: Assert Artifact is compliant for aws-prod
-#        run:
-#          kosli assert artifact
-#            --fingerprint="${{ matrix.fingerprint }}"
-#            --environment="${KOSLI_AWS_PROD}"
+#       - name: Setup Kosli CLI
+#         uses: kosli-dev/setup-cli-action@v2
+#         with:
+#           version: ${{ vars.KOSLI_CLI_VERSION }}
+
+#       - name: Generate Artifact json for each entry in following job's matrix-include
+#         id: vars
+#         run: |
+#           make find_artifacts
+#           echo "matrix_include=$(cat ./json/matrix-include.json)" >> ${GITHUB_OUTPUT}
 
 
-  approve:
-    needs: [find-artifacts, sdlc-control-gate]
-    runs-on: ubuntu-latest
-    environment:
-      name: production
-      url:  https://cyber-dojo.org
-    strategy:
-      matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
-    steps:
-      - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v2
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
+#   sdlc-control-gate:
+#     needs: [find-artifacts]
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
+#     steps:
+#       - name: Placeholder till we can do [kosli assert]
+#         run: |
+#           echo "       name=${{ matrix.name }}"
+#           echo "       flow=${{ matrix.flow }}"
+#           echo "    service=${{ matrix.service }}"
+#           echo " commit_sha=${{ matrix.commit_sha }}"          
+#           echo "fingerprint=${{ matrix.fingerprint }}"
 
-      # Needed for [kosli report approval]
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+# # Currently commented out because [kosli attest artifact] causes non-compliance in the [kosli assert artifact]
+# # See https://kosli-internal.slack.com/archives/C01UMS1CEN5/p1740773552380869
+# #
+# #      - name: Setup Kosli CLI
+# #        uses: kosli-dev/setup-cli-action@v2
+# #        with:
+# #          version: ${{ vars.KOSLI_CLI_VERSION }}
+# #
+# #      - uses: actions/checkout@v4  # Needed for [kosli attest artifact]
+# #        with:
+# #          fetch-depth: 1
+# #
+# #      - name: Attest promotion to Kosli  # Needed for [kosli assert artifact]
+# #        run:
+# #          kosli attest artifact "${{ matrix.name }}"
+# #            --fingerprint="${{ matrix.fingerprint }}"
+# #            --name="${{ matrix.service }}"
+# #
+# #      - name: Assert Artifact is compliant for aws-prod
+# #        run:
+# #          kosli assert artifact
+# #            --fingerprint="${{ matrix.fingerprint }}"
+# #            --environment="${KOSLI_AWS_PROD}"
 
-# This approval does not appear in the Kosli Trail
-# This also requires a previous [kosli attest artifact]
-#      - name: Report approval to Kosli
-#        run:
-#          kosli report approval
-#            --fingerprint="${{ matrix.fingerprint }}"
-#            --approver="${{ github.actor }}"
-#            --environment="${KOSLI_AWS_PROD}"
+
+#   approve:
+#     needs: [find-artifacts, sdlc-control-gate]
+#     runs-on: ubuntu-latest
+#     environment:
+#       name: production
+#       url:  https://cyber-dojo.org
+#     strategy:
+#       matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
+#     steps:
+#       - name: Setup Kosli CLI
+#         uses: kosli-dev/setup-cli-action@v2
+#         with:
+#           version: ${{ vars.KOSLI_CLI_VERSION }}
+
+#       # Needed for [kosli report approval]
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 1
+
+# # This approval does not appear in the Kosli Trail
+# # This also requires a previous [kosli attest artifact]
+# #      - name: Report approval to Kosli
+# #        run:
+# #          kosli report approval
+# #            --fingerprint="${{ matrix.fingerprint }}"
+# #            --approver="${{ github.actor }}"
+# #            --environment="${KOSLI_AWS_PROD}"
 
 
   deploy-to-prod:
-    needs: [setup, find-artifacts, approve]
-    strategy:
-      matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
+    # needs: [setup, find-artifacts, approve]
+    # strategy:
+    #   matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
     permissions:
       id-token: write
       contents: write
