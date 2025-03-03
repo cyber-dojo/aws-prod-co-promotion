@@ -11,13 +11,13 @@ KOSLI_API_TOKEN="${KOSLI_API_TOKEN:-read-only-dummy}"
 KOSLI_AWS_BETA="${KOSLI_AWS_BETA:-aws-beta}"
 KOSLI_AWS_PROD="${KOSLI_AWS_PROD:-aws-prod}"
 
-#diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
-#    --host="${KOSLI_HOST}" \
-#    --org="${KOSLI_ORG}" \
-#    --api-token="${KOSLI_API_TOKEN}" \
-#    --output=json)"
+diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
+    --host="${KOSLI_HOST}" \
+    --org="${KOSLI_ORG}" \
+    --api-token="${KOSLI_API_TOKEN}" \
+    --output=json)"
 
-diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
+#diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
 
 show_help()
 {
