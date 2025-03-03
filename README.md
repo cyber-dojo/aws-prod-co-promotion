@@ -81,7 +81,7 @@ Example where NO Artifacts were found. This will occur once the deployments have
 (unless new Artifacts have appeared in aws-beta during the promotion!)
 
 ```bash
-make find_artifacts
+$ make find_artifacts
 ```
 
 ```json
