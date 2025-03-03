@@ -26,8 +26,9 @@ show_help()
 
     Use: ${MY_NAME}
 
-    Uses the Kosli CLI to find which Artifacts are running in cyber-dojo's https://beta.cyber-dojo.org
-    AWS staging environment that are NOT also running in cyber-dojo's https://cyber-dojo.org AWS prod environment.
+    Uses the Kosli CLI to find which Artifacts are running in cyber-dojo's
+    https://beta.cyber-dojo.org AWS staging environment that are NOT also
+    running in cyber-dojo's https://cyber-dojo.org AWS prod environment.
     Creates a json file in the json/ directory for each Artifact. Eg
 
     {
@@ -38,8 +39,8 @@ show_help()
           "service": "saver"
     }
 
-    Also creates the file 'matrix-include.json' ready to be used in a Github Action matrix to create
-    a parallel job for each Artifact.
+    Also creates the file 'matrix-include.json' ready to be used in a
+    Github Action matrix to run a parallel job for each Artifact.
 
 EOF
 }
