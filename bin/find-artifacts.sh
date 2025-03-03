@@ -29,13 +29,15 @@ show_help()
     Uses the Kosli CLI to find which Artifacts are running in cyber-dojo's https://beta.cyber-dojo.org
     AWS staging environment that are NOT also running in cyber-dojo's https://cyber-dojo.org AWS prod environment.
     Creates a json file in the bin/json/ directory for on each Artifact. Viz, the Artifact's
-    full name (in its AWS ECR registry), it fingerprint (sha256 digest), and its service-name. Eg
+    full name (in its AWS ECR registry), it fingerprint (sha256 digest), its commit-sha, and its service-name. Eg
 
-             name: 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0...7a5b6ef
-      fingerprint: b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+             name: 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:c3b308d@sha256:8bf657f...e2ea5eb
+      fingerprint: 8bf657f7f47a4c32b2ffb0c650be2ced4de18e646309a4dfe11db22dfe2ea5eb
+       commit_sha: c3b308d153f3594afea873d0c55b86dae929a9c5
           service: saver
 
-    Also creates a json file containing the json expression for a Github Action matrix.
+    Also creates the file `matrix-include.json` ready to be used in a Github Action matrix to create
+    parallel jobs for each Artifact.
 
 EOF
 }
