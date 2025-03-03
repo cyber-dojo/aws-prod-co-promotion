@@ -1,10 +1,10 @@
 # aws-prod-co-promotion
 
 Workflow to find out which Artifacts:
-- Are running in cyber-dojo's https://beta.cyber-dojo.org's
-  [aws-beta](https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/) Environment
-- Are NOT running in cyber-dojo's https://cyber-dojo.org's 
-  [aws-prod](https://app.kosli.com/cyber-dojo/environments/aws-prod/snapshots/) Environment
+- Are running in the cyber-dojo https://beta.cyber-dojo.org
+  [aws-beta](https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/) Environment.
+- Are NOT running in the cyber-dojo https://cyber-dojo.org 
+  [aws-prod](https://app.kosli.com/cyber-dojo/environments/aws-prod/snapshots/) Environment.
 - deploy them all, at the same time, into the latter.
 
 ```shell
