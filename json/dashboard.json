@@ -1,0 +1,8 @@
+{
+  "flow": "dashboard-ci",
+  "service": "dashboard",
+  "fingerprint": "2ea90f62ee72cb56efa726818ffe27da16794d4fa8b6ec9002bac806e5a3464a",
+  "repo_url": "https://github.com/cyber-dojo/dashboard/",
+  "commit_sha": "7a50d103bb6f8ea5dd60d65fed377248c04179a0",
+  "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/dashboard:7a50d10@sha256:2ea90f62ee72cb56efa726818ffe27da16794d4fa8b6ec9002bac806e5a3464a"
+}

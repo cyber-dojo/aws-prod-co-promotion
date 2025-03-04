@@ -1,8 +1,8 @@
 {
   "flow": "languages-start-points-ci",
   "service": "languages-start-points",
-  "fingerprint": "8fc546c2adeec10f8a52201e8e7fea854a804a929ab692275b61cbce141c9182",
+  "fingerprint": "1d7fc67092bee8492e5019ca0175edf5189e4fc71a4b3a21976c64070def810a",
   "repo_url": "https://github.com/cyber-dojo/languages-start-points/",
-  "commit_sha": "9c270699fa10888b1c270ae69f8c13988bc4a26b",
-  "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/languages-start-points:9c27069@sha256:8fc546c2adeec10f8a52201e8e7fea854a804a929ab692275b61cbce141c9182"
+  "commit_sha": "88366281011d1aa83c5db4280aa8a6daa0be8541",
+  "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/languages-start-points:8836628@sha256:1d7fc67092bee8492e5019ca0175edf5189e4fc71a4b3a21976c64070def810a"
 }

@@ -64,6 +64,18 @@ check_args()
   esac
 }
 
+excluded()
+{
+  # Differ still has TF attestations
+  # Creator is in Gitlab, not Github
+  local -r service="${1}"
+  if [ "${service}" == "differ" ] || [ "${service}" == "creator" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 write_json_files()
 {
   local -r artifacts_length=$(echo "${diff}" | jq -r '.snappish1.artifacts | length')
@@ -81,16 +93,20 @@ write_json_files()
 
       filename="${ROOT_DIR}/json/${service}.json"
 
-      {
-        echo '{'
-        echo "  \"flow\": \"${flow}\","
-        echo "  \"service\": \"${service}\","
-        echo "  \"fingerprint\": \"${fingerprint}\","
-        echo "  \"repo_url\": \"${repo_url}\","
-        echo "  \"commit_sha\": \"${commit_sha}\","
-        echo "  \"name\": \"${name}\""
-        echo '}'
-      } > "${filename}"
+      if excluded "${service}"; then
+        echo "Cannot promote ${service}"
+      else
+        {
+          echo '{'
+          echo "  \"flow\": \"${flow}\","
+          echo "  \"service\": \"${service}\","
+          echo "  \"fingerprint\": \"${fingerprint}\","
+          echo "  \"repo_url\": \"${repo_url}\","
+          echo "  \"commit_sha\": \"${commit_sha}\","
+          echo "  \"name\": \"${name}\""
+          echo '}'
+        } > "${filename}"
+      fi
   done
 }
 
@@ -103,9 +119,6 @@ write_matrix_include_file()
     local -r artifacts_length=$(echo "${diff}" | jq -r '.snappish1.artifacts | length')
     for ((n=0; n < ${artifacts_length}; n++))
     do
-        echo -n "${separator}"
-        separator=","
-
         artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$n]")"  # eg {...}
         commit_url="$(echo "${artifact}" | jq -r '.commit_url')"         # eg https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
 
@@ -116,14 +129,18 @@ write_matrix_include_file()
         commit_sha="${commit_url:(-40)}"                                 # eg 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
         repo_url="${commit_url:0:(-47)}"                                 # eg https://github.com/cyber-dojo/saver
 
-        echo -n '{'
-        echo -n "  \"flow\": \"${flow}\","
-        echo -n "  \"service\": \"${service}\","
-        echo -n "  \"fingerprint\": \"${fingerprint}\","
-        echo -n "  \"repo_url\": \"${repo_url}\","
-        echo -n "  \"commit_sha\": \"${commit_sha}\","
-        echo -n "  \"name\": \"${name}\""
-        echo -n '}'
+        if ! excluded "${service}" ; then
+          echo -n "${separator}"
+          separator=","
+          echo -n '{'
+          echo -n "  \"flow\": \"${flow}\","
+          echo -n "  \"service\": \"${service}\","
+          echo -n "  \"fingerprint\": \"${fingerprint}\","
+          echo -n "  \"repo_url\": \"${repo_url}\","
+          echo -n "  \"commit_sha\": \"${commit_sha}\","
+          echo -n "  \"name\": \"${name}\""
+          echo -n '}'
+        fi
     done
     echo -n ']}'
   } > "${matrix_include_filename}"

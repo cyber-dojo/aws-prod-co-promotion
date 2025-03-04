@@ -1,8 +1,8 @@
 {
   "flow": "saver-ci",
   "service": "saver",
-  "fingerprint": "8bf657f7f47a4c32b2ffb0c650be2ced4de18e646309a4dfe11db22dfe2ea5eb",
+  "fingerprint": "4836be6e3981fd2470ec2093ecf9126893698d9290a5135695c9703507619c58",
   "repo_url": "https://github.com/cyber-dojo/saver/",
-  "commit_sha": "c3b308d153f3594afea873d0c55b86dae929a9c5",
-  "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:c3b308d@sha256:8bf657f7f47a4c32b2ffb0c650be2ced4de18e646309a4dfe11db22dfe2ea5eb"
+  "commit_sha": "c5dca8736ea08c8f3fb6ba62e61b1415c1da0297",
+  "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:c5dca87@sha256:4836be6e3981fd2470ec2093ecf9126893698d9290a5135695c9703507619c58"
 }
