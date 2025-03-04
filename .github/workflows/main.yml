@@ -170,17 +170,3 @@ jobs:
       tf_version:             v1.9.1
       tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.name }}"}'
 
-
-#  deploy-to-prod:
-#    needs: [setup, find-artifacts, approve]
-#    runs-on: ubuntu-latest
-#    strategy:
-#      matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
-#    steps:
-#      - name: Dummy deployment
-#        run: |
-#          echo "       name=${{ matrix.name }}"
-#          echo "       flow=${{ matrix.flow }}"
-#          echo "    service=${{ matrix.service }}"
-#          echo " commit_sha=${{ matrix.commit_sha }}"
-#          echo "fingerprint=${{ matrix.fingerprint }}"
