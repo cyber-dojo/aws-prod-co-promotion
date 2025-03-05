@@ -87,37 +87,38 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
     steps:
-      - name: Placeholder till we can do [kosli assert]
+      - name: Show information for this matrix job
         run: |
           echo "       name=${{ matrix.name }}"
           echo "       flow=${{ matrix.flow }}"
           echo "    service=${{ matrix.service }}"
+          echo "   repo_url=${{ matrix.repo_url}}"
           echo " commit_sha=${{ matrix.commit_sha }}"          
           echo "fingerprint=${{ matrix.fingerprint }}"
 
-# Currently commented out because [kosli attest artifact] causes non-compliance in the [kosli assert artifact]
-# See https://kosli-internal.slack.com/archives/C01UMS1CEN5/p1740773552380869
-#
-#      - name: Setup Kosli CLI
-#        uses: kosli-dev/setup-cli-action@v2
-#        with:
-#          version: ${{ vars.KOSLI_CLI_VERSION }}
-#
-#      - uses: actions/checkout@v4  # Needed for [kosli attest artifact]
-#        with:
-#          fetch-depth: 1
-#
-#      - name: Attest promotion to Kosli  # Needed for [kosli assert artifact]
-#        run:
-#          kosli attest artifact "${{ matrix.name }}"
-#            --fingerprint="${{ matrix.fingerprint }}"
-#            --name="${{ matrix.service }}"
-#
-#      - name: Assert Artifact is compliant for aws-prod
-#        run:
-#          kosli assert artifact
-#            --fingerprint="${{ matrix.fingerprint }}"
-#            --environment="${KOSLI_AWS_PROD}"
+      # Does/should [kosli attest artifact] cause non-compliance in the [kosli assert artifact]?
+      # See https://kosli-internal.slack.com/archives/C01UMS1CEN5/p1740773552380869
+
+      - name: Setup Kosli CLI
+        uses: kosli-dev/setup-cli-action@v2
+        with:
+          version: ${{ vars.KOSLI_CLI_VERSION }}
+
+      - uses: actions/checkout@v4  # Needed for [kosli attest artifact]
+        with:
+          fetch-depth: 1
+
+      - name: Attest promotion to Kosli
+        run:
+          kosli attest artifact "${{ matrix.name }}"
+            --fingerprint="${{ matrix.fingerprint }}"
+            --name="${{ matrix.service }}"
+
+      - name: Assert Artifact is compliant for aws-prod
+        run:
+          kosli assert artifact
+            --fingerprint="${{ matrix.fingerprint }}"
+            --environment="${KOSLI_AWS_PROD}"
 
 
   approve:
