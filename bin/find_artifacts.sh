@@ -11,6 +11,10 @@ KOSLI_API_TOKEN="${KOSLI_API_TOKEN:-read-only-dummy}"
 KOSLI_AWS_BETA="${KOSLI_AWS_BETA:-aws-beta}"
 KOSLI_AWS_PROD="${KOSLI_AWS_PROD:-aws-prod}"
 
+# NOTE: in a Github Action, stdout and stderr appear to redirected to the same tty.
+# This means that the output of the $(subshell) is not just stdout, it is stdout+stderr.
+# To be sure we are not printing to stderr, we set the --debug=false flag explicitly.
+
 diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
     --host="${KOSLI_HOST}" \
     --org="${KOSLI_ORG}" \
