@@ -14,7 +14,7 @@ jobs:
         id: vars
         run:
           #echo "kosli_trail=$(date +"%Y-%m-%d-T-%H-%M-%S")" >> ${GITHUB_OUTPUT}
-          echo "kosli_trail="promotion-${{ github.run_number }}" >> ${GITHUB_OUTPUT}
+          echo "kosli_trail=promotion-${{ github.run_number }}" >> ${GITHUB_OUTPUT}
 
 
   trigger:
