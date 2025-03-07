@@ -54,6 +54,12 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
+      - name: Tag Kosli Flow
+        run:
+          kosli tag flow "${{ env.KOSLI_FLOW }}"
+            --set repo_url=${{ github.event.repository.name }}
+            --set ci=github
+
       - name: Begin Kosli Trail
         run:
           kosli begin trail "${KOSLI_TRAIL}"
