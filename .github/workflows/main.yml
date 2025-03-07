@@ -82,6 +82,7 @@ jobs:
 
 
   sdlc-control-gate:
+    if: ${{ needs.find-artifacts.outputs.matrix_include != '' }}
     needs: [find-artifacts]
     runs-on: ubuntu-latest
     strategy:
@@ -122,6 +123,7 @@ jobs:
 
 
   approve:
+    if: ${{ needs.find-artifacts.outputs.matrix_include != '' }}
     needs: [find-artifacts, sdlc-control-gate]
     runs-on: ubuntu-latest
     environment:
@@ -151,6 +153,7 @@ jobs:
 
 
   deploy-to-prod:
+    if: ${{ needs.find-artifacts.outputs.matrix_include != '' }}
     needs: [setup, find-artifacts, approve]
     strategy:
       matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
