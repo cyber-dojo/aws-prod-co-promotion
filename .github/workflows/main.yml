@@ -57,7 +57,7 @@ jobs:
       - name: Tag Kosli Flow
         run:
           kosli tag flow "${{ env.KOSLI_FLOW }}"
-            --set repo_url=${{ github.event.repository.name }}
+            --set repo_url=https://github.com/cyber-dojo/aws-prod-co-promotion
             --set ci=github
 
       - name: Begin Kosli Trail
