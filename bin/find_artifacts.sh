@@ -124,7 +124,6 @@ write_matrix_include_file()
     {
       separator=""
       echo -n '{"include": ['
-      local -r artifacts_length=$(echo "${diff}" | jq -r '.snappish1.artifacts | length')
       for ((n=0; n < ${artifacts_length}; n++))
       do
           artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$n]")"  # eg {...}
