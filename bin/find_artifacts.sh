@@ -11,9 +11,9 @@ KOSLI_API_TOKEN="${KOSLI_API_TOKEN:-read-only-dummy}"
 KOSLI_AWS_BETA="${KOSLI_AWS_BETA:-aws-beta}"
 KOSLI_AWS_PROD="${KOSLI_AWS_PROD:-aws-prod}"
 
-# NOTE: in a Github Action, stdout and stderr appear to redirect to the same tty.
-# This means that the output of the $(subshell) is not just stdout, it is stdout+stderr.
-# To be sure we are not printing to stderr, we set the --debug=false flag explicitly.
+# NOTE: in a Github Action, stdout and stderr are multiplexed together.
+# This means that the output of the $(subshell) is not just stdout, it is stdout+stderr!
+# To ensure the Kosli CLI does not print to stderr, we set the --debug=false flag explicitly.
 
 diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
     --host="${KOSLI_HOST}" \
@@ -22,6 +22,7 @@ diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
     --debug=false \
     --output=json)"
 
+#local Testing
 #diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
 
 show_help()
@@ -34,6 +35,10 @@ show_help()
     Uses the Kosli CLI to find which Artifacts are running in cyber-dojo's
     https://beta.cyber-dojo.org AWS staging environment that are NOT also
     running in cyber-dojo's https://cyber-dojo.org AWS prod environment.
+
+    Creates the file 'matrix-include.json' ready to be used in a
+    Github Action matrix to run a parallel job for each Artifact.
+
     Creates a json file in the json/ directory for each Artifact. Eg
 
     {
@@ -44,9 +49,6 @@ show_help()
        "commit_sha": "c3b308d153f3594afea873d0c55b86dae929a9c5",
              "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:c3b308d@sha256:8bf657f7f47a4c32b2ffb0c650be2ced4de18e646309a4dfe11db22dfe2ea5eb"
     }
-
-    Also creates the file 'matrix-include.json' ready to be used in a
-    Github Action matrix to run a parallel job for each Artifact.
 
 EOF
 }
@@ -83,7 +85,7 @@ excluded()
 write_json_files()
 {
   local -r artifacts_length=$(echo "${diff}" | jq -r '.snappish1.artifacts | length')
-  for ((n=0; n < ${artifacts_length}; n++))
+  for ((n = 0; n < artifacts_length; n++))
   do
       artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$n]")"  # eg {...}
       commit_url="$(echo "${artifact}" | jq -r '.commit_url')"         # eg https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
@@ -116,6 +118,16 @@ write_json_files()
 
 write_matrix_include_file()
 {
+  # The Github Action workflow does this:
+  #
+  # job:
+  #   if: ${{ needs.find-artifacts.outputs.matrix_include != '' }}
+  #   strategy:
+  #     matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
+  #
+  # The if: is necessary because the matrix: expression does not work if the json is {"include": []}
+  # So in there are no Artifacts, we create an empty file.
+
   matrix_include_filename="${ROOT_DIR}/json/matrix-include.json"
   local -r artifacts_length=$(echo "${diff}" | jq -r '.snappish1.artifacts | length')
   if [ "${artifacts_length}" == "0" ]; then
@@ -124,7 +136,7 @@ write_matrix_include_file()
     {
       separator=""
       echo -n '{"include": ['
-      for ((n=0; n < ${artifacts_length}; n++))
+      for ((n = 0; n < artifacts_length; n++))
       do
           artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$n]")"  # eg {...}
           commit_url="$(echo "${artifact}" | jq -r '.commit_url')"         # eg https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
@@ -153,7 +165,7 @@ write_matrix_include_file()
     } > "${matrix_include_filename}"
   fi
 
-  cat "${matrix_include_filename}" | jq .
+  jq . "${matrix_include_filename}"
 }
 
 check_args "$@"
