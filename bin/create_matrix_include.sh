@@ -36,6 +36,8 @@ show_help()
 
     Creates the file 'matrix-include.json' ready to be used in a
     Github Action matrix to run a parallel job for each Artifact.
+    If a blue-green deployment is in progress for any of the Artifacts
+    the script will exit with a non-zero value.
 
 EOF
 }
