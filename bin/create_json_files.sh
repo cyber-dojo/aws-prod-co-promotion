@@ -32,10 +32,6 @@ show_help()
 
     Use: ${MY_NAME}
 
-    Uses the Kosli CLI to find which Artifacts are running in cyber-dojo's
-    https://beta.cyber-dojo.org AWS staging environment that are NOT also
-    running in cyber-dojo's https://cyber-dojo.org AWS prod environment.
-
     Creates a json file in the json/ directory for each Artifact. Eg
 
     {
