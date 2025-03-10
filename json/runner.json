@@ -1,8 +1,8 @@
 {
   "flow": "runner-ci",
   "service": "runner",
-  "fingerprint": "29baa57efc264959e156fb17c1afed1597394510ac0342b2f87e575ee4417f38",
+  "fingerprint": "b27f81ddfcc6aa7d810b6cb7cb3c842cda3c25b99a43f230aa0c3e933e3fbf36",
   "repo_url": "https://github.com/cyber-dojo/runner/",
-  "commit_sha": "96dd116710d2b7e5faf158ce6f7193b706521f11",
-  "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/runner:96dd116@sha256:29baa57efc264959e156fb17c1afed1597394510ac0342b2f87e575ee4417f38"
+  "commit_sha": "05f1a495856af3c755221aecb37b95a4cec77f8b",
+  "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/runner:05f1a49@sha256:b27f81ddfcc6aa7d810b6cb7cb3c842cda3c25b99a43f230aa0c3e933e3fbf36"
 }

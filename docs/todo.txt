@@ -32,7 +32,7 @@ MVP DOING
 
 LATER?
 ------
-- check each service has only one Artifact (for the service) running in aws-beta (not mid blue/green deployment)
+- check each service has only one Artifact running in aws-beta (not mid blue/green deployment)
 - do approval for each artifact in parallel via matrix
 - do custom attestation on overlapping time-period
    - Does this also get attested on each Artifact? I guess so.

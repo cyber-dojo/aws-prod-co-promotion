@@ -32,23 +32,8 @@ show_help()
 
     Use: ${MY_NAME}
 
-    Uses the Kosli CLI to find which Artifacts are running in cyber-dojo's
-    https://beta.cyber-dojo.org AWS staging environment that are NOT also
-    running in cyber-dojo's https://cyber-dojo.org AWS prod environment.
-
     Creates the file 'matrix-include.json' ready to be used in a
     Github Action matrix to run a parallel job for each Artifact.
-
-    Creates a json file in the json/ directory for each Artifact. Eg
-
-    {
-             "flow": "saver-ci",
-          "service": "saver",
-      "fingerprint": "8bf657f7f47a4c32b2ffb0c650be2ced4de18e646309a4dfe11db22dfe2ea5eb",
-         "repo_url": "https://github.com/cyber-dojo/saver/",
-       "commit_sha": "c3b308d153f3594afea873d0c55b86dae929a9c5",
-             "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:c3b308d@sha256:8bf657f7f47a4c32b2ffb0c650be2ced4de18e646309a4dfe11db22dfe2ea5eb"
-    }
 
 EOF
 }
@@ -82,41 +67,7 @@ excluded()
   fi
 }
 
-write_json_files()
-{
-  local -r artifacts_length=$(echo "${diff}" | jq -r '.snappish1.artifacts | length')
-  for ((n = 0; n < artifacts_length; n++))
-  do
-      artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$n]")"  # eg {...}
-      commit_url="$(echo "${artifact}" | jq -r '.commit_url')"         # eg https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-
-      name="$(echo "${artifact}" | jq -r '.name')"                     # eg 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
-      fingerprint="$(echo "${artifact}" | jq -r '.fingerprint')"       # eg b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
-      flow="$(echo "${artifact}" | jq -r '.flow')"                     # eg saver-ci
-      service="${flow::-3}"                                            # eg saver
-      commit_sha="${commit_url:(-40)}"                                 # eg 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-      repo_url="${commit_url:0:(-47)}"                                 # eg https://github.com/cyber-dojo/saver
-
-      filename="${ROOT_DIR}/json/${service}.json"
-
-      if excluded "${service}"; then
-        echo "Cannot promote ${service}"
-      else
-        {
-          echo '{'
-          echo "  \"flow\": \"${flow}\","
-          echo "  \"service\": \"${service}\","
-          echo "  \"fingerprint\": \"${fingerprint}\","
-          echo "  \"repo_url\": \"${repo_url}\","
-          echo "  \"commit_sha\": \"${commit_sha}\","
-          echo "  \"name\": \"${name}\""
-          echo '}'
-        } > "${filename}"
-      fi
-  done
-}
-
-write_matrix_include_file()
+create_matrix_include()
 {
   # The Github Action workflow does this:
   #
@@ -126,7 +77,7 @@ write_matrix_include_file()
   #     matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
   #
   # The if: is necessary because the matrix: expression does not work if the json is {"include": []}
-  # So in there are no Artifacts, we create an empty file.
+  # So if there are no Artifacts, create an empty file.
 
   matrix_include_filename="${ROOT_DIR}/json/matrix-include.json"
   local -r artifacts_length=$(echo "${diff}" | jq -r '.snappish1.artifacts | length')
@@ -169,5 +120,4 @@ write_matrix_include_file()
 }
 
 check_args "$@"
-write_json_files "$@"
-write_matrix_include_file "$@"
+create_matrix_include "$@"
