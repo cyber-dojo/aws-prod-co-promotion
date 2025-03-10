@@ -5,6 +5,8 @@ export ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "${ROOT_DIR}/bin/lib.sh"
 exit_non_zero_unless_installed kosli jq
 
+MATRIX_INCLUDE_FILENAME="${ROOT_DIR}/json/matrix-include.json"
+
 KOSLI_HOST="${KOSLI_HOST:-https://app.kosli.com}"
 KOSLI_ORG="${KOSLI_ORG:-cyber-dojo}"
 KOSLI_API_TOKEN="${KOSLI_API_TOKEN:-read-only-dummy}"
@@ -23,7 +25,7 @@ diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
     --output=json)"
 
 #local Testing
-#diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
+#diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-duplicate.json")"
 
 show_help()
 {
@@ -79,10 +81,9 @@ create_matrix_include()
   # The if: is necessary because the matrix: expression does not work if the json is {"include": []}
   # So if there are no Artifacts, create an empty file.
 
-  matrix_include_filename="${ROOT_DIR}/json/matrix-include.json"
   local -r artifacts_length=$(echo "${diff}" | jq -r '.snappish1.artifacts | length')
   if [ "${artifacts_length}" == "0" ]; then
-    echo -n '' > "${matrix_include_filename}"
+    echo -n '' > "${MATRIX_INCLUDE_FILENAME}"
   else
     {
       separator=""
@@ -113,11 +114,25 @@ create_matrix_include()
           fi
       done
       echo -n ']}'
-    } > "${matrix_include_filename}"
+    } > "${MATRIX_INCLUDE_FILENAME}"
   fi
 
-  jq . "${matrix_include_filename}"
+  jq . "${MATRIX_INCLUDE_FILENAME}"
 }
+
+exit_non_zero_if_duplicate()
+{
+  local -r raw="$(cat "${MATRIX_INCLUDE_FILENAME}" | jq -r '.. | .service? | select(length > 0)' | sort)"
+  local -r cooked="$(echo "${raw}" | uniq)"
+  if [ "${raw}" != "${cooked}" ]; then
+    stderr Duplicate service names in:
+    stderr "  $(echo "${raw}" | tr '\n' ' ')"
+    stderr This indicates a blue-green deployment is in progress
+    exit 42
+  fi
+}
+
 
 check_args "$@"
 create_matrix_include "$@"
+exit_non_zero_if_duplicate

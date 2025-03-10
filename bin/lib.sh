@@ -31,7 +31,6 @@ exit_non_zero_unless_file_exists()
 
 stderr()
 {
-  local -r message="${1}"
-  >&2 echo "ERROR: ${message}"
+  >&2 echo "ERROR: $@"
 }
 
