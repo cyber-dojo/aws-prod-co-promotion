@@ -8,34 +8,22 @@ Workflow to find out which Artifacts:
 - deploy them all, at the same time, into the latter.
 
 ```shell
-$ ./bin/find_artifacts.sh --help
+$ ./bin/create_matrix_include.sh --help
 ```
 
 ```
-    Use: find_artifacts.sh
+    Use: create_matrix_include.sh
 
-    Uses the Kosli CLI to find which Artifacts are running in cyber-dojo's
-    https://beta.cyber-dojo.org AWS staging environment that are NOT also
-    running in cyber-dojo's https://cyber-dojo.org AWS prod environment.
-    Creates a json file in the json/ directory for each Artifact. Eg
-
-    {
-             "flow": "saver-ci",
-          "service": "saver",
-      "fingerprint": "8bf657f7f47a4c32b2ffb0c650be2ced4de18e646309a4dfe11db22dfe2ea5eb",
-         "repo_url": "https://github.com/cyber-dojo/saver/",
-       "commit_sha": "c3b308d153f3594afea873d0c55b86dae929a9c5",
-             "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:c3b308d@sha256:8bf657f7f47a4c32b2ffb0c650be2ced4de18e646309a4dfe11db22dfe2ea5eb"
-    }
-
-    Also creates (and prints) the file 'matrix-include.json' ready to be used in
-    a Github Action matrix to run a parallel job for each Artifact.
+    Creates the file 'matrix-include.json' ready to be used in a
+    Github Action matrix to run a parallel job for each Artifact.
+    If a blue-green deployment is in progress for any of the Artifacts
+    the script will exit with a non-zero value.
 ```
 
 Example where four Artifacts were found:
 
 ```bash
-$ make find_artifacts
+$ make matrix_include
 ```
 
 ```json
@@ -77,15 +65,4 @@ $ make find_artifacts
 }
 ```
 
-Example where NO Artifacts were found. This will occur once the deployments have occurred
-(unless new Artifacts have appeared in aws-beta during the promotion!)
-
-```bash
-$ make find_artifacts
-```
-
-```json
-{
-  "include": []
-}
-```
+When NO Artifacts are found, the matrix-include.json file will be empty.
