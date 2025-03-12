@@ -110,7 +110,7 @@ create_matrix_include()
 
 exit_non_zero_if_duplicate()
 {
-  local -r raw="$(cat "${MATRIX_INCLUDE_FILENAME}" | jq -r '.. | .flow? | select(length > 0)' | sort)"
+  local -r raw="$(jq -r '.. | .flow? | select(length > 0)' "${MATRIX_INCLUDE_FILENAME}" | sort)"
   local -r cooked="$(echo "${raw}" | uniq)"
   if [ "${raw}" != "${cooked}" ]; then
     stderr Duplicate flow names in:
