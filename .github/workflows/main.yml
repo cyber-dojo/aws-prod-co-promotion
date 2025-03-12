@@ -106,7 +106,7 @@ jobs:
 
       - name: Attest promotion to Kosli
         run:
-          kosli attest artifact "${{ matrix.name }}"
+          kosli attest artifact "${{ matrix.image_name }}"
             --fingerprint="${{ matrix.fingerprint }}"
             --name="${{ matrix.flow }}"
 
