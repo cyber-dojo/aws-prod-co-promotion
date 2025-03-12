@@ -26,6 +26,7 @@ diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
 
 #TODO: How to add and automate some tests. Use pre-canned files in docs/
 #diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
+#diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-mid-blue-green.json")"
 
 show_help()
 {
@@ -79,16 +80,20 @@ create_matrix_include()
     echo -n '['
     for ((n = 0; n < artifacts_length; n++))
     do
-        artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$n]")"  # eg {...}
-        flow="$(echo "${artifact}" | jq -r '.flow')"                     # eg saver-ci
-        if ! excluded "${flow}" ; then
-          echo "${separator}"
-          echo_json "incoming" "${artifact}"
-          separator=","
-        fi
-      done
-      echo
-      echo ']'
+      #
+      artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$n]")"  # eg {...}
+      flow="$(echo "${artifact}" | jq -r '.flow')"                     # eg saver-ci
+      if ! excluded "${flow}" ; then
+        echo "${separator}"
+        echo_json "incoming" "${artifact}"
+
+        # TODO: outgoing
+
+        separator=","
+      fi
+    done
+    echo
+    echo ']'
   } > "${MATRIX_INCLUDE_FILENAME}"
 
   jq . "${MATRIX_INCLUDE_FILENAME}"
@@ -120,7 +125,7 @@ EOF
 
 exit_non_zero_if_mid_blue_green_deployment()
 {
-  local -r raw="$(jq -r '.. | .flow? | select(length > 0)' "${MATRIX_INCLUDE_FILENAME}" | sort)"
+  local -r raw="$(jq -r '.. | .incoming_flow? | select(length > 0)' "${MATRIX_INCLUDE_FILENAME}" | sort)"
   local -r cooked="$(echo "${raw}" | uniq)"
   if [ "${raw}" != "${cooked}" ]; then
     stderr Duplicate flow names in:
