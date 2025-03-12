@@ -106,14 +106,14 @@ jobs:
 
       - name: Attest promotion to Kosli
         run:
-          kosli attest artifact "${{ matrix.image_name }}"
-            --fingerprint="${{ matrix.fingerprint }}"
-            --name="${{ matrix.flow }}"
+          kosli attest artifact "${{ matrix.incoming_image_name }}"
+            --fingerprint="${{ matrix.incoming_fingerprint }}"
+            --name="${{ matrix.incoming_flow }}"
 
       - name: Assert Artifact is compliant for aws-prod
         run:
           kosli assert artifact
-            --fingerprint="${{ matrix.fingerprint }}"
+            --fingerprint="${{ matrix.incoming_fingerprint }}"
             --environment="${KOSLI_AWS_PROD}"
 
 
@@ -140,7 +140,7 @@ jobs:
       - name: Report approval to Kosli
         run:
           kosli report approval
-            --fingerprint="${{ matrix.fingerprint }}"
+            --fingerprint="${{ matrix.incoming_fingerprint }}"          
             --approver="${{ github.actor }}"
             --environment="${KOSLI_AWS_PROD}"
 
@@ -156,7 +156,7 @@ jobs:
       contents: write
     uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.23
     with:
-      checkout_repository:    "cyber-dojo/${{ matrix.repo_name }}"
+      checkout_repository:    "cyber-dojo/${{ matrix.incoming_repo_name }}"
       checkout_commit_sha:    ${{ matrix.commit_sha }}
       checkout_fetch_depth:   0
       aws_region:             ${{ needs.setup.outputs.aws_region }}
@@ -166,5 +166,5 @@ jobs:
       working_directory:      deployment/terraform/
       tf_apply:               true
       tf_version:             v1.9.1
-      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.image_name }}"}'
+      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.incoming_image_name }}"}'
 

@@ -83,8 +83,8 @@ create_matrix_include()
         flow="$(echo "${artifact}" | jq -r '.flow')"                     # eg saver-ci
         if ! excluded "${flow}" ; then
           echo "${separator}"
+          echo_json "incoming" "${artifact}"
           separator=","
-          write_json "${artifact}"
         fi
       done
       echo
@@ -94,25 +94,28 @@ create_matrix_include()
   jq . "${MATRIX_INCLUDE_FILENAME}"
 }
 
-write_json()
+echo_json()
 {
-  local -r artifact="${1}"
+  local -r kind="${1}"                                             # incoming | outgoing
+  local -r artifact="${2}"                                         # {...}
   commit_url="$(echo "${artifact}" | jq -r '.commit_url')"         # eg https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
   image_name="$(echo "${artifact}" | jq -r '.name')"               # eg 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
   fingerprint="$(echo "${artifact}" | jq -r '.fingerprint')"       # eg b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
   flow="$(echo "${artifact}" | jq -r '.flow')"                     # eg saver-ci
   commit_sha="${commit_url:(-40)}"                                 # eg 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-  repo_url="${commit_url:0:(-47)}"                                 # eg https://github.com/cyber-dojo/saver
+  repo_url="${commit_url:0:(-48)}"                                 # eg https://github.com/cyber-dojo/saver
   repo_name="${repo_url##*/}"                                      # eg saver
 
-  echo "  {"
-  echo "    \"image_name\": \"${image_name}\","
-  echo "    \"fingerprint\": \"${fingerprint}\","
-  echo "    \"repo_url\": \"${repo_url}\","
-  echo "    \"repo_name\": \"${repo_name}\","
-  echo "    \"commit_sha\": \"${commit_sha}\","
-  echo "    \"flow\": \"${flow}\""
-  echo -n "  }"
+  cat << EOF
+    {
+      "${kind}_image_name": "${image_name}",
+      "${kind}_fingerprint": "${fingerprint}",
+      "${kind}_repo_url": "${repo_url}",
+      "${kind}_repo_name": "${repo_name}",
+      "${kind}_commit_sha": "${commit_sha}",
+      "${kind}_flow": "${flow}"
+    }
+EOF
 }
 
 exit_non_zero_if_mid_blue_green_deployment()
