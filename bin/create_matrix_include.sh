@@ -64,6 +64,7 @@ excluded()
 {
   # Differ still has TF attestations
   # Creator is in Gitlab, not Github
+
   local -r flow="${1}"
   if [ "${flow}" == "differ-ci" ] || [ "${flow}" == "creator-ci" ]; then
     return 0
@@ -74,21 +75,27 @@ excluded()
 
 create_matrix_include()
 {
+  # The Kosli CLI command is
+  #   kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" ...  --output=json
+  # which returns JSON with keys
+  #   "snappish1" for Artifacts in KOSLI_AWS_BETA but not KOSLI_AWS_PROD
+  #   "snappish2" for Artifacts in KOSLI_AWS_PROD but not KOSLI_AWS_BETA
+
   local -r artifacts_length=$(echo "${diff}" | jq -r '.snappish1.artifacts | length')
   separator=""
   {
     echo -n '['
     for ((n = 0; n < artifacts_length; n++))
     do
-      #
       artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$n]")"  # eg {...}
       flow="$(echo "${artifact}" | jq -r '.flow')"                     # eg saver-ci
       if ! excluded "${flow}" ; then
         echo "${separator}"
-        echo_json "incoming" "${artifact}"
-
+        echo "  {"
+        echo_json_entries "," "incoming" "${artifact}"
         # TODO: outgoing
-
+        # echo_json_entries "" "outgoing" "${artifact}"
+        echo "  }"
         separator=","
       fi
     done
@@ -99,10 +106,11 @@ create_matrix_include()
   jq . "${MATRIX_INCLUDE_FILENAME}"
 }
 
-echo_json()
+echo_json_entries()
 {
-  local -r kind="${1}"                                             # incoming | outgoing
-  local -r artifact="${2}"                                         # {...}
+  local -r separator="${1}"
+  local -r kind="${2}"                                             # incoming | outgoing
+  local -r artifact="${3}"                                         # {...}
   commit_url="$(echo "${artifact}" | jq -r '.commit_url')"         # eg https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
   image_name="$(echo "${artifact}" | jq -r '.name')"               # eg 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
   fingerprint="$(echo "${artifact}" | jq -r '.fingerprint')"       # eg b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
@@ -112,14 +120,12 @@ echo_json()
   repo_name="${repo_url##*/}"                                      # eg saver
 
   cat << EOF
-    {
       "${kind}_image_name": "${image_name}",
       "${kind}_fingerprint": "${fingerprint}",
       "${kind}_repo_url": "${repo_url}",
       "${kind}_repo_name": "${repo_name}",
       "${kind}_commit_sha": "${commit_sha}",
-      "${kind}_flow": "${flow}"
-    }
+      "${kind}_flow": "${flow}"${separator}
 EOF
 }
 
