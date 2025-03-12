@@ -88,11 +88,12 @@ jobs:
 
 
   sdlc-control-gate:
-    if: ${{ needs.find-artifacts.outputs.matrix_include != '' }}
+    if: ${{ needs.find-artifacts.outputs.matrix_include != '[]' }}
     needs: [find-artifacts]
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
+      matrix:
+        include: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
     steps:
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
@@ -107,7 +108,7 @@ jobs:
         run:
           kosli attest artifact "${{ matrix.name }}"
             --fingerprint="${{ matrix.fingerprint }}"
-            --name="${{ matrix.service }}"
+            --name="${{ matrix.flow }}"
 
       - name: Assert Artifact is compliant for aws-prod
         run:
@@ -117,14 +118,15 @@ jobs:
 
 
   approve:
-    if: ${{ needs.find-artifacts.outputs.matrix_include != '' }}
+    if: ${{ needs.find-artifacts.outputs.matrix_include != '[]' }}
     needs: [find-artifacts, sdlc-control-gate]
     runs-on: ubuntu-latest
     environment:
       name: production
       url:  https://cyber-dojo.org
     strategy:
-      matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
+      matrix:
+        include: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
     steps:
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
@@ -144,16 +146,17 @@ jobs:
 
 
   deploy-to-prod:
-    if: ${{ needs.find-artifacts.outputs.matrix_include != '' }}
+    if: ${{ needs.find-artifacts.outputs.matrix_include != '[]' }}
     needs: [setup, find-artifacts, approve]
     strategy:
-      matrix: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
+      matrix:
+        include: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
     permissions:
       id-token: write
       contents: write
     uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.23
     with:
-      checkout_repository:    "cyber-dojo/${{ matrix.service }}"
+      checkout_repository:    "cyber-dojo/${{ matrix.repo_name }}"
       checkout_commit_sha:    ${{ matrix.commit_sha }}
       checkout_fetch_depth:   0
       aws_region:             ${{ needs.setup.outputs.aws_region }}
@@ -163,5 +166,5 @@ jobs:
       working_directory:      deployment/terraform/
       tf_apply:               true
       tf_version:             v1.9.1
-      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.name }}"}'
+      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.image_name }}"}'
 

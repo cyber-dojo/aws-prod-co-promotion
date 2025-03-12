@@ -30,39 +30,39 @@ $ make matrix_include
 {
   "include": [
     {
-      "flow": "nginx-ci",
-      "service": "nginx",
+      "image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:fa32058@sha256:0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
       "fingerprint": "0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
       "repo_url": "https://github.com/cyber-dojo/nginx/",
+      "repo_name": "nginx",
       "commit_sha": "fa32058a046015786d1589e16af7da0973f2e726",
-      "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:fa32058@sha256:0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1"
+      "flow": "nginx-ci"
     },
     {
-      "flow": "web-ci",
-      "service": "web",
+      "image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:ed1878b@sha256:337fa91d02fa59729aca2941bbfebf999d1c5ae74b1492a4c99a33a925c7f052",
       "fingerprint": "337fa91d02fa59729aca2941bbfebf999d1c5ae74b1492a4c99a33a925c7f052",
       "repo_url": "https://github.com/cyber-dojo/web/",
+      "repo_name": "web",
       "commit_sha": "ed1878bd4aba3cada1e6ae7bc510f6354c61c484",
-      "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:ed1878b@sha256:337fa91d02fa59729aca2941bbfebf999d1c5ae74b1492a4c99a33a925c7f052"
+      "flow": "web-ci"
     },
     {
-      "flow": "custom-start-points-ci",
-      "service": "custom-start-points",
+      "image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/custom-start-points:df95ef1@sha256:47849582a3804b2091b68e97dab36789e2346229df6d2c398c256a51c884e5ce",
       "fingerprint": "47849582a3804b2091b68e97dab36789e2346229df6d2c398c256a51c884e5ce",
       "repo_url": "https://github.com/cyber-dojo/custom-start-points/",
+      "repo_name": "custom-start-points",
       "commit_sha": "df95ef1e16c367e9c1bda5de2b67c168ab17174b",
-      "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/custom-start-points:df95ef1@sha256:47849582a3804b2091b68e97dab36789e2346229df6d2c398c256a51c884e5ce"
+      "flow": "custom-start-points-ci"
     },
     {
-      "flow": "languages-start-points-ci",
-      "service": "languages-start-points",
+      "image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/languages-start-points:9c27069@sha256:8fc546c2adeec10f8a52201e8e7fea854a804a929ab692275b61cbce141c9182",
       "fingerprint": "8fc546c2adeec10f8a52201e8e7fea854a804a929ab692275b61cbce141c9182",
       "repo_url": "https://github.com/cyber-dojo/languages-start-points/",
+      "repo_name": "custom-start-points",
       "commit_sha": "9c270699fa10888b1c270ae69f8c13988bc4a26b",
-      "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/languages-start-points:9c27069@sha256:8fc546c2adeec10f8a52201e8e7fea854a804a929ab692275b61cbce141c9182"
+      "flow": "languages-start-points-ci"
     }
   ]
 }
 ```
 
-When NO Artifacts are found, the matrix-include.json file will be empty.
+When NO Artifacts are found, the matrix-include.json file will be '[]'.
