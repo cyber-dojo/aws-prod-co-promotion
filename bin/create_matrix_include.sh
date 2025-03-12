@@ -80,26 +80,11 @@ create_matrix_include()
     for ((n = 0; n < artifacts_length; n++))
     do
         artifact="$(echo "${diff}" | jq -r ".snappish1.artifacts[$n]")"  # eg {...}
-        commit_url="$(echo "${artifact}" | jq -r '.commit_url')"         # eg https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-
-        image_name="$(echo "${artifact}" | jq -r '.name')"               # eg 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
-        fingerprint="$(echo "${artifact}" | jq -r '.fingerprint')"       # eg b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
         flow="$(echo "${artifact}" | jq -r '.flow')"                     # eg saver-ci
-        commit_sha="${commit_url:(-40)}"                                 # eg 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-        repo_url="${commit_url:0:(-47)}"                                 # eg https://github.com/cyber-dojo/saver
-        repo_name="${repo_url##*/}"                                      # eg saver
-
         if ! excluded "${flow}" ; then
           echo "${separator}"
           separator=","
-          echo "  {"
-          echo "    \"image_name\": \"${image_name}\","
-          echo "    \"fingerprint\": \"${fingerprint}\","
-          echo "    \"repo_url\": \"${repo_url}\","
-          echo "    \"repo_name\": \"${repo_name}\","
-          echo "    \"commit_sha\": \"${commit_sha}\","
-          echo "    \"flow\": \"${flow}\""
-          echo -n "  }"
+          write_json "${artifact}"
         fi
       done
       echo
@@ -109,7 +94,28 @@ create_matrix_include()
   jq . "${MATRIX_INCLUDE_FILENAME}"
 }
 
-exit_non_zero_if_duplicate()
+write_json()
+{
+  local -r artifact="${1}"
+  commit_url="$(echo "${artifact}" | jq -r '.commit_url')"         # eg https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+  image_name="$(echo "${artifact}" | jq -r '.name')"               # eg 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+  fingerprint="$(echo "${artifact}" | jq -r '.fingerprint')"       # eg b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+  flow="$(echo "${artifact}" | jq -r '.flow')"                     # eg saver-ci
+  commit_sha="${commit_url:(-40)}"                                 # eg 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+  repo_url="${commit_url:0:(-47)}"                                 # eg https://github.com/cyber-dojo/saver
+  repo_name="${repo_url##*/}"                                      # eg saver
+
+  echo "  {"
+  echo "    \"image_name\": \"${image_name}\","
+  echo "    \"fingerprint\": \"${fingerprint}\","
+  echo "    \"repo_url\": \"${repo_url}\","
+  echo "    \"repo_name\": \"${repo_name}\","
+  echo "    \"commit_sha\": \"${commit_sha}\","
+  echo "    \"flow\": \"${flow}\""
+  echo -n "  }"
+}
+
+exit_non_zero_if_mid_blue_green_deployment()
 {
   local -r raw="$(jq -r '.. | .flow? | select(length > 0)' "${MATRIX_INCLUDE_FILENAME}" | sort)"
   local -r cooked="$(echo "${raw}" | uniq)"
@@ -121,7 +127,6 @@ exit_non_zero_if_duplicate()
   fi
 }
 
-
 check_args "$@"
 create_matrix_include "$@"
-exit_non_zero_if_duplicate
+exit_non_zero_if_mid_blue_green_deployment
