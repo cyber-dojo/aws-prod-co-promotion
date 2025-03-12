@@ -90,19 +90,20 @@ create_matrix_include()
         repo_name="${repo_url##*/}"                                      # eg saver
 
         if ! excluded "${flow}" ; then
-          echo -n "${separator}"
+          echo "${separator}"
           separator=","
-          echo -n '{'
-          echo -n "  \"image_name\": \"${image_name}\","
-          echo -n "  \"fingerprint\": \"${fingerprint}\","
-          echo -n "  \"repo_url\": \"${repo_url}\","
-          echo -n "  \"repo_name\": \"${repo_name}\","
-          echo -n "  \"commit_sha\": \"${commit_sha}\","
-          echo -n "  \"flow\": \"${flow}\""
-          echo -n '}'
+          echo "  {"
+          echo "    \"image_name\": \"${image_name}\","
+          echo "    \"fingerprint\": \"${fingerprint}\","
+          echo "    \"repo_url\": \"${repo_url}\","
+          echo "    \"repo_name\": \"${repo_name}\","
+          echo "    \"commit_sha\": \"${commit_sha}\","
+          echo "    \"flow\": \"${flow}\""
+          echo -n "  }"
         fi
       done
-      echo -n ']'
+      echo
+      echo ']'
   } > "${MATRIX_INCLUDE_FILENAME}"
 
   jq . "${MATRIX_INCLUDE_FILENAME}"

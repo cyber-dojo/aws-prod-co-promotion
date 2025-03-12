@@ -84,7 +84,7 @@ jobs:
         id: vars
         run: |
           make matrix_include
-          echo "matrix_include=$(cat ./json/matrix-include.json)" >> ${GITHUB_OUTPUT}
+          echo "matrix_include=$(jq --raw-output --compact-output . ./json/matrix-include.json)" >> ${GITHUB_OUTPUT}
 
 
   sdlc-control-gate:
