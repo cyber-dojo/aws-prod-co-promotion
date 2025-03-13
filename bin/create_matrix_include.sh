@@ -17,15 +17,15 @@ KOSLI_AWS_PROD="${KOSLI_AWS_PROD:-aws-prod}"
 # This means that the output of the $(subshell) is not just stdout, it is stdout+stderr!
 # To ensure the Kosli CLI does not print to stderr, we set the --debug=false flag explicitly.
 
-#diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
-#    --host="${KOSLI_HOST}" \
-#    --org="${KOSLI_ORG}" \
-#    --api-token="${KOSLI_API_TOKEN}" \
-#    --debug=false \
-#    --output=json)"
+diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
+    --host="${KOSLI_HOST}" \
+    --org="${KOSLI_ORG}" \
+    --api-token="${KOSLI_API_TOKEN}" \
+    --debug=false \
+    --output=json)"
 
 #TODO: How to add and automate some tests. Use pre-canned files in docs/
-diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
+#diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
 #diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-mid-blue-green.json")"
 #diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-new-flow.json")"
 
@@ -91,7 +91,7 @@ create_matrix_include()
     for ((n = 0; n < incoming_length; n++))
     do
       artifact="$(echo "${incoming_artifacts}" | jq -r -c ".[$n]")"  # eg {...}
-      flow="$(echo "${artifact}" | jq -r '.flow')"      # eg saver-ci
+      flow="$(echo "${artifact}" | jq -r '.flow')"                   # eg saver-ci
       if ! excluded "${flow}" ; then
         echo "${separator}"
         echo "  {"
@@ -126,20 +126,14 @@ echo_json_outgoing()
   done
 
   local -r kind="outgoing"
-
-# TODO: Create NO_IMAGE here-string
-#  cat << EOF
-#      "${kind}_image_name": "",
-#      "${kind}_fingerprint": "",
-#      "${kind}_repo_url": "",
-#      "${kind}_repo_name": "",
-#      "${kind}_commit_sha": "",
-#      "${kind}_flow": ""
-#EOF
-
-  local -r no_image="$(jq -r -c . <<< NO_IMAGE)"
-  local -r separator=""
-  echo_json_entry "${kind}" "${no_image}" "${separator}"
+  cat << EOF
+      "${kind}_image_name": "",
+      "${kind}_fingerprint": "",
+      "${kind}_repo_url": "",
+      "${kind}_repo_name": "",
+      "${kind}_commit_sha": "",
+      "${kind}_flow": ""
+EOF
 }
 
 echo_json_entry()
