@@ -17,16 +17,17 @@ KOSLI_AWS_PROD="${KOSLI_AWS_PROD:-aws-prod}"
 # This means that the output of the $(subshell) is not just stdout, it is stdout+stderr!
 # To ensure the Kosli CLI does not print to stderr, we set the --debug=false flag explicitly.
 
-diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
-    --host="${KOSLI_HOST}" \
-    --org="${KOSLI_ORG}" \
-    --api-token="${KOSLI_API_TOKEN}" \
-    --debug=false \
-    --output=json)"
+#diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
+#    --host="${KOSLI_HOST}" \
+#    --org="${KOSLI_ORG}" \
+#    --api-token="${KOSLI_API_TOKEN}" \
+#    --debug=false \
+#    --output=json)"
 
 #TODO: How to add and automate some tests. Use pre-canned files in docs/
-#diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
+diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
 #diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-mid-blue-green.json")"
+#diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-new-flow.json")"
 
 show_help()
 {
@@ -81,22 +82,21 @@ create_matrix_include()
   #   "snappish1" for Artifacts in KOSLI_AWS_BETA but not KOSLI_AWS_PROD, these will be deployed
   #   "snappish2" for Artifacts in KOSLI_AWS_PROD but not KOSLI_AWS_BETA, these will be un-deployed
 
-  local -r incoming=$(echo "${diff}" | jq -r '.snappish1.artifacts')
-  #local -r outgoing=$(echo "${diff}" | jq -r '.snappish2.artifacts')
-  local -r incoming_length=$(echo "${incoming}" | jq -r '. | length')
+  local -r incoming_artifacts=$(echo "${diff}" | jq -r -c '.snappish1.artifacts')
+  local -r outgoing_artifacts=$(echo "${diff}" | jq -r -c '.snappish2.artifacts')
+  local -r incoming_length=$(echo "${incoming_artifacts}" | jq -r '. | length')
   separator=""
   {
     echo -n '['
     for ((n = 0; n < incoming_length; n++))
     do
-      artifact="$(echo "${incoming}" | jq -r ".[$n]")"  # eg {...}
+      artifact="$(echo "${incoming_artifacts}" | jq -r -c ".[$n]")"  # eg {...}
       flow="$(echo "${artifact}" | jq -r '.flow')"      # eg saver-ci
       if ! excluded "${flow}" ; then
         echo "${separator}"
         echo "  {"
-        echo_json_entries "" "incoming" "${artifact}"
-        # TODO: outgoing
-        # echo_json_entries "" "outgoing" "${artifact}"
+        echo_json_entry    "incoming" "${artifact}" ","
+        echo_json_outgoing "${flow}" "${outgoing_artifacts}"
         echo "  }"
         separator=","
       fi
@@ -108,15 +108,50 @@ create_matrix_include()
   jq . "${MATRIX_INCLUDE_FILENAME}"
 }
 
-echo_json_entries()
+echo_json_outgoing()
 {
-  local -r separator="${1}"
-  local -r kind="${2}"                                        # incoming | outgoing
-  local -r artifact="${3}"                                    # {...}
-  commit_url="$(echo "${artifact}" | jq -r '.commit_url')"    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+  local -r incoming_flow="${1}"
+  local -r outgoing_artifacts="${2}"
+  local -r outgoing_length=$(echo "${outgoing_artifacts}" | jq -r '. | length')
+
+  for ((n = 0; n < outgoing_length; n++))
+  do
+    artifact="$(echo "${outgoing_artifacts}" | jq -r ".[$n]")"       # eg {...}
+    outgoing_flow="$(echo "${artifact}" | jq -r '.flow')"  # eg saver-ci
+    if [ "${outgoing_flow}" == "${incoming_flow}" ]; then
+      separator=""
+      echo_json_entry "outgoing" "${artifact}" "${separator}"
+      return 0
+    fi
+  done
+
+  local -r kind="outgoing"
+
+# TODO: Create NO_IMAGE here-string
+#  cat << EOF
+#      "${kind}_image_name": "",
+#      "${kind}_fingerprint": "",
+#      "${kind}_repo_url": "",
+#      "${kind}_repo_name": "",
+#      "${kind}_commit_sha": "",
+#      "${kind}_flow": ""
+#EOF
+
+  local -r no_image="$(jq -r -c . <<< NO_IMAGE)"
+  local -r separator=""
+  echo_json_entry "${kind}" "${no_image}" "${separator}"
+}
+
+echo_json_entry()
+{
+  local -r kind="${1}"                                        # incoming | outgoing
+  local -r artifact="${2}"                                    # {...}
+  local -r separator="${3}"                                   # "," or ""
+
   image_name="$(echo "${artifact}" | jq -r '.name')"          # 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
   fingerprint="$(echo "${artifact}" | jq -r '.fingerprint')"  # b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
   flow="$(echo "${artifact}" | jq -r '.flow')"                # saver-ci
+  commit_url="$(echo "${artifact}" | jq -r '.commit_url')"    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
   commit_sha="${commit_url:(-40)}"                            # 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
   repo_url="${commit_url:0:(-48)}"                            # https://github.com/cyber-dojo/saver  40+/+commit+/
   repo_name="${repo_url##*/}"                                 # saver
