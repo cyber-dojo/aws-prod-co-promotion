@@ -21,19 +21,22 @@ MVP DONE
     See https://github.com/cyber-dojo/ci-testing/blob/main/.github/workflows/matrix.yml
 - All deployments in parallel via matrix
 - Turn off dry-run
-- Add a manual approval step. Like used for each repo currently.
-
-
-
-MVP DOING
----------
 - Do sdlc-control-gate job using matrix with [kosli assert artifact] in each parallel job
+- Add a manual approval step. Like used for each repo currently.
+- check each service has only one Artifact running in aws-beta (not mid blue/green deployment)
+- do approval for each artifact in parallel via matrix
+- refactor exit_non_zero_if_mid_blue_green_deployment, so it is passed the matrix-include-json as an argument
+- refactor create_matrix_include.sh, so it outputs the json rather than saving it to a file, update the --help text
+
+
+MVP TODO
+--------
+- put deployment-diff-url into JSON for each Artifact
+- ?refactor scripts so they can either accept stdin or a named file
 
 
 LATER?
 ------
-- check each service has only one Artifact running in aws-beta (not mid blue/green deployment)
-- do approval for each artifact in parallel via matrix
 - do custom attestation on overlapping time-period
    - Does this also get attested on each Artifact? I guess so.
 - make workflow reusable, pass in all KOSLI arguments as inputs.

@@ -12,10 +12,10 @@
       },
       {
         "fingerprint": "02cfa72b7907e22c3ff2dd66138f307945a28e26519077f5770eb6ce176f41c4",
-        "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/wibble:59ba013@sha256:02cfa72b7907e22c3ff2dd66138f307945a28e26519077f5770eb6ce176f41c4",
+        "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:59ba013@sha256:02cfa72b7907e22c3ff2dd66138f307945a28e26519077f5770eb6ce176f41c4",
         "most_recent_timestamp": 1740407343,
-        "flow": "wibble-ci",
-        "commit_url": "https://github.com/cyber-dojo/wibble/commit/59ba013400d06f9fe56b3ff516271bca2523c5c2",
+        "flow": "web-ci",
+        "commit_url": "https://github.com/cyber-dojo/web/commit/59ba013400d06f9fe56b3ff516271bca2523c5c2",
         "instance_count": 3
       }
     ]

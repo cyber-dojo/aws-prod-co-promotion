@@ -1,0 +1,4 @@
+#TODO: How to add and automate some tests. Use pre-canned files in docs/
+#diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
+#diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-mid-blue-green.json")"  # goes into never ending loop
+#diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-new-flow.json")"
