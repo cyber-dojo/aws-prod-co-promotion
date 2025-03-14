@@ -11,7 +11,7 @@ test_no_deployments()
   assert_status_0
 }
 
-xtest_new_flow()
+test_new_flow()
 {
   local -r filename="new-flow.json"
   create_matrix_include "${filename}"
@@ -20,7 +20,7 @@ xtest_new_flow()
   assert_status_0
 }
 
-xtest_4_deployments()
+test_4_deployments()
 {
   local -r filename="4.json"
   create_matrix_include "${filename}"
@@ -33,6 +33,9 @@ xtest_blue_green_aws_beta()
 {
   local -r filename="blue-green-aws-beta.json"
   create_matrix_include "${filename}"
+  assert_stdout_empty
+  assert_stderr_equals "$(cat "${my_dir}/expected/blue-green-aws-beta.txt")"
+  assert_status_equals 42
 }
 
 xtest_blue_green_aws_prod()
