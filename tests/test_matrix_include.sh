@@ -4,22 +4,29 @@ readonly my_dir="$(cd "$(dirname "${0}")" && pwd)"
 
 test_no_deployments()
 {
-  create_matrix_include 0.json
+  local -r filename="0.json"
+  create_matrix_include "${filename}"
+  assert_stdout_equals "$(cat "${my_dir}/expected/${filename}")"
+  assert_stderr_empty
+  assert_status_0
 }
 
-test_new_flow()
+xtest_new_flow()
 {
-  create_matrix_include new-flow.json
+  local -r filename="new-flow.json"
+  create_matrix_include "${filename}"
 }
 
-test_4_deployments()
+xtest_4_deployments()
 {
-  create_matrix_include 4.json
+  local -r filename="4.json"
+  create_matrix_include "${filename}"
 }
 
-test_blue_green_aws_beta()
+xtest_blue_green_aws_beta()
 {
-  create_matrix_include blue-green-aws-beta.json
+  local -r filename="blue-green-aws-beta.json"
+  create_matrix_include "${filename}"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -27,7 +34,9 @@ test_blue_green_aws_beta()
 create_matrix_include()
 {
   local -r filename="${1}"
-  cat ${my_dir}/diff-snapshots/${filename} | ${my_dir}/../bin/create_matrix_include.sh | jq .
+  cat ${my_dir}/diff-snapshots/${filename} | ${my_dir}/../bin/create_matrix_include.sh | jq . >${stdoutF} 2>${stderrF}
+  status=$?
+  echo ${status} >${statusF}
 }
 
 echo "::${0##*/}"

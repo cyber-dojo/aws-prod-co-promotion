@@ -2,8 +2,7 @@
 assert_diagnostic_is()
 {
   # assert_stdout_empty
-
-  local -r stderr="$(de_warned_cat "${stderrF}")"
+  local -r stderr="$(cat "${stderrF}")"
   local expected_diagnostic=("$@")
   for expected_line in "${expected_diagnostic[@]}"
   do
@@ -27,7 +26,7 @@ assert_stdout_equals()
 {
   local -r message="stdout:$(dump_sss)"
   local -r expected="${1}"
-  local -r actual="$(de_warned_cat "${stdoutF}")"
+  local -r actual="$(cat "${stdoutF}")"
   assertEquals "${message}" "${expected}" "${actual}"
 
 }
@@ -35,7 +34,7 @@ assert_stdout_equals()
 assert_stdout_includes()
 {
   local -r includes="${1}"
-  local -r stdout="$(de_warned_cat "${stdoutF}")"
+  local -r stdout="$(cat "${stdoutF}")"
   if [[ "${stdout}" != *"${includes}"* ]]; then
     echo "<stdout>"
     echo "${stdout}"
@@ -55,14 +54,14 @@ assert_stderr_equals()
 {
   local -r message="stderr:$(dump_sss)"
   local -r expected="${1}"
-  local -r actual="$(de_warned_cat "${stderrF}")"
+  local -r actual="$(cat "${stderrF}")"
   assertEquals "${message}" "${expected}" "${actual}"
 }
 
 assert_stderr_includes()
 {
   local -r includes="${1}"
-  local -r stderr="$(de_warned_cat "${stderrF}")"
+  local -r stderr="$(cat "${stderrF}")"
   if [[ "${stderr}" != *"${includes}"* ]]; then
     echo "<stderr>"
     echo "${stderr}"
@@ -74,7 +73,7 @@ assert_stderr_includes()
 assert_stderr_line_count_equals()
 {
   # local -r newline=$'\n'
-  local -r stderr="$(de_warned_cat "${stderrF}")"
+  local -r stderr="$(cat "${stderrF}")"
   local -r diagnostic=$(printf 'stderr-line-count\n<stderr>\n%s\n</stderr>\n' "${stderr}")
   assertEquals "${diagnostic}" "${1}" "$(echo "${stderr}" | wc -l | awk '{ print $1 }')"
 }
@@ -107,7 +106,7 @@ dump_stdout()
 {
   echo
   echo '<stdout>'
-  de_warned_cat "${stdoutF}"
+  cat "${stdoutF}"
   echo '</stdout>'
 }
 
@@ -115,7 +114,7 @@ dump_stderr()
 {
   echo
   echo '<stderr>'
-  de_warned_cat "${stderrF}"
+  cat "${stderrF}"
   echo '</stderr>'
 }
 
@@ -123,7 +122,7 @@ dump_status()
 {
   echo
   echo '<status>'
-  de_warned_cat "${statusF}"
+  cat "${statusF}"
   echo '</status>'
 }
 
@@ -148,11 +147,3 @@ absPath()
   printf "%s/%s\n" "$(pwd)" "$(basename "${1}")"
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-de_warned_cat()
-{
-  local -r filename="${1}"
-  local -r warning="WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested"
-  cat "${filename}" | grep -v "${warning}"
-}
