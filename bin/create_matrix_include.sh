@@ -11,10 +11,10 @@ show_help()
 
     Use: ${MY_NAME}
 
-    Reads the result of a 'kosli diff snapshots aws-beta aws-prod --org=cyber-dojo ... --output-type=json' from stdin.
-    Writes a JSON array with one dict for each Artifact to be promoted, to stdout.
+    Reads (from stdin) the result of a 'kosli diff snapshots aws-beta aws-prod --org=cyber-dojo ... --output-type=json'.
+    Writes (to stdout) a JSON array with one dict for each Artifact to be promoted.
     This JSON can be used in a Github Action matrix to run a parallel job for each Artifact.
-    If a blue-green deployment is in progress for any of the Artifacts in aws-beta or aws-prod, the script will exit with a non-zero value.
+    If a blue-green deployment is in progress in aws-beta or aws-prod, the script will exit with a non-zero value.
     Example:
 
       $ cat docs/diff-snapshots-2.json | ${MY_NAME} | jq .
@@ -71,8 +71,8 @@ check_args()
 
 excluded()
 {
-  # Differ still has TF attestations
-  # Creator is in Gitlab, not Github
+  # Currently, differ still has TF attestations
+  # Currently, creator is in Gitlab, not Github
 
   local -r flow="${1}"
   if [ "${flow}" == "differ-ci" ] || [ "${flow}" == "creator-ci" ]; then

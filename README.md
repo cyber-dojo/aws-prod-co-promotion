@@ -14,8 +14,12 @@ $ ./bin/create_matrix_include.sh --help
 ```
     Use: create_matrix_include.sh
 
-    Echoes JSON ready to be used in a Github Action matrix to run a parallel job for each Artifact.
-    If a blue-green deployment is in progress for any of the Artifacts the script will exit with a non-zero value.
+    Reads (from stdin) the result of a 'kosli diff snapshots aws-beta aws-prod --org=cyber-dojo ... --output-type=json'.
+    Writes (to stdout) a JSON array with one dict for each Artifact to be promoted.
+    This JSON can be used in a Github Action matrix to run a parallel job for each Artifact.
+    If a blue-green deployment is in progress in aws-beta or aws-prod, the script will exit with a non-zero value.    
+    Example:
+      ...
 ```
 
 Example where three Artifacts were found:
