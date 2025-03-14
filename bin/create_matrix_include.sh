@@ -11,10 +11,10 @@ show_help()
 
     Use: ${MY_NAME}
 
-    Reads the result of a 'kosli diff snapshots --output-type=json' from stdin.
+    Reads the result of a 'kosli diff snapshots aws-beta aws-prod --org=cyber-dojo ... --output-type=json' from stdin.
     Writes a JSON array with one dict for each Artifact to be promoted, to stdout.
     This JSON can be used in a Github Action matrix to run a parallel job for each Artifact.
-    If a blue-green deployment is in progress for any of the Artifacts the script will exit with a non-zero value.
+    If a blue-green deployment is in progress for any of the Artifacts in aws-beta or aws-prod, the script will exit with a non-zero value.
     Example:
 
       $ cat docs/diff-snapshots-2.json | ${MY_NAME} | jq .
@@ -84,14 +84,11 @@ excluded()
 
 create_matrix_include()
 {
-  # diff is the result of the Kosli CLI command:
-  #   kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" ...  --output=json
-  # which returns JSON with keys
-  #   "snappish1" for Artifacts in KOSLI_AWS_BETA but not KOSLI_AWS_PROD; these will be deployed
-  #   "snappish2" for Artifacts in KOSLI_AWS_PROD but not KOSLI_AWS_BETA; these will be un-deployed
-  local -r diff="${1}"
-  local -r incoming_artifacts=$(echo "${diff}" | jq -r -c '.snappish1.artifacts')
-  local -r outgoing_artifacts=$(echo "${diff}" | jq -r -c '.snappish2.artifacts')
+  local -r incoming="${1}"
+  local -r outgoing="${2}"
+  local -r incoming_artifacts=$(echo "${incoming}" | jq -r -c '.artifacts')
+  local -r outgoing_artifacts=$(echo "${outgoing}" | jq -r -c '.artifacts')
+
   local -r incoming_length=$(echo "${incoming_artifacts}" | jq -r '. | length')
   separator=""
   {
@@ -168,19 +165,32 @@ EOF
 
 exit_non_zero_if_mid_blue_green_deployment()
 {
-  local -r raw="$(jq -r '.. | .incoming_flow? | select(length > 0)' <<< "${1}" | sort)"
+  local -r snappish="${1}"
+  local -r env_id="$(jq -r '.snapshot_id' <<< "${snappish}")"
+  local -r artifacts="$(jq -r '.artifacts' <<< "${snappish}")"
+  local -r raw="$(jq -r '.. | .flow? | select(length > 0)' <<< "${artifacts}" | sort)"
   local -r cooked="$(echo "${raw}" | uniq)"
   if [ "${raw}" != "${cooked}" ]; then
-    stderr Duplicate flow names in:
+    stderr "Duplicate flow names in ${env_id}"
     stderr "  $(echo "${raw}" | tr '\n' ' ')"
     stderr This indicates a blue-green deployment is in progress
     exit 42
   fi
 }
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# diff is the result of the Kosli CLI command:
+#   kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" ...  --output=json
+# which returns JSON with keys
+#   "snappish1" for Artifacts in KOSLI_AWS_BETA but not KOSLI_AWS_PROD; these will be deployed
+#   "snappish2" for Artifacts in KOSLI_AWS_PROD but not KOSLI_AWS_BETA; these will be un-deployed
+
 check_args "$@"
 exit_non_zero_unless_installed kosli jq
 diff="$(jq --raw-output --compact-output .)"
-matrix_include="$(create_matrix_include "${diff}")"
-exit_non_zero_if_mid_blue_green_deployment "${matrix_include}"
+incoming=$(echo "${diff}" | jq -r -c '.snappish1')
+outgoing=$(echo "${diff}" | jq -r -c '.snappish2')
+exit_non_zero_if_mid_blue_green_deployment "${incoming}"
+exit_non_zero_if_mid_blue_green_deployment "${outgoing}"
+matrix_include="$(create_matrix_include "${incoming}" "${outgoing}")"
 echo "${matrix_include}"
