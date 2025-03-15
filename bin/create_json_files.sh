@@ -3,7 +3,6 @@ set -Eeu
 
 export ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "${ROOT_DIR}/bin/lib.sh"
-exit_non_zero_unless_installed kosli jq
 
 KOSLI_HOST="${KOSLI_HOST:-https://app.kosli.com}"
 KOSLI_ORG="${KOSLI_ORG:-cyber-dojo}"
@@ -22,9 +21,6 @@ diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
     --debug=false \
     --output=json)"
 
-#local Testing
-#diff="$(cat "${ROOT_DIR}/docs/diff-snapshots-4.json")"
-
 show_help()
 {
     local -r MY_NAME=$(basename "${BASH_SOURCE[0]}")
@@ -32,7 +28,7 @@ show_help()
 
     Use: ${MY_NAME}
 
-    Creates a json file in the json/ directory for each Artifact. Eg
+    Creates a json file in the docs/json/ directory for each Artifact. Eg
 
     {
              "flow": "saver-ci",
@@ -90,7 +86,7 @@ create_json_files()
       commit_sha="${commit_url:(-40)}"                                 # eg 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
       repo_url="${commit_url:0:(-47)}"                                 # eg https://github.com/cyber-dojo/saver
 
-      filename="${ROOT_DIR}/json/${service}.json"
+      filename="${ROOT_DIR}/docs/json/${service}.json"
 
       if excluded "${service}"; then
         echo "Cannot promote ${service}"
@@ -109,5 +105,6 @@ create_json_files()
   done
 }
 
+exit_non_zero_unless_installed kosli jq
 check_args "$@"
 create_json_files "$@"
