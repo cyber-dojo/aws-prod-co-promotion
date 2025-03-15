@@ -166,13 +166,12 @@ EOF
 exit_non_zero_if_mid_blue_green_deployment()
 {
   local -r snappish="${1}"
-  local -r env_id="$(jq -r '.snapshot_id' <<< "${snappish}")"
   local -r artifacts="$(jq -r '.artifacts' <<< "${snappish}")"
-  local -r raw="$(jq -r '.. | .flow? | select(length > 0)' <<< "${artifacts}" | sort)"
-  local -r cooked="$(echo "${raw}" | uniq)"
-  if [ "${raw}" != "${cooked}" ]; then
+  local -r duplicate_flows="$(jq -r '.. | .flow? | select(length > 0)' <<< "${artifacts}" | sort | uniq --repeated)"
+  if [ "${duplicate_flows}" != "" ]; then
+    local -r env_id="$(jq -r '.snapshot_id' <<< "${snappish}")"
     stderr "Duplicate flow names in ${env_id}"
-    stderr "  $(echo "${raw}" | tr '\n' ' ')"
+    stderr "${duplicate_flows}"
     stderr This indicates a blue-green deployment is in progress
     exit 42
   fi
@@ -186,7 +185,7 @@ exit_non_zero_if_mid_blue_green_deployment()
 #   "snappish2" for Artifacts in KOSLI_AWS_PROD but not KOSLI_AWS_BETA; these will be un-deployed
 
 check_args "$@"
-exit_non_zero_unless_installed kosli jq
+exit_non_zero_unless_installed jq
 diff="$(jq --raw-output --compact-output .)"
 incoming=$(echo "${diff}" | jq -r -c '.snappish1')
 outgoing=$(echo "${diff}" | jq -r -c '.snappish2')

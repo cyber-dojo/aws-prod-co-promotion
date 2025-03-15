@@ -38,7 +38,7 @@ test_blue_green_aws_beta()
   assert_status_equals 42
 }
 
-xtest_blue_green_aws_prod()
+test_blue_green_aws_prod()
 {
   local -r filename="blue-green-aws-prod"
   create_matrix_include "${filename}.json"
