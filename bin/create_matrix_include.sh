@@ -193,4 +193,4 @@ outgoing=$(echo "${diff}" | jq -r -c '.snappish2')
 exit_non_zero_if_mid_blue_green_deployment "${incoming}"
 exit_non_zero_if_mid_blue_green_deployment "${outgoing}"
 matrix_include="$(create_matrix_include "${incoming}" "${outgoing}")"
-echo "${matrix_include}"
+echo "${matrix_include}" | jq .

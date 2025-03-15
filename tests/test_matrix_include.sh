@@ -29,19 +29,22 @@ test_4_deployments()
   assert_status_0
 }
 
-xtest_blue_green_aws_beta()
+test_blue_green_aws_beta()
 {
-  local -r filename="blue-green-aws-beta.json"
-  create_matrix_include "${filename}"
+  local -r filename="blue-green-aws-beta"
+  create_matrix_include "${filename}.json"
   assert_stdout_empty
-  assert_stderr_equals "$(cat "${my_dir}/expected/blue-green-aws-beta.txt")"
+  assert_stderr_equals "$(cat "${my_dir}/expected/${filename}.txt")"
   assert_status_equals 42
 }
 
 xtest_blue_green_aws_prod()
 {
-  local -r filename="blue-green-aws-prod.json"
-  create_matrix_include "${filename}"
+  local -r filename="blue-green-aws-prod"
+  create_matrix_include "${filename}.json"
+  assert_stdout_empty
+  assert_stderr_equals "$(cat "${my_dir}/expected/${filename}.txt")"
+  assert_status_equals 42
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -49,8 +52,8 @@ xtest_blue_green_aws_prod()
 create_matrix_include()
 {
   local -r filename="${1}"
-  cat ${my_dir}/diff-snapshots/${filename} | ${my_dir}/../bin/create_matrix_include.sh | jq . >${stdoutF} 2>${stderrF}
-  status=$?
+  cat ${my_dir}/diff-snapshots/${filename} | ${my_dir}/../bin/create_matrix_include.sh >${stdoutF} 2>${stderrF}
+  status=${PIPESTATUS[1]}
   echo ${status} >${statusF}
 }
 
