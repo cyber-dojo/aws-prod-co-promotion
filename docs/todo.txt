@@ -23,13 +23,14 @@ MVP DONE
 - Turn off dry-run
 - Do sdlc-control-gate job using matrix with [kosli assert artifact] in each parallel job
 - Add a manual approval step. Like used for each repo currently.
-- check each service has only one Artifact running in aws-beta (not mid blue/green deployment)
+- check each service has only one Artifact running in aws-beta/aws-prod (not mid blue/green deployment)
 - do approval for each artifact in parallel via matrix
-- refactor exit_non_zero_if_mid_blue_green_deployment, so it is passed the matrix-include-json as an argument
-- refactor create_matrix_include.sh, so it outputs the json rather than saving it to a file, update the --help text
+- refactor exit_non_zero_if_mid_blue_green_deployment, so it is passed the json as an argument
+- refactor so script outputs the json rather than saving it to a file, update the --help text
 - rename create_matrix_include.sh to create_promotions.sh
 - use [jq <<< "${X}"] instead of [echo "${X}" | jq]
 - Do creation of keys "commit_url","commit_sha","repo_url" once only
+
 
 MVP TODO
 --------
