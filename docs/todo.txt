@@ -48,6 +48,12 @@ MVP TODO
 - Update test golden masters
 - Add test for 2.json
 - Add test for incoming/outgoing repo_urls being different
+- Do force deployments for runner and saver
+- Choose name for new Flow
+- Create new Flow, and update KOSLI_FLOW in main.yml pipeline
+- Run promotion workflow with actual deployments commented out (dry-run)
+- Put back actual deployments and run for real
+- Archive old Flow
 - In readme, add links to Kosli promotion Trail
 
 
