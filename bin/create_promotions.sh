@@ -73,17 +73,17 @@ create_promotions()
 {
   local -r incoming="${1}"
   local -r outgoing="${2}"
-  local -r incoming_artifacts=$(echo "${incoming}" | jq -r -c '.artifacts')
-  local -r outgoing_artifacts=$(echo "${outgoing}" | jq -r -c '.artifacts')
+  local -r incoming_artifacts=$(jq -r -c '.artifacts' <<< "${incoming}")
+  local -r outgoing_artifacts=$(jq -r -c '.artifacts' <<< "${outgoing}")
 
-  local -r incoming_length=$(echo "${incoming_artifacts}" | jq -r '. | length')
+  local -r incoming_length=$(jq -r '. | length' <<< "${incoming_artifacts}")
   separator=""
   {
     echo '['
     for ((n = 0; n < incoming_length; n++))
     do
-      artifact="$(echo "${incoming_artifacts}" | jq -r -c ".[$n]")"  # eg {...}
-      flow="$(echo "${artifact}" | jq -r '.flow')"                   # eg saver-ci
+      artifact="$(jq -r -c ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
+      flow="$(jq -r '.flow' <<< "${artifact}")"                   # eg saver-ci
       if ! excluded "${flow}" ; then
         echo "${separator}"
         echo '{'
@@ -102,12 +102,12 @@ echo_json_outgoing()
 {
   local -r incoming_flow="${1}"
   local -r outgoing_artifacts="${2}"
-  local -r outgoing_length=$(echo "${outgoing_artifacts}" | jq -r '. | length')
+  local -r outgoing_length=$(jq -r '. | length' <<< "${outgoing_artifacts}")
 
   for ((n = 0; n < outgoing_length; n++))
   do
-    artifact="$(echo "${outgoing_artifacts}" | jq -r ".[$n]")"  # eg {...}
-    outgoing_flow="$(echo "${artifact}" | jq -r '.flow')"       # eg saver-ci
+    artifact="$(jq -r ".[$n]" <<< "${outgoing_artifacts}")"  # eg {...}
+    outgoing_flow="$(jq -r '.flow' <<< "${artifact}")"       # eg saver-ci
     if [ "${outgoing_flow}" == "${incoming_flow}" ]; then
       separator=""
       echo_json_entry "outgoing" "${artifact}" "${separator}"
@@ -128,17 +128,17 @@ EOF
 
 echo_json_entry()
 {
-  local -r kind="${1}"                                        # incoming | outgoing
-  local -r artifact="${2}"                                    # {...}
-  local -r separator="${3}"                                   # "," or ""
+  local -r kind="${1}"                                     # incoming | outgoing
+  local -r artifact="${2}"                                 # {...}
+  local -r separator="${3}"                                # "," or ""
 
-  image_name="$(echo "${artifact}" | jq -r '.name')"          # 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
-  fingerprint="$(echo "${artifact}" | jq -r '.fingerprint')"  # b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
-  flow="$(echo "${artifact}" | jq -r '.flow')"                # saver-ci
-  commit_url="$(echo "${artifact}" | jq -r '.commit_url')"    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-  commit_sha="${commit_url:(-40)}"                            # 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-  repo_url="${commit_url:0:(-48)}"                            # https://github.com/cyber-dojo/saver  40+/+commit+/
-  repo_name="${repo_url##*/}"                                 # saver
+  image_name="$(jq -r '.name' <<< "${artifact}")"          # 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+  fingerprint="$(jq -r '.fingerprint' <<< "${artifact}")"  # b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+  flow="$(jq -r '.flow' <<< "${artifact}")"                # saver-ci
+  commit_url="$(jq -r '.commit_url' <<< "${artifact}")"    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+  commit_sha="${commit_url:(-40)}"                         # 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+  repo_url="${commit_url:0:(-48)}"                         # https://github.com/cyber-dojo/saver  40+/+commit+/
+  repo_name="${repo_url##*/}"                              # saver
 
   cat << EOF
     "${kind}_image_name": "${image_name}",
@@ -164,6 +164,16 @@ exit_non_zero_if_mid_blue_green_deployment()
   fi
 }
 
+add_deployment_diff_urls()
+{
+  local -r promotions="${1}"
+  local -r promotions_length=$(jq -r '. | length' <<< "${promotions}")
+  for ((n = 0; n < promotions_length; n++))
+  do
+    promotion="$(jq -r ".[$n]" <<< "${promotions}")"  # eg {...}
+    # TODO...
+  done
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # diff is the result of the Kosli CLI command:
 #   kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" ...  --output=json
@@ -174,9 +184,10 @@ exit_non_zero_if_mid_blue_green_deployment()
 check_args "$@"
 exit_non_zero_unless_installed jq
 diff="$(jq --raw-output --compact-output .)"
-incoming=$(echo "${diff}" | jq -r -c '.snappish1')
-outgoing=$(echo "${diff}" | jq -r -c '.snappish2')
+incoming="$(jq -r -c '.snappish1' <<< "${diff}")"
+outgoing="$(jq -r -c '.snappish2' <<< "${diff}")"
 exit_non_zero_if_mid_blue_green_deployment "${incoming}"
 exit_non_zero_if_mid_blue_green_deployment "${outgoing}"
 promotions="$(create_promotions "${incoming}" "${outgoing}")"
+#promotions="$(add_deployment_diff_urls "${promotions}")"
 echo "${promotions}" | jq .
