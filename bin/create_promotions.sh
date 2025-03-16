@@ -70,6 +70,49 @@ exit_non_zero_if_mid_blue_green_deployment()
   fi
 }
 
+echo_inflated_artifacts()
+{
+  local -r snappish="${1}"
+  local -r artifacts=$(jq -r -c '.artifacts' <<< "${snappish}")
+  local -r length=$(jq -r '. | length' <<< "${artifacts}")
+
+  separator=""
+  echo '['
+  local n; for ((n = 0; n < length; n++))
+  do
+    artifact="$(jq -r -c ".[$n]" <<< "${artifacts}")"  # eg {...}
+    echo "${separator}"
+    echo '{'
+    echo_inflated_artifact "${artifact}"
+    echo '}'
+    separator=","
+  done
+  echo
+  echo ']'
+}
+
+echo_inflated_artifact()
+{
+  local -r artifact="${1}"
+
+  image_name="$(jq -r '.name' <<< "${artifact}")"          # 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+  fingerprint="$(jq -r '.fingerprint' <<< "${artifact}")"  # b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+  flow="$(jq -r '.flow' <<< "${artifact}")"                # saver-ci
+  commit_url="$(jq -r '.commit_url' <<< "${artifact}")"    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+  commit_sha="${commit_url:(-40)}"                         # 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+  repo_url="${commit_url:0:(-48)}"                         # https://github.com/cyber-dojo/saver  40+/+commit+/
+  repo_name="${repo_url##*/}"                              # saver
+
+  cat << EOF
+    "image_name": "${image_name}",
+    "fingerprint": "${fingerprint}",
+    "repo_url": "${repo_url}",
+    "repo_name": "${repo_name}",
+    "commit_sha": "${commit_sha}",
+    "flow": "${flow}"
+EOF
+}
+
 excluded()
 {
   # Currently, differ still has TF attestations
@@ -83,7 +126,7 @@ excluded()
   fi
 }
 
-create_promotions()
+echo_promotions()
 {
   local -r incoming_artifacts="${1}"
   local -r outgoing_artifacts="${2}"
@@ -99,7 +142,7 @@ create_promotions()
       echo "${separator}"
       echo '{'
       echo_json_entry    "incoming" "${incoming_artifact}" ","
-      echo_json_outgoing "${incoming_flow}" "${outgoing_artifacts}" "${n}"
+      echo_json_outgoing "${incoming_flow}" "${outgoing_artifacts}"
       echo '}'
       separator=","
     fi
@@ -142,25 +185,25 @@ echo_json_entry()
   local -r artifact="${2}"                                 # {...}
   local -r separator="${3}"                                # "," or ""
 
-  image_name="$(jq -r '.name' <<< "${artifact}")"          # 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
-  fingerprint="$(jq -r '.fingerprint' <<< "${artifact}")"  # b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
-  flow="$(jq -r '.flow' <<< "${artifact}")"                # saver-ci
-  commit_url="$(jq -r '.commit_url' <<< "${artifact}")"    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-  commit_sha="${commit_url:(-40)}"                         # 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-  repo_url="${commit_url:0:(-48)}"                         # https://github.com/cyber-dojo/saver  40+/+commit+/
-  repo_name="${repo_url##*/}"                              # saver
+  #  image_name    244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+  #  fingerprint   b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+  #  flow          saver-ci
+  #  commit_url    https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+  #  commit_sha    6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+  #  repo_url      https://github.com/cyber-dojo/saver  40+/+commit+/
+  #  repo_name     saver
 
   cat << EOF
-    "${kind}_image_name": "${image_name}",
-    "${kind}_fingerprint": "${fingerprint}",
-    "${kind}_repo_url": "${repo_url}",
-    "${kind}_repo_name": "${repo_name}",
-    "${kind}_commit_sha": "${commit_sha}",
-    "${kind}_flow": "${flow}"${separator}
+    "${kind}_image_name" : "$(jq -r '.image_name'  <<< "${artifact}")",
+    "${kind}_fingerprint": "$(jq -r '.fingerprint' <<< "${artifact}")",
+    "${kind}_repo_url"   : "$(jq -r '.repo_url'    <<< "${artifact}")",
+    "${kind}_repo_name"  : "$(jq -r '.repo_name'   <<< "${artifact}")",
+    "${kind}_commit_sha" : "$(jq -r '.commit_sha'  <<< "${artifact}")",
+    "${kind}_flow"       : "$(jq -r '.flow'        <<< "${artifact}")"${separator}
 EOF
 }
 
-create_deployment_diff_urls()
+echo_deployment_diff_urls()
 {
   # Creates [{"deployment_diff_url":"...},{"deployment_diff_url":"...},...]
   local -r incoming_artifacts="${1}"
@@ -174,13 +217,8 @@ create_deployment_diff_urls()
     incoming_artifact="$(jq -r ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
     outgoing_artifact="$(jq -r ".[$n]" <<< "${outgoing_artifacts}")"  # eg {...}
 
-    incoming_commit_url="$(jq -r '.commit_url' <<< "${incoming_artifact}")"    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-    incoming_commit_sha="${incoming_commit_url:(-40)}"                         # 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-    #incoming_repo_url="${incoming_commit_url:0:(-48)}"                        # https://github.com/cyber-dojo/saver  40+/+commit+/
-
-    outgoing_commit_url="$(jq -r '.commit_url' <<< "${outgoing_artifact}")"    # https://github.com/cyber-dojo/saver/commit/7e191a0a86cf3d264955c4910bc3b9df518c4bcd
-    outgoing_commit_sha="${outgoing_commit_url:(-40)}"                         # 7e191a0a86cf3d264955c4910bc3b9df518c4bcd
-    #outgoing_repo_url="${outgoing_commit_url:0:(-48)}"                        # https://github.com/cyber-dojo/saver  40+/+commit+/
+    incoming_commit_sha="$(jq -r '.commit_sha' <<< "${incoming_artifact}")"    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+    outgoing_commit_sha="$(jq -r '.commit_sha' <<< "${outgoing_artifact}")"    # https://github.com/cyber-dojo/saver/commit/7e191a0a86cf3d264955c4910bc3b9df518c4bcd
 
     echo "${separator}"
     echo '{'
@@ -202,16 +240,19 @@ EOF
 
 check_args "$@"
 exit_non_zero_unless_installed jq
+
 diff="$(jq --raw-output --compact-output .)"
 incoming="$(jq -r -c '.snappish1' <<< "${diff}")"
 outgoing="$(jq -r -c '.snappish2' <<< "${diff}")"
+
 exit_non_zero_if_mid_blue_green_deployment "${incoming}"
 exit_non_zero_if_mid_blue_green_deployment "${outgoing}"
-incoming_artifacts=$(jq -r -c '.artifacts' <<< "${incoming}")
-outgoing_artifacts=$(jq -r -c '.artifacts' <<< "${outgoing}")
 
-promotions="$(create_promotions "${incoming_artifacts}" "${outgoing_artifacts}")"
-deployment_diff_urls="$(create_deployment_diff_urls "${incoming_artifacts}" "${outgoing_artifacts}")"
+incoming_artifacts="$(echo_inflated_artifacts "${incoming}")"
+outgoing_artifacts="$(echo_inflated_artifacts "${outgoing}")"
+
+promotions="$(echo_promotions "${incoming_artifacts}" "${outgoing_artifacts}")"
+deployment_diff_urls="$(echo_deployment_diff_urls "${incoming_artifacts}" "${outgoing_artifacts}")"
 
 jq --slurp 'transpose | map(add)' <<< "${promotions}${deployment_diff_urls}"
 
