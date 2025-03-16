@@ -62,7 +62,7 @@ make promotions
 ]
 ```
 
-When there are no promotion Artifacts, the echoed JSON will be '[]'.
+When there are no promotion Artifacts, the echoed JSON will be an empty array.
 
 ```bash
 make promotions
