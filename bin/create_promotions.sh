@@ -59,10 +59,10 @@ check_args()
 exit_non_zero_if_mid_blue_green_deployment()
 {
   local -r snappish="${1}"   # {"snapshot_id":"...", "artifacts":[{"flow":"x",...},{"flow": "y",...},...]}
-  local -r artifacts="$(jq -r '.artifacts' <<< "${snappish}")"
-  local -r duplicate_flows="$(jq -r '.. | .flow? | select(length > 0)' <<< "${artifacts}" | sort | uniq --repeated)"
+  local -r artifacts="$(jq --raw-output '.artifacts' <<< "${snappish}")"
+  local -r duplicate_flows="$(jq --raw-output '.. | .flow? | select(length > 0)' <<< "${artifacts}" | sort | uniq --repeated)"
   if [ "${duplicate_flows}" != "" ]; then
-    local -r env_id="$(jq -r '.snapshot_id' <<< "${snappish}")"
+    local -r env_id="$(jq --raw-output '.snapshot_id' <<< "${snappish}")"
     stderr "Duplicate flow names in ${env_id}"
     stderr "${duplicate_flows}"
     stderr This indicates a blue-green deployment is in progress
@@ -73,14 +73,14 @@ exit_non_zero_if_mid_blue_green_deployment()
 echo_inflated_artifacts()
 {
   local -r snappish="${1}"
-  local -r artifacts=$(jq -r -c '.artifacts' <<< "${snappish}")
-  local -r length=$(jq -r '. | length' <<< "${artifacts}")
+  local -r artifacts=$(jq --raw-output '.artifacts' <<< "${snappish}")
+  local -r length=$(jq --raw-output '. | length' <<< "${artifacts}")
 
   separator=""
   echo '['
   local n; for ((n = 0; n < length; n++))
   do
-    artifact="$(jq -r -c ".[$n]" <<< "${artifacts}")"  # eg {...}
+    artifact="$(jq --raw-output ".[$n]" <<< "${artifacts}")"  # eg {...}
     echo "${separator}"
     echo '{'
     echo_inflated_artifact "${artifact}"
@@ -95,13 +95,13 @@ echo_inflated_artifact()
 {
   local -r artifact="${1}"
 
-  image_name="$(jq -r '.name' <<< "${artifact}")"          # 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
-  fingerprint="$(jq -r '.fingerprint' <<< "${artifact}")"  # b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
-  flow="$(jq -r '.flow' <<< "${artifact}")"                # saver-ci
-  commit_url="$(jq -r '.commit_url' <<< "${artifact}")"    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-  commit_sha="${commit_url:(-40)}"                         # 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-  repo_url="${commit_url:0:(-48)}"                         # https://github.com/cyber-dojo/saver  40+/+commit+/
-  repo_name="${repo_url##*/}"                              # saver
+  image_name="$( jq --raw-output '.name'        <<< "${artifact}")"  # 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+  fingerprint="$(jq --raw-output '.fingerprint' <<< "${artifact}")"  # b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
+  flow="$(       jq --raw-output '.flow'        <<< "${artifact}")"  # saver-ci
+  commit_url="$( jq --raw-output '.commit_url'  <<< "${artifact}")"  # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+  commit_sha="${commit_url:(-40)}"                                   # 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+  repo_url="${commit_url:0:(-48)}"                                   # https://github.com/cyber-dojo/saver  40+/+commit+/
+  repo_name="${repo_url##*/}"                                        # saver
 
   cat << EOF
     "image_name": "${image_name}",
@@ -130,14 +130,14 @@ echo_promotions()
 {
   local -r incoming_artifacts="${1}"
   local -r outgoing_artifacts="${2}"
-  local -r incoming_length=$(jq -r '. | length' <<< "${incoming_artifacts}")
+  local -r incoming_length=$(jq --raw-output '. | length' <<< "${incoming_artifacts}")
 
   separator=""
   echo '['
   local n; for ((n = 0; n < incoming_length; n++))
   do
-    incoming_artifact="$(jq -r -c ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
-    incoming_flow="$(jq -r '.flow' <<< "${incoming_artifact}")"          # eg saver-ci
+    incoming_artifact="$(jq --raw-output ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
+    incoming_flow="$(jq --raw-output '.flow' <<< "${incoming_artifact}")"          # eg saver-ci
     if ! excluded "${incoming_flow}" ; then
       echo "${separator}"
       echo '{'
@@ -159,8 +159,8 @@ echo_json_outgoing()
 
   local n; for ((n = 0; n < outgoing_length; n++))
   do
-    artifact="$(jq -r ".[$n]" <<< "${outgoing_artifacts}")"  # eg {...}
-    outgoing_flow="$(jq -r '.flow' <<< "${artifact}")"       # eg saver-ci
+    artifact="$(jq --raw-output ".[$n]" <<< "${outgoing_artifacts}")"  # eg {...}
+    outgoing_flow="$(jq --raw-output '.flow' <<< "${artifact}")"       # eg saver-ci
     if [ "${outgoing_flow}" == "${incoming_flow}" ]; then
       separator=""
       echo_json_entry "outgoing" "${artifact}" "${separator}"
@@ -194,12 +194,12 @@ echo_json_entry()
   #  repo_name     saver
 
   cat << EOF
-    "${kind}_image_name" : "$(jq -r '.image_name'  <<< "${artifact}")",
-    "${kind}_fingerprint": "$(jq -r '.fingerprint' <<< "${artifact}")",
-    "${kind}_repo_url"   : "$(jq -r '.repo_url'    <<< "${artifact}")",
-    "${kind}_repo_name"  : "$(jq -r '.repo_name'   <<< "${artifact}")",
-    "${kind}_commit_sha" : "$(jq -r '.commit_sha'  <<< "${artifact}")",
-    "${kind}_flow"       : "$(jq -r '.flow'        <<< "${artifact}")"${separator}
+    "${kind}_image_name" : "$(jq --raw-output '.image_name'  <<< "${artifact}")",
+    "${kind}_fingerprint": "$(jq --raw-output '.fingerprint' <<< "${artifact}")",
+    "${kind}_repo_url"   : "$(jq --raw-output '.repo_url'    <<< "${artifact}")",
+    "${kind}_repo_name"  : "$(jq --raw-output '.repo_name'   <<< "${artifact}")",
+    "${kind}_commit_sha" : "$(jq --raw-output '.commit_sha'  <<< "${artifact}")",
+    "${kind}_flow"       : "$(jq --raw-output '.flow'        <<< "${artifact}")"${separator}
 EOF
 }
 
@@ -208,17 +208,17 @@ echo_deployment_diff_urls()
   # Creates [{"deployment_diff_url":"...},{"deployment_diff_url":"...},...]
   local -r incoming_artifacts="${1}"
   local -r outgoing_artifacts="${2}"
-  local -r length=$(jq -r '. | length' <<< "${incoming_artifacts}")
+  local -r length=$(jq --raw-output '. | length' <<< "${incoming_artifacts}")
 
   separator=""
   echo '['
   local n; for ((n = 0; n < length; n++))
   do
-    incoming_artifact="$(jq -r ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
-    outgoing_artifact="$(jq -r ".[$n]" <<< "${outgoing_artifacts}")"  # eg {...}
+    incoming_artifact="$(jq --raw-output ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
+    outgoing_artifact="$(jq --raw-output ".[$n]" <<< "${outgoing_artifacts}")"  # eg {...}
 
-    incoming_commit_sha="$(jq -r '.commit_sha' <<< "${incoming_artifact}")"    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-    outgoing_commit_sha="$(jq -r '.commit_sha' <<< "${outgoing_artifact}")"    # https://github.com/cyber-dojo/saver/commit/7e191a0a86cf3d264955c4910bc3b9df518c4bcd
+    incoming_commit_sha="$(jq --raw-output '.commit_sha' <<< "${incoming_artifact}")"    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+    outgoing_commit_sha="$(jq --raw-output '.commit_sha' <<< "${outgoing_artifact}")"    # https://github.com/cyber-dojo/saver/commit/7e191a0a86cf3d264955c4910bc3b9df518c4bcd
 
     echo "${separator}"
     echo '{'
@@ -242,14 +242,18 @@ check_args "$@"
 exit_non_zero_unless_installed jq
 
 diff="$(jq --raw-output --compact-output .)"
-incoming="$(jq -r -c '.snappish1' <<< "${diff}")"
-outgoing="$(jq -r -c '.snappish2' <<< "${diff}")"
+incoming="$(jq --raw-output --compact-output '.snappish1' <<< "${diff}")"
+outgoing="$(jq --raw-output --compact-output '.snappish2' <<< "${diff}")"
 
 exit_non_zero_if_mid_blue_green_deployment "${incoming}"
 exit_non_zero_if_mid_blue_green_deployment "${outgoing}"
 
 incoming_artifacts="$(echo_inflated_artifacts "${incoming}")"
 outgoing_artifacts="$(echo_inflated_artifacts "${outgoing}")"
+
+# TODO: deployment_diffs are not right
+#  Need to create outgoing_artifacts which has flows in the same Order as incoming_artifacts
+#  and then I can merge all three JSON arrays in the last jq expression
 
 promotions="$(echo_promotions "${incoming_artifacts}" "${outgoing_artifacts}")"
 deployment_diff_urls="$(echo_deployment_diff_urls "${incoming_artifacts}" "${outgoing_artifacts}")"
