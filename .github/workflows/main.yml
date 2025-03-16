@@ -12,7 +12,7 @@ on:
 
 env:
   KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
-  KOSLI_AWS_BETA:  ${{ vars.KOSLI_AWS_BETA }}          # aws-beta (needed in find-artifacts job)
+  KOSLI_AWS_BETA:  ${{ vars.KOSLI_AWS_BETA }}          # aws-beta
   KOSLI_AWS_PROD:  ${{ vars.KOSLI_AWS_PROD }}          # aws-prod
   KOSLI_DEBUG:     ${{ vars.KOSLI_DEBUG }}             # true/false
   KOSLI_DRY_RUN:   ${{ vars.KOSLI_DRY_RUN }}           # true/false
