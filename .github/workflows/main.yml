@@ -118,6 +118,8 @@ jobs:
 #    strategy:
 #      matrix:
 #        include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
+#    env:
+#      MATRIX: ${{ toJSON(matrix) }}
 #    steps:
 #      - name: Setup Kosli CLI
 #        uses: kosli-dev/setup-cli-action@v2
@@ -134,7 +136,7 @@ jobs:
 #            --annotate=deployment_diff_url="${{ matrix.deployment_diff_url }}"
 #            --fingerprint="${{ matrix.incoming_fingerprint }}"
 #            --name="${{ matrix.incoming_repo_name }}.promotion"
-#            --user-data=<(echo "${{ toJSON(matrix) }}")
+#            --user-data=<(echo "${MATRIX}")
 
 
   sdlc-control-gate:
