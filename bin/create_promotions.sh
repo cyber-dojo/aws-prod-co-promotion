@@ -56,6 +56,20 @@ check_args()
   esac
 }
 
+exit_non_zero_if_mid_blue_green_deployment()
+{
+  local -r snappish="${1}"   # {"snapshot_id":"...", "artifacts":[{"flow":"x",...},{"flow": "y",...},...]}
+  local -r artifacts="$(jq -r '.artifacts' <<< "${snappish}")"
+  local -r duplicate_flows="$(jq -r '.. | .flow? | select(length > 0)' <<< "${artifacts}" | sort | uniq --repeated)"
+  if [ "${duplicate_flows}" != "" ]; then
+    local -r env_id="$(jq -r '.snapshot_id' <<< "${snappish}")"
+    stderr "Duplicate flow names in ${env_id}"
+    stderr "${duplicate_flows}"
+    stderr This indicates a blue-green deployment is in progress
+    exit 42
+  fi
+}
+
 excluded()
 {
   # Currently, differ still has TF attestations
@@ -71,31 +85,27 @@ excluded()
 
 create_promotions()
 {
-  local -r incoming="${1}"
-  local -r outgoing="${2}"
-  local -r incoming_artifacts=$(jq -r -c '.artifacts' <<< "${incoming}")
-  local -r outgoing_artifacts=$(jq -r -c '.artifacts' <<< "${outgoing}")
-
+  local -r incoming_artifacts="${1}"
+  local -r outgoing_artifacts="${2}"
   local -r incoming_length=$(jq -r '. | length' <<< "${incoming_artifacts}")
+
   separator=""
-  {
-    echo '['
-    for ((n = 0; n < incoming_length; n++))
-    do
-      artifact="$(jq -r -c ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
-      flow="$(jq -r '.flow' <<< "${artifact}")"                   # eg saver-ci
-      if ! excluded "${flow}" ; then
-        echo "${separator}"
-        echo '{'
-        echo_json_entry    "incoming" "${artifact}" ","
-        echo_json_outgoing "${flow}" "${outgoing_artifacts}"
-        echo '}'
-        separator=","
-      fi
-    done
-    echo
-    echo ']'
-  }
+  echo '['
+  for ((n = 0; n < incoming_length; n++))
+  do
+    incoming_artifact="$(jq -r -c ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
+    incoming_flow="$(jq -r '.flow' <<< "${incoming_artifact}")"          # eg saver-ci
+    if ! excluded "${incoming_flow}" ; then
+      echo "${separator}"
+      echo '{'
+      echo_json_entry    "incoming" "${incoming_artifact}" ","
+      echo_json_outgoing "${incoming_flow}" "${outgoing_artifacts}" "${n}"
+      echo '}'
+      separator=","
+    fi
+  done
+  echo
+  echo ']'
 }
 
 echo_json_outgoing()
@@ -104,9 +114,9 @@ echo_json_outgoing()
   local -r outgoing_artifacts="${2}"
   local -r outgoing_length=$(jq -r '. | length' <<< "${outgoing_artifacts}")
 
-  for ((n = 0; n < outgoing_length; n++))
+  for ((i = 0; i < outgoing_length; i++))
   do
-    artifact="$(jq -r ".[$n]" <<< "${outgoing_artifacts}")"  # eg {...}
+    artifact="$(jq -r ".[$i]" <<< "${outgoing_artifacts}")"  # eg {...}
     outgoing_flow="$(jq -r '.flow' <<< "${artifact}")"       # eg saver-ci
     if [ "${outgoing_flow}" == "${incoming_flow}" ]; then
       separator=""
@@ -150,30 +160,39 @@ echo_json_entry()
 EOF
 }
 
-exit_non_zero_if_mid_blue_green_deployment()
+create_deployment_diff_urls()
 {
-  local -r snappish="${1}"
-  local -r artifacts="$(jq -r '.artifacts' <<< "${snappish}")"
-  local -r duplicate_flows="$(jq -r '.. | .flow? | select(length > 0)' <<< "${artifacts}" | sort | uniq --repeated)"
-  if [ "${duplicate_flows}" != "" ]; then
-    local -r env_id="$(jq -r '.snapshot_id' <<< "${snappish}")"
-    stderr "Duplicate flow names in ${env_id}"
-    stderr "${duplicate_flows}"
-    stderr This indicates a blue-green deployment is in progress
-    exit 42
-  fi
+  # Creates [{"deployment_diff_url":"...},{"deployment_diff_url":"...},...]
+  local -r incoming_artifacts="${1}"
+  local -r outgoing_artifacts="${2}"
+  local -r length=$(jq -r '. | length' <<< "${incoming_artifacts}")
+
+  separator=""
+  echo '['
+  for ((n = 0; n < length; n++))
+  do
+    incoming_artifact="$(jq -r ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
+    outgoing_artifact="$(jq -r ".[$n]" <<< "${outgoing_artifacts}")"  # eg {...}
+
+    incoming_commit_url="$(jq -r '.commit_url' <<< "${incoming_artifact}")"    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+    incoming_commit_sha="${incoming_commit_url:(-40)}"                         # 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+    #incoming_repo_url="${incoming_commit_url:0:(-48)}"                        # https://github.com/cyber-dojo/saver  40+/+commit+/
+
+    outgoing_commit_url="$(jq -r '.commit_url' <<< "${outgoing_artifact}")"    # https://github.com/cyber-dojo/saver/commit/7e191a0a86cf3d264955c4910bc3b9df518c4bcd
+    outgoing_commit_sha="${outgoing_commit_url:(-40)}"                         # 7e191a0a86cf3d264955c4910bc3b9df518c4bcd
+    #outgoing_repo_url="${outgoing_commit_url:0:(-48)}"                        # https://github.com/cyber-dojo/saver  40+/+commit+/
+
+    echo "${separator}"
+    echo '{'
+    cat << EOF
+      "deployment_diff_url": "https://.../${incoming_commit_sha}...${outgoing_commit_sha}"
+EOF
+    echo '}'
+    separator=","
+  done
+  echo ']'
 }
 
-add_deployment_diff_urls()
-{
-  local -r promotions="${1}"
-  local -r promotions_length=$(jq -r '. | length' <<< "${promotions}")
-  for ((n = 0; n < promotions_length; n++))
-  do
-    promotion="$(jq -r ".[$n]" <<< "${promotions}")"  # eg {...}
-    # TODO...
-  done
-}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # diff is the result of the Kosli CLI command:
 #   kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" ...  --output=json
@@ -188,6 +207,12 @@ incoming="$(jq -r -c '.snappish1' <<< "${diff}")"
 outgoing="$(jq -r -c '.snappish2' <<< "${diff}")"
 exit_non_zero_if_mid_blue_green_deployment "${incoming}"
 exit_non_zero_if_mid_blue_green_deployment "${outgoing}"
-promotions="$(create_promotions "${incoming}" "${outgoing}")"
-#promotions="$(add_deployment_diff_urls "${promotions}")"
-echo "${promotions}" | jq .
+incoming_artifacts=$(jq -r -c '.artifacts' <<< "${incoming}")
+outgoing_artifacts=$(jq -r -c '.artifacts' <<< "${outgoing}")
+
+promotions="$(create_promotions "${incoming_artifacts}" "${outgoing_artifacts}")"
+deployment_diff_urls="$(create_deployment_diff_urls "${incoming_artifacts}" "${outgoing_artifacts}")"
+
+jq --slurp 'transpose | map(add)' <<< "${promotions}${deployment_diff_urls}"
+
+
