@@ -32,6 +32,7 @@ MVP DONE
 
 MVP TODO
 --------
+- Do creation of keys "commit_url","commit_sha","repo_url" once only
 - put deployment-diff-url into JSON for each Artifact
 - ?refactor scripts so they can either accept stdin or a named file?
 
