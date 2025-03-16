@@ -3,7 +3,7 @@
 Workflow to find out which Artifacts:
 - Are running in the cyber-dojo https://beta.cyber-dojo.org [aws-beta](https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/) staging Environment.
 - Are NOT running in the cyber-dojo https://cyber-dojo.org [aws-prod](https://app.kosli.com/cyber-dojo/environments/aws-prod/snapshots/) production Environment.
-- Deploy them all, in parallel, after approval, into the latter.
+- Deploys them all, in parallel, after approval, into the latter.
 
 ```bash
 ./bin/create_promotions.sh --help
