@@ -36,10 +36,9 @@ MVP DONE
 
 MVP TODO
 --------
-- Add comment to main.yml that kosli-attest-artifact is temporary
-- Do all kosli-attest-artifact in one matrix, then all kosli-attest-custom in a second matrix
+- Do all kosli-attest-custom in a second matrix
 - Update test golden masters
-- Add assertEquals... to main script
+- Add assertEquals... calls to main script
 - Add test for 2.json
 - Add check that incoming/outgoing repo_names are the same
 - Add test for incoming/outgoing repo_names being different
