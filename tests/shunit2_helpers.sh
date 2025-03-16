@@ -1,7 +1,6 @@
 
 assert_diagnostic_is()
 {
-  # assert_stdout_empty
   local -r stderr="$(cat "${stderrF}")"
   local expected_diagnostic=("$@")
   for expected_line in "${expected_diagnostic[@]}"
@@ -28,7 +27,6 @@ assert_stdout_equals()
   local -r expected="${1}"
   local -r actual="$(cat "${stdoutF}")"
   assertEquals "${message}" "${expected}" "${actual}"
-
 }
 
 assert_stdout_includes()
@@ -91,6 +89,14 @@ assert_status_equals()
   local -r expected="${1}"
   local -r actual="$(cat "${statusF}")"
   assertEquals "${message}" "${expected}" "${actual}"
+}
+
+assert_status_not_equals()
+{
+  local -r message="status:$(dump_sss)"
+  local -r expected="${1}"
+  local -r actual="$(cat "${statusF}")"
+  assertNotEquals "${message}" "${expected}" "${actual}"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
