@@ -41,6 +41,7 @@ MVP TODO
 - Add test for 2.json
 - Add check that incoming/outgoing repo_names are the same
 - Add test for incoming/outgoing repo_names being different
+- In readme, add links to Kosli promotion Trail
 
 
 LATER?
