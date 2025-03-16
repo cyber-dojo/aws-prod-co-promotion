@@ -38,17 +38,18 @@ MVP DONE
 
 MVP TODO
 --------
-- Create custom-attestation-type for Artifact promotion
-- Do all kosli-attest-custom in a second matrix
+- Update test golden masters
+- Add test for 2.json
+- Add test for incoming/outgoing repo_urls being different
+
+- Create custom-attestation-type for Artifact promotion called promotion-artifact
+- Comment in all kosli-attest-custom in a second matrix
      kosli attest custom --type=promotion-artifact \
        --annotate=deployment_diff_url=${{ matrix.deployment_diff_url }} \
        --name=${{ matrix.incoming_repo_name }}.promotion \
        --user-data=<(echo ${MATRIX})
 
-- Update test golden masters
-- Add test for 2.json
-- Add test for incoming/outgoing repo_urls being different
-- Do force deployments for runner and saver
+- Do forced deployments for runner and saver
 - Choose name for new Flow
 - Create new Flow, and update KOSLI_FLOW in main.yml pipeline
 - Run promotion workflow with actual deployments commented out (dry-run)
