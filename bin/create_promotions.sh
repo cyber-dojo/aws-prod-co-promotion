@@ -91,7 +91,7 @@ create_promotions()
 
   separator=""
   echo '['
-  for ((n = 0; n < incoming_length; n++))
+  local n; for ((n = 0; n < incoming_length; n++))
   do
     incoming_artifact="$(jq -r -c ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
     incoming_flow="$(jq -r '.flow' <<< "${incoming_artifact}")"          # eg saver-ci
@@ -114,9 +114,9 @@ echo_json_outgoing()
   local -r outgoing_artifacts="${2}"
   local -r outgoing_length=$(jq -r '. | length' <<< "${outgoing_artifacts}")
 
-  for ((i = 0; i < outgoing_length; i++))
+  local n; for ((n = 0; n < outgoing_length; n++))
   do
-    artifact="$(jq -r ".[$i]" <<< "${outgoing_artifacts}")"  # eg {...}
+    artifact="$(jq -r ".[$n]" <<< "${outgoing_artifacts}")"  # eg {...}
     outgoing_flow="$(jq -r '.flow' <<< "${artifact}")"       # eg saver-ci
     if [ "${outgoing_flow}" == "${incoming_flow}" ]; then
       separator=""
@@ -169,7 +169,7 @@ create_deployment_diff_urls()
 
   separator=""
   echo '['
-  for ((n = 0; n < length; n++))
+  local n; for ((n = 0; n < length; n++))
   do
     incoming_artifact="$(jq -r ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
     outgoing_artifact="$(jq -r ".[$n]" <<< "${outgoing_artifacts}")"  # eg {...}
