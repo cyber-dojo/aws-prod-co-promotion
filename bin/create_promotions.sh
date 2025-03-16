@@ -17,7 +17,7 @@ show_help()
     If a blue-green deployment is in progress in aws-beta or aws-prod, the script will exit with a non-zero value.
     Example:
 
-      $ cat docs/diff-snapshots-2.json | ${MY_NAME} | jq .
+      $ cat docs/diff-snapshots-2.json | ${MY_NAME}
       [
           {
               "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:fa32058@sha256:0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
@@ -63,9 +63,8 @@ exit_non_zero_if_mid_blue_green_deployment()
   local -r duplicate_flows="$(jq --raw-output '.. | .flow? | select(length > 0)' <<< "${artifacts}" | sort | uniq --repeated)"
   if [ "${duplicate_flows}" != "" ]; then
     local -r env_id="$(jq --raw-output '.snapshot_id' <<< "${snappish}")"
-    stderr "Duplicate flow names in ${env_id}"
+    stderr "Promotion abandoned because a blue-green deployment is in progress in ${env_id}"
     stderr "${duplicate_flows}"
-    stderr This indicates a blue-green deployment is in progress
     exit 42
   fi
 }
