@@ -13,7 +13,7 @@ show_help()
 
     Reads (from stdin) the result of a 'kosli diff snapshots aws-beta aws-prod --org=cyber-dojo ... --output-type=json'.
     Writes (to stdout) a JSON array with one dict for each Artifact to be promoted.
-    This JSON can be used in a Github Action matrix to run a parallel job for each Artifact.
+    This JSON can be used as the source for a Github Action strategy:matrix:include to run a parallel job for each Artifact.
     If a blue-green deployment is in progress in aws-beta or aws-prod, the script will exit with a non-zero value.
     Example:
 

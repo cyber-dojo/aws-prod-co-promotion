@@ -3,10 +3,10 @@
 Workflow to find out which Artifacts:
 - Are running in the cyber-dojo https://beta.cyber-dojo.org [aws-beta](https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/) Environment.
 - Are NOT running in the cyber-dojo https://cyber-dojo.org [aws-prod](https://app.kosli.com/cyber-dojo/environments/aws-prod/snapshots/) Environment.
-- Deploy them all, at the same time, into the latter.
+- Deploy them all, in parallel, into the latter.
 
-```shell
-$ ./bin/create_promotions.sh --help
+```bash
+./bin/create_promotions.sh --help
 ```
 
 ```
@@ -14,16 +14,16 @@ $ ./bin/create_promotions.sh --help
 
     Reads (from stdin) the result of a 'kosli diff snapshots aws-beta aws-prod --org=cyber-dojo ... --output-type=json'.
     Writes (to stdout) a JSON array with one dict for each Artifact to be promoted.
-    This JSON can be used in a Github Action matrix to run a parallel job for each Artifact.
+    This JSON can be used as the source for a Github Action strategy:matrix:include to run a parallel job for each Artifact.
     If a blue-green deployment is in progress in aws-beta or aws-prod, the script will exit with a non-zero value.    
     Example:
       ...
 ```
 
-Example where three Artifacts were found:
+Example:
 
 ```bash
-$ make promotions
+make promotions
 ```
 
 ```json
@@ -62,4 +62,12 @@ $ make promotions
 ]
 ```
 
-When NO Artifacts are found, the echoed JSON will be '[]'.
+When there are no promotion Artifacts, the echoed JSON will be '[]'.
+
+```bash
+make promotions
+```
+
+```json
+[]
+```
