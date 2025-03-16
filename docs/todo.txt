@@ -36,21 +36,20 @@ MVP DONE
 
 MVP TODO
 --------
+- Create custom-attestation-type for Artifact promotion
 - Do all kosli-attest-custom in a second matrix
+     kosli attest custom --type=promotion-artifact \
+       --annotate=deployment_diff_url=${{ matrix.deployment_diff_url }} \
+       --name=${{ matrix.incoming_repo_name }}.promotion \
+       --user-data=<(echo ${{ matrix }})
+
 - Update test golden masters
 - Add assertEquals... calls to main script
 - Add test for 2.json
-- Add check that incoming/outgoing repo_names are the same
+- Add check in script that incoming/outgoing repo_names are the same
 - Add test for incoming/outgoing repo_names being different
 - In readme, add links to Kosli promotion Trail
 
-
-LATER?
-------
-- do custom attestation on overlapping time-period
-   - Does this also get attested on each Artifact? I guess so.
-- make workflow reusable, pass in all KOSLI arguments as inputs.
-   - Passing in KOSLI_TRAIL will simplify setup: job
 
 
 

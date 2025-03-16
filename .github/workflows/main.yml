@@ -108,7 +108,7 @@ jobs:
         run:
           kosli attest artifact "${{ matrix.incoming_image_name }}"
             --fingerprint="${{ matrix.incoming_fingerprint }}"
-            --name="${{ matrix.incoming_flow }}"
+            --name="${{ matrix.incoming_repo_name }}"
 
 
   sdlc-control-gate:
