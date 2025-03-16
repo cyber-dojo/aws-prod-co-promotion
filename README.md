@@ -62,4 +62,4 @@ $ make promotions
 ]
 ```
 
-When NO Artifacts are found, the echoed JSON file will be '[]'.
+When NO Artifacts are found, the echoed JSON will be '[]'.
