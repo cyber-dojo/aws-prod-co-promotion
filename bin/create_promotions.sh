@@ -133,6 +133,8 @@ excluded()
 echo_deployment_diff_urls()
 {
   # Creates [{"deployment_diff_url":"...},{"deployment_diff_url":"...},...]
+  # Relies on incoming_artifacts and outgoing_artifacts having the same Flow ordering.
+
   local -r incoming_artifacts="${1}"
   local -r outgoing_artifacts="${2}"
   local -r length=$(jq --raw-output '. | length' <<< "${incoming_artifacts}")
@@ -144,11 +146,14 @@ echo_deployment_diff_urls()
     incoming_artifact="$(jq --raw-output ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
     outgoing_artifact="$(jq --raw-output ".[$n]" <<< "${outgoing_artifacts}")"  # eg {...}
 
+    # TODO: check matching repo_url entries
+
     incoming_commit_sha="$(jq --raw-output '.incoming_commit_sha' <<< "${incoming_artifact}")"    # 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
     outgoing_commit_sha="$(jq --raw-output '.outgoing_commit_sha' <<< "${outgoing_artifact}")"    # 7e191a0a86cf3d264955c4910bc3b9df518c4bcd
 
     echo "${separator}"
     echo '{'
+    # TODO: check if this is the first Deployment (outgoing_commit_sha == "") and if so echo the incoming_commit_url
     cat << EOF
       "deployment_diff_url": "https://.../${incoming_commit_sha}...${outgoing_commit_sha}"
 EOF
@@ -160,6 +165,9 @@ EOF
 
 echo_same_flow_ordering()
 {
+  # Echoes outgoing_artifacts reordered so its Flow entries match incoming_artifacts.
+  # This enables both JSON arrays to be spliced together using jq 'transpose | map(add)'
+
   local -r outgoing_artifacts="${1}"
   local -r incoming_artifacts="${2}"
   local -r length="$(jq --raw-output '. | length' <<< "${incoming_artifacts}")"
@@ -181,6 +189,9 @@ echo_same_flow_ordering()
 
 echo_json_outgoing()
 {
+  # Echoes the entry in outgoing_artifacts whose Flow matches incoming_flow.
+  # Echoes an empty entry if this is the first deployment for the incoming_flow.
+
   local -r incoming_flow="${1}"
   local -r outgoing_artifacts="${2}"
   local -r outgoing_length=$(jq --raw-output '. | length' <<< "${outgoing_artifacts}")
@@ -190,8 +201,14 @@ echo_json_outgoing()
     outgoing_artifact="$(jq --raw-output ".[$n]" <<< "${outgoing_artifacts}")"      # {...}
     outgoing_flow="$(jq --raw-output '.outgoing_flow' <<< "${outgoing_artifact}")"  # eg saver-ci
     if [ "${outgoing_flow}" == "${incoming_flow}" ]; then
-      separator=""
-      echo_outgoing_json_entry "${outgoing_artifact}" "${separator}"
+      cat << EOF
+        "outgoing_image_name" : "$(jq --raw-output '.outgoing_image_name'  <<< "${outgoing_artifact}")",
+        "outgoing_fingerprint": "$(jq --raw-output '.outgoing_fingerprint' <<< "${outgoing_artifact}")",
+        "outgoing_repo_url"   : "$(jq --raw-output '.outgoing_repo_url'    <<< "${outgoing_artifact}")",
+        "outgoing_repo_name"  : "$(jq --raw-output '.outgoing_repo_name'   <<< "${outgoing_artifact}")",
+        "outgoing_commit_sha" : "$(jq --raw-output '.outgoing_commit_sha'  <<< "${outgoing_artifact}")",
+        "outgoing_flow"       : "$(jq --raw-output '.outgoing_flow'        <<< "${outgoing_artifact}")"
+EOF
       return 0
     fi
   done
@@ -205,22 +222,6 @@ echo_json_outgoing()
     "${kind}_repo_name": "",
     "${kind}_commit_sha": "",
     "${kind}_flow": ""
-EOF
-}
-
-echo_outgoing_json_entry()
-{
-  local -r artifact="${1}"   # {...}
-  local -r separator="${2}"  # "," or ""
-  local -r kind="outgoing"
-
-  cat << EOF
-    "${kind}_image_name" : "$(jq --raw-output '.outgoing_image_name'  <<< "${artifact}")",
-    "${kind}_fingerprint": "$(jq --raw-output '.outgoing_fingerprint' <<< "${artifact}")",
-    "${kind}_repo_url"   : "$(jq --raw-output '.outgoing_repo_url'    <<< "${artifact}")",
-    "${kind}_repo_name"  : "$(jq --raw-output '.outgoing_repo_name'   <<< "${artifact}")",
-    "${kind}_commit_sha" : "$(jq --raw-output '.outgoing_commit_sha'  <<< "${artifact}")",
-    "${kind}_flow"       : "$(jq --raw-output '.outgoing_flow'        <<< "${artifact}")"${separator}
 EOF
 }
 
