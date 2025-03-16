@@ -31,15 +31,16 @@ MVP DONE
 - Use [jq <<< "${X}"] instead of [echo "${X}" | jq]
 - Do creation of keys "commit_url","commit_sha","repo_url" once only
 - Fix outgoing_artifacts JSON so it is in the same flow order as incoming_artifacts
+- Put correct deployment-diff-url into JSON for each Artifact
 
 
 MVP TODO
 --------
-- put correct deployment-diff-url into JSON for each Artifact
-- add test for 2.json
-- add check that incoming/outgoing repo_names are the same
-- add test for incoming/outgoing repo_names being different
-- ?refactor scripts so they can either accept stdin or a named file?
+- Update test golden masters
+- Add assertEquals... to main script
+- Add test for 2.json
+- Add check that incoming/outgoing repo_names are the same
+- Add test for incoming/outgoing repo_names being different
 
 
 LATER?
