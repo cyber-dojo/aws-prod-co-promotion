@@ -34,3 +34,14 @@ stderr()
   >&2 echo "ERROR: $@"
 }
 
+assertEqual()
+{
+  local -r lhs="${1}"
+  local -r rhs="${2}"
+  if [ "${lhs}" != "${rhs}" ]; then
+    stderr assertEquals lhs rhs Failed
+    stderr "lhs=${lhs}"
+    stderr "rhs=${rhs}"
+    exit 42
+  fi
+}
