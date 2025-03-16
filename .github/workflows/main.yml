@@ -69,7 +69,7 @@ jobs:
     needs: []
     runs-on: ubuntu-latest
     outputs:
-      matrix_include: "${{ steps.vars.outputs.matrix_include }}"
+      promotions: "${{ steps.vars.outputs.promotions }}"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -80,19 +80,19 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Generate Artifact json for each entry in following job's matrix-include
+      - name: Generate JSON for each Artifact promotion for use in the following job's strategy:matrix:include
         id: vars
         run:
-          echo "matrix_include=$(make promotions | jq --raw-output --compact-output .)" >> ${GITHUB_OUTPUT}
+          echo "promotions=$(make promotions | jq --raw-output --compact-output .)" >> ${GITHUB_OUTPUT}
 
 
   sdlc-control-gate:
-    if: ${{ needs.find-artifacts.outputs.matrix_include != '[]' }}
+    if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
     needs: [find-artifacts]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
+        include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
     steps:
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
@@ -117,7 +117,7 @@ jobs:
 
 
   approve:
-    if: ${{ needs.find-artifacts.outputs.matrix_include != '[]' }}
+    if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
     needs: [find-artifacts, sdlc-control-gate]
     runs-on: ubuntu-latest
     environment:
@@ -125,7 +125,7 @@ jobs:
       url:  https://cyber-dojo.org
     strategy:
       matrix:
-        include: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
+        include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
     steps:
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
@@ -145,11 +145,11 @@ jobs:
 
 
   deploy-to-prod:
-    if: ${{ needs.find-artifacts.outputs.matrix_include != '[]' }}
+    if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
     needs: [setup, find-artifacts, approve]
     strategy:
       matrix:
-        include: ${{ fromJSON(needs.find-artifacts.outputs.matrix_include) }}
+        include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
     permissions:
       id-token: write
       contents: write
