@@ -25,10 +25,10 @@
     "artifacts": [
       {
         "fingerprint": "49cfb0d0696a9934e408ff20eaeea17ba87924ea520963be2021134814a086cc",
-        "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:5db3d66@sha256:49cfb0d0696a9934e408ff20eaeea17ba87924ea520963be2021134814a086cc",
+        "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:7645ee7@sha256:49cfb0d0696a9934e408ff20eaeea17ba87924ea520963be2021134814a086cc",
         "most_recent_timestamp": 1740900522,
         "flow": "web-ci",
-        "commit_url": "https://github.com/cyber-dojo/web/commit/5db3d66084de99c0b9b3847680de78ea01f63643",
+        "commit_url": "https://github.com/cyber-dojo/web/commit/7645ee70706ad259c6367b97946edb10d00815a0",
         "instance_count": 3
       },
       {

@@ -31,7 +31,8 @@ show_help()
               "outgoing_repo_url": "https://github.com/cyber-dojo/nginx",
               "outgoing_repo_name": "nginx",
               "outgoing_commit_sha": "e92d83d1bf0b1de46205d5e19131f1cee2b6b3da",
-              "outgoing_flow": "nginx-ci"
+              "outgoing_flow": "nginx-ci",
+              "deployment_diff_url": "https://github.com/cyber-dojo/nginx/compare/fa32058a046015786d1589e16af7da0973f2e726...e92d83d1bf0b1de46205d5e19131f1cee2b6b3da"
           },
           ...
       ]
@@ -146,7 +147,11 @@ echo_deployment_diff_urls()
     incoming_artifact="$(jq --raw-output ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
     outgoing_artifact="$(jq --raw-output ".[$n]" <<< "${outgoing_artifacts}")"  # eg {...}
 
-    # TODO: check matching repo_url entries
+    incoming_repo_url="$(jq --raw-output '.incoming_repo_url' <<< "${incoming_artifact}")"    # https://github.com/cyber-dojo/nginx
+    outgoing_repo_url="$(jq --raw-output '.outgoing_repo_url' <<< "${outgoing_artifact}")"    # https://github.com/cyber-dojo/nginx
+    if [ "${incoming_repo_url}" != "${outgoing_repo_url}" ]; then
+      : # TODO: repo_url entries don't match
+    fi
 
     incoming_commit_sha="$(jq --raw-output '.incoming_commit_sha' <<< "${incoming_artifact}")"    # 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
     outgoing_commit_sha="$(jq --raw-output '.outgoing_commit_sha' <<< "${outgoing_artifact}")"    # 7e191a0a86cf3d264955c4910bc3b9df518c4bcd
@@ -154,8 +159,9 @@ echo_deployment_diff_urls()
     echo "${separator}"
     echo '{'
     # TODO: check if this is the first Deployment (outgoing_commit_sha == "") and if so echo the incoming_commit_url
+    # TODO: This deployment_diff_url it specific to https://github.com
     cat << EOF
-      "deployment_diff_url": "https://.../${incoming_commit_sha}...${outgoing_commit_sha}"
+      "deployment_diff_url": "${incoming_repo_url}/compare/${incoming_commit_sha}...${outgoing_commit_sha}"
 EOF
     echo '}'
     separator=","
