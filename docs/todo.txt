@@ -23,20 +23,22 @@ MVP DONE
 - Turn off dry-run
 - Do sdlc-control-gate job using matrix with [kosli assert artifact] in each parallel job
 - Add a manual approval step. Like used for each repo currently.
-- check each service has only one Artifact running in aws-beta/aws-prod (not mid blue/green deployment)
-- do approval for each artifact in parallel via matrix
-- refactor exit_non_zero_if_mid_blue_green_deployment, so it is passed the json as an argument
-- refactor so script outputs the json rather than saving it to a file, update the --help text
-- rename create_matrix_include.sh to create_promotions.sh
-- use [jq <<< "${X}"] instead of [echo "${X}" | jq]
+- Check each service has only one Artifact running in aws-beta/aws-prod (not mid blue/green deployment)
+- Do approval for each artifact in parallel via matrix
+- Refactor exit_non_zero_if_mid_blue_green_deployment, so it is passed the json as an argument
+- Refactor so script outputs the json rather than saving it to a file, update the --help text
+- Rename create_matrix_include.sh to create_promotions.sh
+- Use [jq <<< "${X}"] instead of [echo "${X}" | jq]
 - Do creation of keys "commit_url","commit_sha","repo_url" once only
+- Fix outgoing_artifacts JSON so it is in the same flow order as incoming_artifacts
 
 
 MVP TODO
 --------
-- fix outgoing_artifacts JSON so it is in the same flow order as incoming_artifacts
+- put correct deployment-diff-url into JSON for each Artifact
+- add test for 2.json
 - add check that incoming/outgoing repo_names are the same
-- put deployment-diff-url into JSON for each Artifact
+- add test for incoming/outgoing repo_names being different
 - ?refactor scripts so they can either accept stdin or a named file?
 
 
