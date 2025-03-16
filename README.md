@@ -1,18 +1,16 @@
 # aws-prod-co-promotion
 
 Workflow to find out which Artifacts:
-- Are running in the cyber-dojo https://beta.cyber-dojo.org
-  [aws-beta](https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/) Environment.
-- Are NOT running in the cyber-dojo https://cyber-dojo.org 
-  [aws-prod](https://app.kosli.com/cyber-dojo/environments/aws-prod/snapshots/) Environment.
+- Are running in the cyber-dojo https://beta.cyber-dojo.org [aws-beta](https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/) Environment.
+- Are NOT running in the cyber-dojo https://cyber-dojo.org [aws-prod](https://app.kosli.com/cyber-dojo/environments/aws-prod/snapshots/) Environment.
 - Deploy them all, at the same time, into the latter.
 
 ```shell
-$ ./bin/create_matrix_include.sh --help
+$ ./bin/create_promotions.sh --help
 ```
 
 ```
-    Use: create_matrix_include.sh
+    Use: create_promotions.sh
 
     Reads (from stdin) the result of a 'kosli diff snapshots aws-beta aws-prod --org=cyber-dojo ... --output-type=json'.
     Writes (to stdout) a JSON array with one dict for each Artifact to be promoted.
@@ -25,7 +23,7 @@ $ ./bin/create_matrix_include.sh --help
 Example where three Artifacts were found:
 
 ```bash
-$ make matrix_include
+$ make promotions
 ```
 
 ```json
@@ -75,4 +73,4 @@ $ make matrix_include
 ]
 ```
 
-When NO Artifacts are found, the matrix-include.json file will contain '[]'.
+When NO Artifacts are found, the echoed JSON file will be '[]'.

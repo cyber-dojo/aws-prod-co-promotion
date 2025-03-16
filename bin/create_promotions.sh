@@ -69,7 +69,7 @@ excluded()
   fi
 }
 
-create_matrix_include()
+create_promotions()
 {
   local -r incoming="${1}"
   local -r outgoing="${2}"
@@ -178,5 +178,5 @@ incoming=$(echo "${diff}" | jq -r -c '.snappish1')
 outgoing=$(echo "${diff}" | jq -r -c '.snappish2')
 exit_non_zero_if_mid_blue_green_deployment "${incoming}"
 exit_non_zero_if_mid_blue_green_deployment "${outgoing}"
-matrix_include="$(create_matrix_include "${incoming}" "${outgoing}")"
-echo "${matrix_include}" | jq .
+promotions="$(create_promotions "${incoming}" "${outgoing}")"
+echo "${promotions}" | jq .

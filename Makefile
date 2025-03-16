@@ -1,6 +1,6 @@
 
-matrix_include:
-	@${PWD}/bin/create_snapshot_diff_json.sh | ${PWD}/bin/create_matrix_include.sh | jq .
+promotions:
+	@${PWD}/bin/create_snapshot_diff_json.sh | ${PWD}/bin/create_promotions.sh | jq .
 
 run_tests:
 	@${PWD}/tests/run_tests.sh

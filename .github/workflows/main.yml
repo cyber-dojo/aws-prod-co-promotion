@@ -83,7 +83,7 @@ jobs:
       - name: Generate Artifact json for each entry in following job's matrix-include
         id: vars
         run:
-          echo "matrix_include=$(make matrix-include | jq --raw-output --compact-output .)" >> ${GITHUB_OUTPUT}
+          echo "matrix_include=$(make promotions | jq --raw-output --compact-output .)" >> ${GITHUB_OUTPUT}
 
 
   sdlc-control-gate:
