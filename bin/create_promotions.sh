@@ -130,31 +130,6 @@ excluded()
   fi
 }
 
-XX_echo_promotions()
-{
-  local -r incoming_artifacts="${1}"
-  local -r outgoing_artifacts="${2}"
-  local -r incoming_length=$(jq --raw-output '. | length' <<< "${incoming_artifacts}")
-
-  separator=""
-  echo '['
-  local n; for ((n = 0; n < incoming_length; n++))
-  do
-    incoming_artifact="$(jq --raw-output ".[$n]" <<< "${incoming_artifacts}")"  # eg {...}
-    incoming_flow="$(jq --raw-output '.flow' <<< "${incoming_artifact}")"       # eg saver-ci
-    if ! excluded "${incoming_flow}" ; then
-      echo "${separator}"
-      echo '{'
-      echo_json_entry    "incoming" "${incoming_artifact}" ","
-      echo_json_outgoing "${incoming_flow}" "${outgoing_artifacts}"
-      echo '}'
-      separator=","
-    fi
-  done
-  echo
-  echo ']'
-}
-
 echo_deployment_diff_urls()
 {
   # Creates [{"deployment_diff_url":"...},{"deployment_diff_url":"...},...]
@@ -195,7 +170,6 @@ echo_same_flow_ordering()
   do
     incoming_artifact="$(jq --raw-output ".[$n]" <<< "${incoming_artifacts}")"       # {...}
     incoming_flow="$(jq --raw-output '.incoming_flow' <<< "${incoming_artifact}")"   # saver-ci
-
     echo "${separator}"
     echo '{'
     echo_json_outgoing "${incoming_flow}" "${outgoing_artifacts}"
@@ -222,6 +196,7 @@ echo_json_outgoing()
     fi
   done
 
+  # There is no matching outgoing Artifact. This is the first deployment.
   local -r kind="outgoing"
   cat << EOF
     "${kind}_image_name": "",
@@ -235,17 +210,9 @@ EOF
 
 echo_outgoing_json_entry()
 {
-  local -r artifact="${1}"                                 # {...}
-  local -r separator="${2}"                                # "," or ""
+  local -r artifact="${1}"   # {...}
+  local -r separator="${2}"  # "," or ""
   local -r kind="outgoing"
-
-  #  image_name    244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
-  #  fingerprint   b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
-  #  flow          saver-ci
-  #  commit_url    https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-  #  commit_sha    6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-  #  repo_url      https://github.com/cyber-dojo/saver  40+/+commit+/
-  #  repo_name     saver
 
   cat << EOF
     "${kind}_image_name" : "$(jq --raw-output '.outgoing_image_name'  <<< "${artifact}")",
@@ -274,26 +241,10 @@ outgoing="$(jq --raw-output --compact-output '.snappish2' <<< "${diff}")"
 exit_non_zero_if_mid_blue_green_deployment "${incoming}"
 exit_non_zero_if_mid_blue_green_deployment "${outgoing}"
 
-# TODO: echo_inflated_artifacts needs to add the incoming/outgoing prefix to the keys...
 incoming_artifacts="$(echo_inflated_artifacts incoming "${incoming}")"
 outgoing_artifacts="$(echo_inflated_artifacts outgoing "${outgoing}")"
 outgoing_artifacts="$(echo_same_flow_ordering "${outgoing_artifacts}" "${incoming_artifacts}")"
 
-#echo -----
-#jq . <<< "${incoming_artifacts}"
-#echo -----
-#jq . <<< "${outgoing_artifacts}"
-#echo -----
-#
-#exit 42
-
-
-# TODO: deployment_diffs are not right
-#  Need to create outgoing_artifacts with flows in the same Order as incoming_artifacts
-#  and then I can merge all three JSON arrays in the last jq 'transpose | map(add)' expression
-#  Then drop promotions!
-
-#promotions="$(echo_promotions "${incoming_artifacts}" "${outgoing_artifacts}")"
 deployment_diff_urls="$(echo_deployment_diff_urls "${incoming_artifacts}" "${outgoing_artifacts}")"
 
 jq --slurp 'transpose | map(add)' <<< "${incoming_artifacts}${outgoing_artifacts}${deployment_diff_urls}"
