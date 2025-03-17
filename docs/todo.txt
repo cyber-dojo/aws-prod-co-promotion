@@ -71,6 +71,11 @@ Also, when I updated the env-policy (to the new flow-name) aws-beta and aws-prod
 Answer: Because the fingerprint of the images had not changed. So Kosli was correctly still finding a
 snyk attestation with the old flow-name.
 
+When I archived the old Flow called co-promotion (after deploying to aws-beta) this caused aws-beta to become non-compliant.
+This appears to be because when you archive a Flow you change its name.
+
+
+
 
 CUSTOM-ATTESTATION
 ------------------
