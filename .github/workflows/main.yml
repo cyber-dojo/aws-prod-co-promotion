@@ -119,7 +119,7 @@ jobs:
       matrix:
         include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
     env:
-      MATRIX: ${{ toJSON(matrix) }}
+      PROMOTION: ${{ toJSON(matrix) }}
     steps:
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
@@ -131,13 +131,13 @@ jobs:
           fetch-depth: 1
 
       - name: Attest promotion to Kosli
-        run:
+        run: |
+          echo "${PROMOTION}" > /tmp/promotion.json
           kosli attest custom --type=promotion
             --annotate=deployment_diff_url="${{ matrix.deployment_diff_url }}"
-            --attestation-data=<(echo '{}')
+            --attestation-data=/tmp/promotion.json
             --fingerprint="${{ matrix.incoming_fingerprint }}"
             --name="${{ matrix.incoming_repo_name }}.promotion"
-            --user-data=<(echo "${MATRIX}")
 
 
   sdlc-control-gate:
