@@ -12,7 +12,7 @@
     "outgoing_repo_name": "nginx",
     "outgoing_commit_sha": "e92d83d1bf0b1de46205d5e19131f1cee2b6b3da",
     "outgoing_flow": "nginx-ci",
-    "deployment_diff_url": "https://github.com/cyber-dojo/nginx/compare/fa32058a046015786d1589e16af7da0973f2e726...e92d83d1bf0b1de46205d5e19131f1cee2b6b3da"
+    "deployment_diff_url": "https://github.com/cyber-dojo/nginx/compare/e92d83d1bf0b1de46205d5e19131f1cee2b6b3da...fa32058a046015786d1589e16af7da0973f2e726"
   },
   {
     "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:ed1878b@sha256:337fa91d02fa59729aca2941bbfebf999d1c5ae74b1492a4c99a33a925c7f052",
@@ -27,6 +27,6 @@
     "outgoing_repo_name": "web",
     "outgoing_commit_sha": "7645ee70706ad259c6367b97946edb10d00815a0",
     "outgoing_flow": "web-ci",
-    "deployment_diff_url": "https://github.com/cyber-dojo/web/compare/ed1878bd4aba3cada1e6ae7bc510f6354c61c484...7645ee70706ad259c6367b97946edb10d00815a0"
+    "deployment_diff_url": "https://github.com/cyber-dojo/web/compare/7645ee70706ad259c6367b97946edb10d00815a0...ed1878bd4aba3cada1e6ae7bc510f6354c61c484"
   }
 ]

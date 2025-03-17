@@ -174,7 +174,7 @@ EOF
       fi
       assertEqual "${incoming_flow}" "${outgoing_flow}"
       cat << EOF
-        "deployment_diff_url": "${incoming_repo_url}/compare/${incoming_commit_sha}...${outgoing_commit_sha}"
+        "deployment_diff_url": "${incoming_repo_url}/compare/${outgoing_commit_sha}...${incoming_commit_sha}"
 EOF
     fi
 

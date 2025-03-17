@@ -12,7 +12,7 @@
     "outgoing_repo_name": "saver",
     "outgoing_commit_sha": "434b2f8516d62415cb5c9d7c8242401b9521caeb",
     "outgoing_flow": "saver-ci",
-    "deployment_diff_url": "https://github.com/cyber-dojo/saver/compare/6e191a0a86cf3d264955c4910bc3b9df518c4bcd...434b2f8516d62415cb5c9d7c8242401b9521caeb"
+    "deployment_diff_url": "https://github.com/cyber-dojo/saver/compare/434b2f8516d62415cb5c9d7c8242401b9521caeb...6e191a0a86cf3d264955c4910bc3b9df518c4bcd"
   },
   {
     "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:59ba013@sha256:02cfa72b7907e22c3ff2dd66138f307945a28e26519077f5770eb6ce176f41c4",
