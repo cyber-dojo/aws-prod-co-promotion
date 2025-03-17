@@ -37,11 +37,11 @@ MVP DONE
 - Add check for first deployment and deployment_diff_url is just commit_url
 - Update test golden masters
 - Add test for 2.json
+- Add test for incoming/outgoing repo_urls being different
 
 
 MVP TODO
 --------
-- Add test for incoming/outgoing repo_urls being different
 - Add test for first deployment giving commit_url
 
 - Create custom-attestation-type for Artifact promotion called promotion-artifact

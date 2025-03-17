@@ -64,7 +64,11 @@ test___FAILURE_blue_green_aws_prod()
 
 test___FAILURE_repo_urls_are_different()
 {
-  :
+  local -r filename="different-repo-urls"
+  create_promotions "${filename}.json"
+  assert_stdout_equals ""
+  assert_stderr_equals "$(cat "${my_dir}/expected/${filename}.txt")"
+  assert_status_not_equals 0
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

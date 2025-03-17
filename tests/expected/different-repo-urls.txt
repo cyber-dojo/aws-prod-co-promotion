@@ -1,0 +1,3 @@
+ERROR: In Flow nginx-ci repo_url entries are different.
+ERROR: Incoming repo_url=https://github.com/cyber-dojo/nginx
+ERROR: Outgoing repo_url=https://github.com/cyber-dojo/nginx-rename
