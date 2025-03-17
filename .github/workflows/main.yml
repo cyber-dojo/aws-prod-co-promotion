@@ -134,6 +134,7 @@ jobs:
         run:
           kosli attest custom --type=promotion
             --annotate=deployment_diff_url="${{ matrix.deployment_diff_url }}"
+            --attestation-data=<(echo '{}')
             --fingerprint="${{ matrix.incoming_fingerprint }}"
             --name="${{ matrix.incoming_repo_name }}.promotion"
             --user-data=<(echo "${MATRIX}")
