@@ -194,6 +194,7 @@ jobs:
   deploy-to-prod:
     if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
     needs: [setup, find-artifacts, approve]
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
