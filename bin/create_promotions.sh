@@ -64,8 +64,8 @@ exit_non_zero_if_mid_blue_green_deployment()
   local -r duplicate_flows="$(jq --raw-output '.. | .flow? | select(length > 0)' <<< "${artifacts}" | sort | uniq --repeated)"
   if [ "${duplicate_flows}" != "" ]; then
     local -r env_id="$(jq --raw-output '.snapshot_id' <<< "${snappish}")"
-    stderr "Promotion abandoned because a blue-green deployment is in progress in ${env_id}"
-    stderr "${duplicate_flows}"
+    stderr "A blue-green deployment is in progress in ${env_id}"
+    stderr "For ${duplicate_flows}"
     exit 42
   fi
 }

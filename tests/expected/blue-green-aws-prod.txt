@@ -1,3 +1,2 @@
-ERROR: Duplicate flow names in aws-prod#4754
-ERROR: nginx-ci
-ERROR: This indicates a blue-green deployment is in progress
+ERROR: A blue-green deployment is in progress in aws-prod#4754
+ERROR: For nginx-ci

@@ -2,7 +2,9 @@
 
 readonly my_dir="$(cd "$(dirname "${0}")" && pwd)"
 
-test_no_deployments()
+test_SUCCESS_json_promotions_written_to_stdout() { :; }
+
+test___SUCCESS_no_deployments()
 {
   local -r filename="0.json"
   create_promotions "${filename}"
@@ -11,7 +13,7 @@ test_no_deployments()
   assert_status_equals 0
 }
 
-test_new_flow()
+test___SUCCESS_new_flow()
 {
   local -r filename="new-flow.json"
   create_promotions "${filename}"
@@ -20,7 +22,16 @@ test_new_flow()
   assert_status_equals 0
 }
 
-test_4_deployments()
+test___SUCCESS_2_deployments()
+{
+  local -r filename="2.json"
+  create_promotions "${filename}"
+  assert_stdout_equals "$(cat "${my_dir}/expected/${filename}")"
+  assert_stderr_equals ""
+  assert_status_equals 0
+}
+
+test___SUCCESS_4_deployments()
 {
   local -r filename="4.json"
   create_promotions "${filename}"
@@ -29,7 +40,11 @@ test_4_deployments()
   assert_status_equals 0
 }
 
-test_blue_green_aws_beta()
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+test_FAILURE_with_diagnostic_on_stderr() { :; }
+
+test___FAILURE_blue_green_aws_beta()
 {
   local -r filename="blue-green-aws-beta"
   create_promotions "${filename}.json"
@@ -38,13 +53,18 @@ test_blue_green_aws_beta()
   assert_status_not_equals 0
 }
 
-test_blue_green_aws_prod()
+test___FAILURE_blue_green_aws_prod()
 {
   local -r filename="blue-green-aws-prod"
   create_promotions "${filename}.json"
   assert_stdout_equals ""
   assert_stderr_equals "$(cat "${my_dir}/expected/${filename}.txt")"
   assert_status_not_equals 0
+}
+
+test___FAILURE_repo_urls_are_different()
+{
+  :
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

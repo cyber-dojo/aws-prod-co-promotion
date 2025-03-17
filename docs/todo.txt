@@ -35,12 +35,12 @@ MVP DONE
 - Add assertEquals... calls to main script
 - Add check in script that incoming/outgoing repo_urls are the same
 - Add check for first deployment and deployment_diff_url is just commit_url
+- Update test golden masters
+- Add test for 2.json
 
 
 MVP TODO
 --------
-- Update test golden masters
-- Add test for 2.json
 - Add test for incoming/outgoing repo_urls being different
 - Add test for first deployment giving commit_url
 
