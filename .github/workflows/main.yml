@@ -133,10 +133,10 @@ jobs:
       - name: Attest promotion to Kosli
         run: |
           echo "${PROMOTION}" > /tmp/promotion.json
-          kosli attest custom --type=promotion
-            --annotate=deployment_diff_url="${{ matrix.deployment_diff_url }}"
-            --attestation-data=/tmp/promotion.json
-            --fingerprint="${{ matrix.incoming_fingerprint }}"
+          kosli attest custom --type=promotion \
+            --annotate=deployment_diff_url="${{ matrix.deployment_diff_url }}" \
+            --attestation-data=/tmp/promotion.json \
+            --fingerprint="${{ matrix.incoming_fingerprint }}" \
             --name="${{ matrix.incoming_repo_name }}.promotion"
 
 
