@@ -42,7 +42,6 @@ MVP DONE
 
 MVP TODO
 --------
-- Add test for first deployment giving commit_url
 
 - Create custom-attestation-type for Artifact promotion called promotion-artifact
 - Comment in all kosli-attest-custom in a second matrix
