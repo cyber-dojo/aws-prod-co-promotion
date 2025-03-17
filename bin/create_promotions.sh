@@ -149,27 +149,35 @@ echo_deployment_diff_urls()
 
     incoming_flow="$(jq --raw-output '.incoming_flow' <<< "${incoming_artifact}")"
     outgoing_flow="$(jq --raw-output '.outgoing_flow' <<< "${outgoing_artifact}")"
-    assertEqual "${incoming_flow}" "${outgoing_flow}"
 
     incoming_repo_url="$(jq --raw-output '.incoming_repo_url' <<< "${incoming_artifact}")"    # https://github.com/cyber-dojo/nginx
     outgoing_repo_url="$(jq --raw-output '.outgoing_repo_url' <<< "${outgoing_artifact}")"    # https://github.com/cyber-dojo/nginx
-    if [ "${incoming_repo_url}" != "${outgoing_repo_url}" ]; then
-      stderr "In Flow ${incoming_flow} repo_url entries are different."
-      stderr "Incoming repo_url=${incoming_repo_url}"
-      stderr "Outgoing repo_url=${outgoing_repo_url}"
-      exit 42
-    fi
 
     incoming_commit_sha="$(jq --raw-output '.incoming_commit_sha' <<< "${incoming_artifact}")"    # 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
     outgoing_commit_sha="$(jq --raw-output '.outgoing_commit_sha' <<< "${outgoing_artifact}")"    # 7e191a0a86cf3d264955c4910bc3b9df518c4bcd
 
     echo "${separator}"
     echo '{'
-    # TODO: check if this is the first Deployment (outgoing_commit_sha == "") and if so echo the incoming_commit_url
-    # TODO: This deployment_diff_url it specific to https://github.com
-    cat << EOF
-      "deployment_diff_url": "${incoming_repo_url}/compare/${incoming_commit_sha}...${outgoing_commit_sha}"
+
+    # Note: These URLs are specific to https://github.com
+    if [ -z "${outgoing_flow}" ]; then
+      # First deployment for incoming_flow_name
+      cat << EOF
+        "deployment_diff_url": "${incoming_repo_url}/commit/${incoming_commit_sha}"
 EOF
+    else
+      if [ "${incoming_repo_url}" != "${outgoing_repo_url}" ]; then
+        stderr "In Flow ${incoming_flow} repo_url entries are different."
+        stderr "Incoming repo_url=${incoming_repo_url}"
+        stderr "Outgoing repo_url=${outgoing_repo_url}"
+        exit 42
+      fi
+      assertEqual "${incoming_flow}" "${outgoing_flow}"
+      cat << EOF
+        "deployment_diff_url": "${incoming_repo_url}/compare/${incoming_commit_sha}...${outgoing_commit_sha}"
+EOF
+    fi
+
     echo '}'
     separator=","
   done
