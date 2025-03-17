@@ -65,7 +65,7 @@ jobs:
           kosli begin trail "${KOSLI_TRAIL}"
 
 
-  find-artifacts:
+  find-promotions:
     needs: [setup]
     runs-on: ubuntu-latest
     outputs:
@@ -88,12 +88,12 @@ jobs:
 
   # These kosli-attest-artifacts are currently necessary. It is likely they won't be at some future time.
   kosli-attest-artifacts:
-    if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
-    needs: [find-artifacts]
+    if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
+    needs: [find-promotions]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
+        include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
     steps:
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
@@ -112,12 +112,12 @@ jobs:
 
 
   kosli-attest-promotions:
-    if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
-    needs: [find-artifacts, kosli-attest-artifacts]
+    if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
+    needs: [find-promotions, kosli-attest-artifacts]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
+        include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
     env:
       PROMOTION: ${{ toJSON(matrix) }}
     steps:
@@ -141,12 +141,12 @@ jobs:
 
 
   sdlc-control-gate:
-    if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
-    needs: [find-artifacts, kosli-attest-promotions]
+    if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
+    needs: [find-promotions, kosli-attest-promotions]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
+        include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
     steps:
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
@@ -164,30 +164,16 @@ jobs:
             --environment="${KOSLI_AWS_PROD}"
 
 
-  show-deploy-to-prod:
-    if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
-    needs: [find-artifacts, sdlc-control-gate]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
-    steps:
-      - name: Dry-run workflow before making live
-        run: |
-          echo "cyber-dojo/${{ matrix.incoming_repo_name }}"
-          echo "${{ matrix.incoming_image_name }}"
-
-
   approve:
-    if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
-    needs: [find-artifacts, sdlc-control-gate]
+    if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
+    needs: [find-promotions, sdlc-control-gate]
     runs-on: ubuntu-latest
     environment:
       name: production
       url:  https://cyber-dojo.org
     strategy:
       matrix:
-        include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
+        include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
     steps:
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
@@ -206,26 +192,26 @@ jobs:
             --environment="${KOSLI_AWS_PROD}"
 
 
-#  deploy-to-prod:
-#    if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
-#    needs: [find-artifacts, approve]
-#    strategy:
-#      matrix:
-#        include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
-#    permissions:
-#      id-token: write
-#      contents: write
-#    uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.23
-#    with:
-#      checkout_repository:    "cyber-dojo/${{ matrix.incoming_repo_name }}"
-#      checkout_commit_sha:    ${{ matrix.commit_sha }}
-#      checkout_fetch_depth:   0
-#      aws_region:             ${{ needs.setup.outputs.aws_region }}
-#      aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
-#      aws_default_region:     ${{ needs.setup.outputs.aws_region }}
-#      aws_role_duration:      900
-#      working_directory:      deployment/terraform/
-#      tf_apply:               true
-#      tf_version:             v1.9.1
-#      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.incoming_image_name }}"}'
+  deploy-to-prod:
+    if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
+    needs: [find-promotions, approve]
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
+    permissions:
+      id-token: write
+      contents: write
+    uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.23
+    with:
+      checkout_repository:    "cyber-dojo/${{ matrix.incoming_repo_name }}"
+      checkout_commit_sha:    ${{ matrix.commit_sha }}
+      checkout_fetch_depth:   0
+      aws_region:             ${{ needs.setup.outputs.aws_region }}
+      aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
+      aws_default_region:     ${{ needs.setup.outputs.aws_region }}
+      aws_role_duration:      900
+      working_directory:      deployment/terraform/
+      tf_apply:               true
+      tf_version:             v1.9.1
+      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.incoming_image_name }}"}'
 
