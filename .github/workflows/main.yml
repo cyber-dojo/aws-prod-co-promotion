@@ -194,7 +194,7 @@ jobs:
 
   deploy-to-prod:
     if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
-    needs: [find-promotions, approve]
+    needs: [setup, find-promotions, approve]
     strategy:
       matrix:
         include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}

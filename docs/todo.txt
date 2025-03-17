@@ -60,6 +60,11 @@ MVP TODO
 
 
 
+Notes:
+The promotion Flow does not have a template.
+So it relies on its attestations to cause one of its Trails to be red.
+But in reality, the kosli-assert-artifact is the only thing that can fail a pipeline run.
+
 
 
 CUSTOM-ATTESTATION
