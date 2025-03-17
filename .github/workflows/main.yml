@@ -66,7 +66,7 @@ jobs:
 
 
   find-artifacts:
-    needs: []
+    needs: [setup]
     runs-on: ubuntu-latest
     outputs:
       promotions: "${{ steps.vars.outputs.promotions }}"
@@ -164,6 +164,20 @@ jobs:
             --environment="${KOSLI_AWS_PROD}"
 
 
+  show-deploy-to-prod:
+    if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
+    needs: [find-artifacts, sdlc-control-gate]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
+    steps:
+      - name: Dry-run workflow before making live
+        run: |
+          echo "cyber-dojo/${{ matrix.incoming_repo_name }}"
+          echo "${{ matrix.incoming_image_name }}"
+
+
   approve:
     if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
     needs: [find-artifacts, sdlc-control-gate]
@@ -192,23 +206,9 @@ jobs:
             --environment="${KOSLI_AWS_PROD}"
 
 
-  deploy-to-prod:
-    if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
-    needs: [setup, find-artifacts, approve]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
-    steps:
-      - name: Dry-run workflow before making live
-        run: |
-          echo "cyber-dojo/${{ matrix.incoming_repo_name }}"
-          echo "${{ matrix.incoming_image_name }}"
-
-
 #  deploy-to-prod:
 #    if: ${{ needs.find-artifacts.outputs.promotions != '[]' }}
-#    needs: [setup, find-artifacts, approve]
+#    needs: [find-artifacts, approve]
 #    strategy:
 #      matrix:
 #        include: ${{ fromJSON(needs.find-artifacts.outputs.promotions) }}
