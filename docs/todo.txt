@@ -65,6 +65,11 @@ The promotion Flow does not have a template.
 So it relies on its attestations to cause one of its Trails to be red.
 But in reality, the kosli-assert-artifact is the only thing that can fail a pipeline run.
 
+When I changed the name of the promotion Flow, I did not change the name in the env-policy for snyk.
+This caused aws-beta and aws-prod to become non-compliant. Why?
+Also, when I updated the env-policy (to the new flow-name) aws-beta and aws-prod stayed non-compliant. Why?
+Answer: Because the fingerprint of the images had not changed. So Kosli was correctly still finding a
+snyk attestation with the old flow-name.
 
 
 CUSTOM-ATTESTATION
