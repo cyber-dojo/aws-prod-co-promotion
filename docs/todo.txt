@@ -51,10 +51,6 @@ MVP DONE
 - Create new Flow, on both kosli-staging and kosli-prod
 - Update KOSLI_FLOW in main.yml pipeline with new-name
 - Run for real
-
-
-MVP TODO
---------
 - Archive old Flow
 - In readme, add links to Kosli promotion Trail
 
