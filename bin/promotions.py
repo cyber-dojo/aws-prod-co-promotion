@@ -5,16 +5,14 @@ from collections import Counter
 
 def print_help():
     print("""
-
-        Use: python3 ./bin/promotions.py
-
         Reads (from stdin) the result of a 'kosli diff snapshots aws-beta aws-prod --org=cyber-dojo ... --output-type=json'.
         Writes (to stdout) a JSON array with one dict for each Artifact to be promoted.
         This JSON can be used as the source for a Github Action strategy:matrix:include to run a parallel job for each Artifact.
         If a blue-green deployment is in progress in aws-beta or aws-prod, the script will exit with a non-zero value.
+
         Example:
 
-          $ cat docs/diff-snapshots-2.json | python3 ./bin/promotions.py
+          $ ./bin/create_snapshot_diff_json.sh | python3 ./bin/promotions.py    
           [
               {
                   "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:fa32058@sha256:0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
@@ -33,7 +31,6 @@ def print_help():
               },
               ...
           ]
-
     """)
 
 

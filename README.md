@@ -11,15 +11,14 @@ python3 ./bin/promotions.py --help
 ```
 
 ```
-    Use: python3 ./bin/promotions.py --help
-
     Reads (from stdin) the result of a 'kosli diff snapshots aws-beta aws-prod --org=cyber-dojo ... --output-type=json'.
     Writes (to stdout) a JSON array with one dict for each Artifact to be promoted.
     This JSON can be used as the source for a Github Action strategy:matrix:include to run a parallel job for each Artifact.
-    If a blue-green deployment is in progress in aws-beta or aws-prod, the script will exit with a non-zero value.    
+    If a blue-green deployment is in progress in aws-beta or aws-prod, the script will exit with a non-zero value.
+        
     Example:
     
-      $ cat docs/diff-snapshots-2.json | python3 ./bin/promotions.py    
+      $ ./bin/create_snapshot_diff_json.sh | python3 ./bin/promotions.py    
       ...
 ```
 
