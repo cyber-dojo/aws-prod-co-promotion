@@ -1,8 +1,0 @@
-{
-  "flow": "exercises-start-points-ci",
-  "service": "exercises-start-points",
-  "fingerprint": "64a1fcdf2722a5847f673243a8b685d2782ab856af753543d9ca5d8debf506f0",
-  "repo_url": "https://github.com/cyber-dojo/exercises-start-points/",
-  "commit_sha": "9fb5bcdd28550da4dee22142ca722586911adbb1",
-  "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/exercises-start-points:9fb5bcd@sha256:64a1fcdf2722a5847f673243a8b685d2782ab856af753543d9ca5d8debf506f0"
-}

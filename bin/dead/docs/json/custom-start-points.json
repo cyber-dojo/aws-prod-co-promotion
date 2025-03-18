@@ -1,8 +1,0 @@
-{
-  "flow": "custom-start-points-ci",
-  "service": "custom-start-points",
-  "fingerprint": "36fe1096e74e75421d3671c2bcb8688658565f6ca5723eacf214c85f930ac141",
-  "repo_url": "https://github.com/cyber-dojo/custom-start-points/",
-  "commit_sha": "5b75832b1c5ec598478a9a3965f15e25059cb605",
-  "name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/custom-start-points:5b75832@sha256:36fe1096e74e75421d3671c2bcb8688658565f6ca5723eacf214c85f930ac141"
-}
