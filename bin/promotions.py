@@ -1,7 +1,40 @@
-
 import json
 import sys
 from collections import Counter
+
+
+def print_help():
+    print("""
+
+        Use: python3 ./bin/promotions.py
+
+        Reads (from stdin) the result of a 'kosli diff snapshots aws-beta aws-prod --org=cyber-dojo ... --output-type=json'.
+        Writes (to stdout) a JSON array with one dict for each Artifact to be promoted.
+        This JSON can be used as the source for a Github Action strategy:matrix:include to run a parallel job for each Artifact.
+        If a blue-green deployment is in progress in aws-beta or aws-prod, the script will exit with a non-zero value.
+        Example:
+
+          $ cat docs/diff-snapshots-2.json | python3 ./bin/promotions.py
+          [
+              {
+                  "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:fa32058@sha256:0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
+                  "incoming_fingerprint": "0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
+                  "incoming_repo_url": "https://github.com/cyber-dojo/nginx/",
+                  "incoming_repo_name": "nginx",
+                  "incoming_commit_sha": "fa32058a046015786d1589e16af7da0973f2e726",
+                  "incoming_flow": "nginx-ci",
+                  "outgoing_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:e92d83d@sha256:0f803b05be83006c77e8c371b1f999eaabfb2feca9abef64332633362b36ca94",
+                  "outgoing_fingerprint": "0f803b05be83006c77e8c371b1f999eaabfb2feca9abef64332633362b36ca94",
+                  "outgoing_repo_url": "https://github.com/cyber-dojo/nginx",
+                  "outgoing_repo_name": "nginx",
+                  "outgoing_commit_sha": "e92d83d1bf0b1de46205d5e19131f1cee2b6b3da",
+                  "outgoing_flow": "nginx-ci",
+                  "deployment_diff_url": "https://github.com/cyber-dojo/nginx/compare/fa32058a046015786d1589e16af7da0973f2e726...e92d83d1bf0b1de46205d5e19131f1cee2b6b3da"
+              },
+              ...
+          ]
+
+    """)
 
 
 def promotions():
@@ -25,10 +58,8 @@ def promotions():
 
     deployment_diff_urls = {flow: deployment_diff_url(incoming_artifacts[flow], matching_outgoing[flow]) for flow in incoming_artifacts.keys()}
 
-    spliced = [incoming_artifacts[flow] | matching_outgoing[flow] | deployment_diff_urls[flow]
-               for flow in incoming_artifacts.keys()]
-
-    print(json.dumps(spliced, indent=2))
+    return [incoming_artifacts[flow] | matching_outgoing[flow] | deployment_diff_urls[flow]
+            for flow in incoming_artifacts.keys()]
 
 
 def deployment_diff_url(incoming_artifact, outgoing_artifact):
@@ -114,4 +145,8 @@ def stderr(message):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    promotions()
+    if len(sys.argv) > 1 and sys.argv[1] in ["-h", "--help"]:
+        print_help()
+    else:
+        # Note: This is expecting input on stdin
+        print(json.dumps(promotions(), indent=2))
