@@ -29,17 +29,26 @@ def promotions():
     print(json.dumps(incoming_artifacts, indent=2))
     print(json.dumps(matching_outgoing, indent=2))
     print(json.dumps(deployment_diff_urls, indent=2))
+    # NOW: splice them....
 
 
 def deployment_diff_url(incoming_artifact, outgoing_artifact):
+    incoming_flow = incoming_artifact["incoming_flow"]
+    outgoing_flow = outgoing_artifact["outgoing_flow"]
     incoming_repo_url = incoming_artifact["incoming_repo_url"]
     outgoing_repo_url = outgoing_artifact["outgoing_repo_url"]
     incoming_commit_sha = incoming_artifact["incoming_commit_sha"]
     outgoing_commit_sha = outgoing_artifact["outgoing_commit_sha"]
 
-    if outgoing_artifact["outgoing_flow"] == "":
+    if outgoing_flow == "":
         url = f"{incoming_repo_url}/commit/{incoming_commit_sha}"
+    elif incoming_repo_url != outgoing_repo_url:
+        stderr(f"In Flow {incoming_flow} repo_url entries are different.")
+        stderr(f"Incoming repo_url={incoming_repo_url}")
+        stderr(f"Outgoing repo_url={outgoing_repo_url}")
+        sys.exit(42)
     else:
+        assert incoming_flow == outgoing_flow
         url = f"{incoming_repo_url}/compare/{outgoing_commit_sha}...{incoming_commit_sha}"
 
     return {"deployment_diff_url": url}
