@@ -77,7 +77,7 @@ create_promotions()
 {
   local -r filename="${1}"
   cat ${my_dir}/diff-snapshots/${filename} | python3 ${my_dir}/../bin/promotions.py >${stdoutF} 2>${stderrF}
-  status=${PIPESTATUS[1]}
+  status=$?
   echo ${status} >${statusF}
 }
 
