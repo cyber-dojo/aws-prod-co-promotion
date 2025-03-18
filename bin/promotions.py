@@ -22,10 +22,42 @@ def promotions():
 
     outgoing_artifacts = {a["flow"]: prefixed_artifact("outgoing", a) for a in outgoing["artifacts"] if not excluded_flow(a)}
     incoming_artifacts = {a["flow"]: prefixed_artifact("incoming", a) for a in incoming["artifacts"] if not excluded_flow(a)}
+    matching_outgoing = {a["flow"]: blanked_artifact(a["flow"], outgoing_artifacts) for a in incoming["artifacts"]}
+
+    deployment_diff_urls = {flow: deployment_diff_url(incoming_artifacts[flow], matching_outgoing[flow]) for flow in incoming_artifacts.keys()}
 
     print(json.dumps(incoming_artifacts, indent=2))
-    print(json.dumps(outgoing_artifacts, indent=2))
+    print(json.dumps(matching_outgoing, indent=2))
+    print(json.dumps(deployment_diff_urls, indent=2))
 
+
+def deployment_diff_url(incoming_artifact, outgoing_artifact):
+    incoming_repo_url = incoming_artifact["incoming_repo_url"]
+    outgoing_repo_url = outgoing_artifact["outgoing_repo_url"]
+    incoming_commit_sha = incoming_artifact["incoming_commit_sha"]
+    outgoing_commit_sha = outgoing_artifact["outgoing_commit_sha"]
+
+    if outgoing_artifact["outgoing_flow"] == "":
+        url = f"{incoming_repo_url}/commit/{incoming_commit_sha}"
+    else:
+        url = f"{incoming_repo_url}/compare/{outgoing_commit_sha}...{incoming_commit_sha}"
+
+    return {"deployment_diff_url": url}
+
+
+def blanked_artifact(flow_name, outgoing_artifact):
+    if flow_name in outgoing_artifact:
+        return outgoing_artifact[flow_name]
+    else:
+        kind = "outgoing"
+        return {
+            f"{kind}_image_name": "",
+            f"{kind}_fingerprint": "",
+            f"{kind}_repo_url": "",
+            f"{kind}_repo_name": "",
+            f"{kind}_commit_sha": "",
+            f"{kind}_flow": ""
+        }
 
 
 def prefixed_artifact(kind, artifact):
