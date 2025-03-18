@@ -1,4 +1,7 @@
 
+new_promotions:
+	@${PWD}/bin/create_snapshot_diff_json.sh | python3 ${PWD}/bin/promotions.py
+
 promotions:
 	@${PWD}/bin/create_snapshot_diff_json.sh | ${PWD}/bin/create_promotions.sh | jq .
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -Eeu
 
-readonly my_dir="$( cd "$( dirname "${0}" )" && pwd )"
-readonly tmp_dir=$(mktemp -d "/tmp/cyber-dojo-start-points-base.XXX")
+readonly my_dir="$(cd "$(dirname "${0}")" && pwd)"
+readonly tmp_dir=$(mktemp -d "/tmp/promotions.XXX")
 remove_tmp_dir() { rm -rf "${tmp_dir}" > /dev/null; }
 trap remove_tmp_dir INT EXIT
 

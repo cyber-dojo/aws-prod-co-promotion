@@ -26,10 +26,10 @@ def promotions():
 
     deployment_diff_urls = {flow: deployment_diff_url(incoming_artifacts[flow], matching_outgoing[flow]) for flow in incoming_artifacts.keys()}
 
-    print(json.dumps(incoming_artifacts, indent=2))
-    print(json.dumps(matching_outgoing, indent=2))
-    print(json.dumps(deployment_diff_urls, indent=2))
-    # NOW: splice them....
+    spliced = [incoming_artifacts[flow] | matching_outgoing[flow] | deployment_diff_urls[flow]
+               for flow in incoming_artifacts.keys()]
+
+    print(json.dumps(spliced, indent=2))
 
 
 def deployment_diff_url(incoming_artifact, outgoing_artifact):
@@ -111,7 +111,7 @@ def duplicates(seq):
 
 
 def stderr(message):
-    print(message, file=sys.stderr)
+    print(f"ERROR: {message}", file=sys.stderr)
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -53,6 +53,10 @@ MVP DONE
 - Run for real
 - Archive old Flow
 - In readme, add links to Kosli promotion Trail
+- Switch implementation to Python
+
+TODO:
+- add --help text output to promotions.py
 
 
 

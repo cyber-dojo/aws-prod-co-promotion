@@ -1,2 +1,2 @@
 ERROR: A blue-green deployment is in progress in aws-beta#4754
-ERROR: For nginx-ci
+ERROR: For ['nginx-ci']
