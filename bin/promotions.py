@@ -20,18 +20,15 @@ def promotions():
     exit_non_zero_if_mid_blue_green_deployment(incoming_env_id, incoming_flow_names + common_flow_names)
     exit_non_zero_if_mid_blue_green_deployment(outgoing_env_id, outgoing_flow_names + common_flow_names)
 
-    incoming_artifacts = inflated_artifacts("incoming", incoming)
-    outgoing_artifacts = inflated_artifacts("outgoing", outgoing)
+    outgoing_artifacts = {a["flow"]: prefixed_artifact("outgoing", a) for a in outgoing["artifacts"] if not excluded_flow(a)}
+    incoming_artifacts = {a["flow"]: prefixed_artifact("incoming", a) for a in incoming["artifacts"] if not excluded_flow(a)}
 
-    #print(json.dumps(incoming_artifacts, indent=2))
-    #print(json.dumps(outgoing_artifacts, indent=2))
-
-
-def inflated_artifacts(kind, snappish):
-    return [inflated_artifact(kind, art) for art in snappish["artifacts"] if not excluded_flow(art)]
+    print(json.dumps(incoming_artifacts, indent=2))
+    print(json.dumps(outgoing_artifacts, indent=2))
 
 
-def inflated_artifact(kind, artifact):
+
+def prefixed_artifact(kind, artifact):
     image_name = artifact["name"]          # 244531986313.dkr.ecr.eu-central-1.amazonaws.com/saver:6e191a0@sha256:b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
     fingerprint = artifact["fingerprint"]  # b3237b0e615e7041c23433faeee0bacd6ec893e89ae8899536433e4d27a5b6ef
     flow = artifact["flow"]                # saver-ci
