@@ -86,34 +86,9 @@ jobs:
           echo "promotions=$(make promotions | jq --raw-output --compact-output .)" >> ${GITHUB_OUTPUT}
 
 
-  # These kosli-attest-artifacts are currently necessary. It is likely they won't be at some future time.
-  kosli-attest-artifacts:
+  sdlc-control-gate:
     if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
     needs: [find-promotions]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
-    steps:
-      - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v2
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Attest artifact to Kosli
-        run:
-          kosli attest artifact "${{ matrix.incoming_image_name }}"
-            --fingerprint="${{ matrix.incoming_fingerprint }}"
-            --name="${{ matrix.incoming_repo_name }}"
-
-
-  kosli-attest-promotions:
-    if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
-    needs: [find-promotions, kosli-attest-artifacts]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -130,6 +105,25 @@ jobs:
         with:
           fetch-depth: 1
 
+      # [kosli attest artifact] should not be necessary here, but currently it is.
+      - name: Attest artifact to Kosli
+        run:
+          kosli attest artifact "${{ matrix.incoming_image_name }}"
+            --fingerprint="${{ matrix.incoming_fingerprint }}"
+            --name="${{ matrix.incoming_repo_name }}"
+
+      - name: Assert Artifact is compliant in aws-beta
+        run:
+          kosli assert artifact
+            --fingerprint="${{ matrix.incoming_fingerprint }}"
+            --environment="${KOSLI_AWS_BETA}"
+
+      - name: Assert Artifact is compliant for aws-prod
+        run:
+          kosli assert artifact
+            --fingerprint="${{ matrix.incoming_fingerprint }}"
+            --environment="${KOSLI_AWS_PROD}"
+
       - name: Attest promotion to Kosli
         run: |
           echo "${PROMOTION}" > /tmp/promotion.json
@@ -138,30 +132,6 @@ jobs:
             --attestation-data=/tmp/promotion.json \
             --fingerprint="${{ matrix.incoming_fingerprint }}" \
             --name="${{ matrix.incoming_repo_name }}.promotion"
-
-
-  sdlc-control-gate:
-    if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
-    needs: [find-promotions, kosli-attest-promotions]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
-    steps:
-      - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v2
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Assert Artifact is compliant for aws-prod
-        run:
-          kosli assert artifact
-            --fingerprint="${{ matrix.incoming_fingerprint }}"
-            --environment="${KOSLI_AWS_PROD}"
 
 
   approve:
