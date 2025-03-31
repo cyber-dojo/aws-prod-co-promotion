@@ -1,6 +1,6 @@
 # aws-prod-co-promotion
 
-Workflow to use [Kolsi](https://kosli.com) find out which Artifacts:
+Workflow to use [Kosli](https://kosli.com) find out which Artifacts:
 - Are running in the cyber-dojo https://beta.cyber-dojo.org [aws-beta](https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/) staging Environment.
 - Are NOT running in the cyber-dojo https://cyber-dojo.org [aws-prod](https://app.kosli.com/cyber-dojo/environments/aws-prod/snapshots/) production Environment.
 - Deploys them all, in parallel, after approval, into the latter.
