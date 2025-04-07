@@ -117,9 +117,7 @@ def prefixed_artifact(kind, artifact):
 
 def excluded_flow(artifact):
     flow = artifact["flow"]
-    if flow == "differ-ci":
-        return True
-    elif flow == "creator-ci":
+    if flow == "creator-ci":
         return True
     else:
         return False
