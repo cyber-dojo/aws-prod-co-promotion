@@ -5,6 +5,7 @@ Workflow to use [Kosli](https://kosli.com) find out which Artifacts:
 - Are NOT running in the cyber-dojo https://cyber-dojo.org [aws-prod](https://app.kosli.com/cyber-dojo/environments/aws-prod/snapshots/) production Environment.
 - Deploys them all, in parallel, after approval, into the latter.
 - Records this release/promotion in a dedicated [Kosli Flow](https://app.kosli.com/cyber-dojo/flows/production-promotion/trails/)
+- [Read blogpost](https://www.kosli.com/blog/a-release-workflow-in-kosli/)
 
 ```bash
 python3 ./bin/promotions.py --help
