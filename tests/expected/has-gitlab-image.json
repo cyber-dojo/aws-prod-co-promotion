@@ -1,0 +1,53 @@
+[
+  {
+    "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/runner:0faf0d3@sha256:9e2ce48f5b3a5845ddd52f5fdb8ddac35357c2c4ab9c502f444389de9088b308",
+    "incoming_fingerprint": "9e2ce48f5b3a5845ddd52f5fdb8ddac35357c2c4ab9c502f444389de9088b308",
+    "incoming_repo_url": "https://github.com/cyber-dojo/runner",
+    "incoming_repo_name": "runner",
+    "incoming_commit_sha": "0faf0d33cd3a7797bd5d5e15a208f10b428fb88c",
+    "incoming_flow": "runner-ci",
+    "incoming_ci": "github",
+    "outgoing_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/runner:637a881@sha256:7603277be1eabacf51632bd28e5ab5b2be06b739212fbf5acac2e6360d420ed3",
+    "outgoing_fingerprint": "7603277be1eabacf51632bd28e5ab5b2be06b739212fbf5acac2e6360d420ed3",
+    "outgoing_repo_url": "https://github.com/cyber-dojo/runner",
+    "outgoing_repo_name": "runner",
+    "outgoing_commit_sha": "637a881287c71f11c9da81d331baac7d59d6974d",
+    "outgoing_flow": "runner-ci",
+    "outgoing_ci": "github",
+    "deployment_diff_url": "https://github.com/cyber-dojo/runner/compare/637a881287c71f11c9da81d331baac7d59d6974d...0faf0d33cd3a7797bd5d5e15a208f10b428fb88c"
+  },
+  {
+    "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/creator:b0c9c4f@sha256:c94d6bd2e54ac0fbde2c94d1b2862fea6a4637e6c26eecbe75aa2139c386e81f",
+    "incoming_fingerprint": "c94d6bd2e54ac0fbde2c94d1b2862fea6a4637e6c26eecbe75aa2139c386e81f",
+    "incoming_repo_url": "https://gitlab.com/cyber-dojo/creator",
+    "incoming_repo_name": "creator",
+    "incoming_commit_sha": "b0c9c4f68e341e40fa0b08be56fa1014236c9550",
+    "incoming_flow": "creator-ci",
+    "incoming_ci": "gitlab",
+    "outgoing_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/creator:63739c6@sha256:55a3107ee0d32008cf3cc231ebad625cdbbb8d54daca529fe4e4572a8abba2f6",
+    "outgoing_fingerprint": "55a3107ee0d32008cf3cc231ebad625cdbbb8d54daca529fe4e4572a8abba2f6",
+    "outgoing_repo_url": "https://gitlab.com/cyber-dojo/creator",
+    "outgoing_repo_name": "creator",
+    "outgoing_commit_sha": "63739c64c04437b29e3fe082d699fb757846e0f0",
+    "outgoing_flow": "creator-ci",
+    "outgoing_ci": "gitlab",
+    "deployment_diff_url": "https://gitlab.com/cyber-dojo/creator/compare/63739c64c04437b29e3fe082d699fb757846e0f0...b0c9c4f68e341e40fa0b08be56fa1014236c9550"
+  },
+  {
+    "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:d8ce054@sha256:dc0d054dab6e74909055522f10e9c7145c9033ee7d07dbb45db72e83e993192a",
+    "incoming_fingerprint": "dc0d054dab6e74909055522f10e9c7145c9033ee7d07dbb45db72e83e993192a",
+    "incoming_repo_url": "https://github.com/cyber-dojo/web",
+    "incoming_repo_name": "web",
+    "incoming_commit_sha": "d8ce0544672598f2e7ff2787726472853cc75914",
+    "incoming_flow": "web-ci",
+    "incoming_ci": "github",
+    "outgoing_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:0629460@sha256:9e3ee6ea738ea0d6522290eeaa90494f615cddb97ce0cf56b6108a4e5e59b9f1",
+    "outgoing_fingerprint": "9e3ee6ea738ea0d6522290eeaa90494f615cddb97ce0cf56b6108a4e5e59b9f1",
+    "outgoing_repo_url": "https://github.com/cyber-dojo/web",
+    "outgoing_repo_name": "web",
+    "outgoing_commit_sha": "06294606b4a3ff9f2c84a8bf638882e06873d278",
+    "outgoing_flow": "web-ci",
+    "outgoing_ci": "github",
+    "deployment_diff_url": "https://github.com/cyber-dojo/web/compare/06294606b4a3ff9f2c84a8bf638882e06873d278...d8ce0544672598f2e7ff2787726472853cc75914"
+  }
+]

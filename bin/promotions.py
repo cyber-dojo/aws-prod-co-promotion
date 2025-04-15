@@ -21,12 +21,14 @@ def print_help():
                   "incoming_repo_name": "nginx",
                   "incoming_commit_sha": "fa32058a046015786d1589e16af7da0973f2e726",
                   "incoming_flow": "nginx-ci",
+                  "incoming_ci": "github",
                   "outgoing_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:e92d83d@sha256:0f803b05be83006c77e8c371b1f999eaabfb2feca9abef64332633362b36ca94",
                   "outgoing_fingerprint": "0f803b05be83006c77e8c371b1f999eaabfb2feca9abef64332633362b36ca94",
                   "outgoing_repo_url": "https://github.com/cyber-dojo/nginx",
                   "outgoing_repo_name": "nginx",
                   "outgoing_commit_sha": "e92d83d1bf0b1de46205d5e19131f1cee2b6b3da",
                   "outgoing_flow": "nginx-ci",
+                  "outgoing_ci": "github",
                   "deployment_diff_url": "https://github.com/cyber-dojo/nginx/compare/fa32058a046015786d1589e16af7da0973f2e726...e92d83d1bf0b1de46205d5e19131f1cee2b6b3da"
               },
               ...
@@ -49,8 +51,8 @@ def promotions():
     exit_non_zero_if_mid_blue_green_deployment(incoming_env_id, incoming_flow_names + common_flow_names)
     exit_non_zero_if_mid_blue_green_deployment(outgoing_env_id, outgoing_flow_names + common_flow_names)
 
-    outgoing_artifacts = {a["flow"]: prefixed_artifact("outgoing", a) for a in outgoing["artifacts"] if not excluded_flow(a)}
-    incoming_artifacts = {a["flow"]: prefixed_artifact("incoming", a) for a in incoming["artifacts"] if not excluded_flow(a)}
+    outgoing_artifacts = {a["flow"]: prefixed_artifact("outgoing", a) for a in outgoing["artifacts"]}
+    incoming_artifacts = {a["flow"]: prefixed_artifact("incoming", a) for a in incoming["artifacts"]}
     matching_outgoing = {a["flow"]: blanked_artifact(a["flow"], outgoing_artifacts) for a in incoming["artifacts"]}
 
     deployment_diff_urls = {flow: deployment_diff_url(incoming_artifacts[flow], matching_outgoing[flow]) for flow in incoming_artifacts.keys()}
@@ -92,7 +94,8 @@ def blanked_artifact(flow_name, outgoing_artifact):
             f"{kind}_repo_url": "",
             f"{kind}_repo_name": "",
             f"{kind}_commit_sha": "",
-            f"{kind}_flow": ""
+            f"{kind}_flow": "",
+            f"{kind}_ci": ""
         }
 
 
@@ -102,25 +105,36 @@ def prefixed_artifact(kind, artifact):
     flow = artifact["flow"]                # saver-ci
     commit_url = artifact["commit_url"]    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
     commit_sha = commit_url[-40:]          # 6e191a0a86cf3d264955c4910bc3b9df518c4bcd
-    repo_url = commit_url[0:-48]           # https://github.com/cyber-dojo/saver
-    repo_name = repo_url.split('/')[-1]    # saver
 
     return {
         f"{kind}_image_name": image_name,
         f"{kind}_fingerprint": fingerprint,
-        f"{kind}_repo_url": repo_url,
-        f"{kind}_repo_name": repo_name,
+        f"{kind}_repo_url": repo_url(artifact),    # https://github.com/cyber-dojo/saver
+        f"{kind}_repo_name": repo_name(artifact),  # saver
         f"{kind}_commit_sha": commit_sha,
-        f"{kind}_flow": flow
+        f"{kind}_flow": flow,
+        f"{kind}_ci": ci_system(artifact)
     }
 
 
-def excluded_flow(artifact):
-    flow = artifact["flow"]
-    if flow == "creator-ci":
-        return True
-    else:
-        return False
+def ci_system(artifact):
+    commit_url = artifact["commit_url"]
+    if commit_url.startswith("https://github.com/"):
+        return "github"
+    elif commit_url.startswith("https://gitlab.com"):
+        return "gitlab"
+
+
+def repo_url(artifact):
+    commit_url = artifact["commit_url"]
+    if ci_system(artifact) == "github":    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
+        return commit_url[0:-48]           # --> https://github.com/cyber-dojo/saver
+    elif ci_system(artifact) == "gitlab":  # https://gitlab.com/cyber-dojo/creator/-/commit/63739c64c04437b29e3fe082d699fb757846e0f0
+        return commit_url[0:-50]           # --> https://github.com/cyber-dojo/creator
+
+
+def repo_name(artifact):
+    return repo_url(artifact).split('/')[-1]
 
 
 def exit_non_zero_if_mid_blue_green_deployment(env_id, flow_names):

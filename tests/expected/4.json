@@ -6,12 +6,14 @@
     "incoming_repo_name": "nginx",
     "incoming_commit_sha": "fa32058a046015786d1589e16af7da0973f2e726",
     "incoming_flow": "nginx-ci",
+    "incoming_ci": "github",
     "outgoing_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:e92d83d@sha256:0f803b05be83006c77e8c371b1f999eaabfb2feca9abef64332633362b36ca94",
     "outgoing_fingerprint": "0f803b05be83006c77e8c371b1f999eaabfb2feca9abef64332633362b36ca94",
     "outgoing_repo_url": "https://github.com/cyber-dojo/nginx",
     "outgoing_repo_name": "nginx",
     "outgoing_commit_sha": "e92d83d1bf0b1de46205d5e19131f1cee2b6b3da",
     "outgoing_flow": "nginx-ci",
+    "outgoing_ci": "github",
     "deployment_diff_url": "https://github.com/cyber-dojo/nginx/compare/e92d83d1bf0b1de46205d5e19131f1cee2b6b3da...fa32058a046015786d1589e16af7da0973f2e726"
   },
   {
@@ -21,12 +23,14 @@
     "incoming_repo_name": "web",
     "incoming_commit_sha": "ed1878bd4aba3cada1e6ae7bc510f6354c61c484",
     "incoming_flow": "web-ci",
+    "incoming_ci": "github",
     "outgoing_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:5db3d66@sha256:49cfb0d0696a9934e408ff20eaeea17ba87924ea520963be2021134814a086cc",
     "outgoing_fingerprint": "49cfb0d0696a9934e408ff20eaeea17ba87924ea520963be2021134814a086cc",
     "outgoing_repo_url": "https://github.com/cyber-dojo/web",
     "outgoing_repo_name": "web",
     "outgoing_commit_sha": "5db3d66084de99c0b9b3847680de78ea01f63643",
     "outgoing_flow": "web-ci",
+    "outgoing_ci": "github",
     "deployment_diff_url": "https://github.com/cyber-dojo/web/compare/5db3d66084de99c0b9b3847680de78ea01f63643...ed1878bd4aba3cada1e6ae7bc510f6354c61c484"
   },
   {
@@ -36,12 +40,14 @@
     "incoming_repo_name": "custom-start-points",
     "incoming_commit_sha": "df95ef1e16c367e9c1bda5de2b67c168ab17174b",
     "incoming_flow": "custom-start-points-ci",
+    "incoming_ci": "github",
     "outgoing_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/custom-start-points:0a4a895@sha256:f896ba9ae26c6f53a5229704fac1cf6b0eb34e3b8fd8c1cd6f24d808cc52d96f",
     "outgoing_fingerprint": "f896ba9ae26c6f53a5229704fac1cf6b0eb34e3b8fd8c1cd6f24d808cc52d96f",
     "outgoing_repo_url": "https://github.com/cyber-dojo/custom-start-points",
     "outgoing_repo_name": "custom-start-points",
     "outgoing_commit_sha": "0a4a8953918f5be854e424946201e98820d9c789",
     "outgoing_flow": "custom-start-points-ci",
+    "outgoing_ci": "github",
     "deployment_diff_url": "https://github.com/cyber-dojo/custom-start-points/compare/0a4a8953918f5be854e424946201e98820d9c789...df95ef1e16c367e9c1bda5de2b67c168ab17174b"
   },
   {
@@ -51,12 +57,14 @@
     "incoming_repo_name": "languages-start-points",
     "incoming_commit_sha": "9c270699fa10888b1c270ae69f8c13988bc4a26b",
     "incoming_flow": "languages-start-points-ci",
+    "incoming_ci": "github",
     "outgoing_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/languages-start-points:194a47f@sha256:7d6c2af354f3648c97aa25b84160c9552221d10dc30f56be2976588d823c6ee6",
     "outgoing_fingerprint": "7d6c2af354f3648c97aa25b84160c9552221d10dc30f56be2976588d823c6ee6",
     "outgoing_repo_url": "https://github.com/cyber-dojo/languages-start-points",
     "outgoing_repo_name": "languages-start-points",
     "outgoing_commit_sha": "194a47fed2a51b1de76eb133429a9da955b9e3ed",
     "outgoing_flow": "languages-start-points-ci",
+    "outgoing_ci": "github",
     "deployment_diff_url": "https://github.com/cyber-dojo/languages-start-points/compare/194a47fed2a51b1de76eb133429a9da955b9e3ed...9c270699fa10888b1c270ae69f8c13988bc4a26b"
   }
 ]

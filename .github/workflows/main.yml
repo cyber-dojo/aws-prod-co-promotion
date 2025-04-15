@@ -172,8 +172,9 @@ jobs:
     permissions:
       id-token: write
       contents: write
-    uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.23
+    uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.26
     with:
+      checkout_ci:            ${{ matrix.incoming_ci }}
       checkout_repository:    "cyber-dojo/${{ matrix.incoming_repo_name }}"
       checkout_commit_sha:    ${{ matrix.incoming_commit_sha }}
       checkout_fetch_depth:   0

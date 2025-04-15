@@ -40,6 +40,15 @@ test___SUCCESS_4_deployments()
   assert_stderr_equals ""
 }
 
+test___SUCCESS_has_gitlab_image()
+{
+  local -r filename="has-gitlab-image.json"
+  create_promotions "${filename}"
+  assert_status_equals 0
+  assert_stdout_equals "$(cat "${my_dir}/expected/${filename}")"
+  assert_stderr_equals ""
+}
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 test_FAILURE_with_diagnostic_on_stderr() { :; }
