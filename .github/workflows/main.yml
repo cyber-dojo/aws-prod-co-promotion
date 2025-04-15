@@ -177,7 +177,7 @@ jobs:
       checkout_ci:            ${{ matrix.incoming_ci }}
       checkout_repository:    "cyber-dojo/${{ matrix.incoming_repo_name }}"
       checkout_commit_sha:    ${{ matrix.incoming_commit_sha }}
-      checkout_fetch_depth:   0
+      checkout_fetch_depth:   1
       aws_region:             ${{ needs.setup.outputs.aws_region }}
       aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
       aws_default_region:     ${{ needs.setup.outputs.aws_region }}
