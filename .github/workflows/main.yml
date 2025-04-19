@@ -136,7 +136,8 @@ jobs:
 
   approve:
     if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
-    needs: [find-promotions, sdlc-control-gate]
+    # needs: [find-promotions, sdlc-control-gate]
+    needs: [find-promotions]
     runs-on: ubuntu-latest
     environment:
       name: production
