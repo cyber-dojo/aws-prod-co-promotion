@@ -1,0 +1,6 @@
+version: 1
+
+trail:
+  attestations:
+    - name: all-promotions
+      type: generic

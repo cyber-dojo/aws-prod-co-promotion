@@ -9,6 +9,7 @@ def print_help():
         Writes (to stdout) a JSON array with one dict for each Artifact to be promoted.
         This JSON can be used as the source for a Github Action strategy:matrix:include to run a parallel job for each Artifact.
         If a blue-green deployment is in progress in aws-beta or aws-prod, the script will exit with a non-zero value.
+        Also creates an all-annotations.txt file containing --annotation flags to be used in a Kosli attestation.
 
         Example:
 
@@ -117,6 +118,18 @@ def prefixed_artifact(kind, artifact):
     }
 
 
+def write_annotations_file(services):
+    annotations = []
+    for service in services:
+        key = service["incoming_repo_name"]
+        diff_url = service["deployment_diff_url"]
+        quote = '"'
+        annotations.append(f"--annotate {quote}{key}_diff_URL={diff_url}{quote}")
+
+    with open("all-annotations.txt", "a") as file:
+        file.write(" ".join(annotations))
+
+
 def ci_system(artifact):
     commit_url = artifact["commit_url"]
     if commit_url.startswith("https://github.com/"):
@@ -130,7 +143,7 @@ def repo_url(artifact):
     if ci_system(artifact) == "github":    # https://github.com/cyber-dojo/saver/commit/6e191a0a86cf3d264955c4910bc3b9df518c4bcd
         return commit_url[0:-48]           # --> https://github.com/cyber-dojo/saver
     elif ci_system(artifact) == "gitlab":  # https://gitlab.com/cyber-dojo/creator/-/commit/63739c64c04437b29e3fe082d699fb757846e0f0
-        return commit_url[0:-50]           # --> https://github.com/cyber-dojo/creator
+        return commit_url[0:-50]           # --> https://gitlab.com/cyber-dojo/creator
 
 
 def repo_name(artifact):
@@ -158,4 +171,6 @@ if __name__ == "__main__":  # pragma: no cover
         print_help()
     else:
         # Note: This is expecting input on stdin
-        print(json.dumps(promotions(), indent=2))
+        info = promotions()
+        print(json.dumps(info, indent=2))
+        write_annotations_file(info)
