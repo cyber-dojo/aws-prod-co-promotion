@@ -126,12 +126,13 @@ jobs:
             --environment "${KOSLI_AWS_BETA}"
 
       - name: Attest aws-beta compliance
-        run:
-          kosli attest generic
-            --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}"
-            --fingerprint "${{ matrix.incoming_fingerprint }}"
-            --name "compliant-${KOSLI_AWS_BETA}"
-            --user-data <(echo "${PROMOTION}")
+        run: |
+          echo "${PROMOTION}" | jq . > one-promotion.json
+          kosli attest generic \
+            --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}" \
+            --fingerprint "${{ matrix.incoming_fingerprint }}" \
+            --name "compliant-${KOSLI_AWS_BETA}" \
+            --user-data one-promotion.json
 
       - name: Assert Artifact is compliant for aws-prod
         run:
@@ -140,12 +141,13 @@ jobs:
             --environment "${KOSLI_AWS_PROD}"
 
       - name: Attest aws-prod compliance
-        run:
-          kosli attest generic
-            --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}"
-            --fingerprint "${{ matrix.incoming_fingerprint }}"
-            --name "compliant-${KOSLI_AWS_PROD}"
-            --user-data <(echo "${PROMOTION}")
+        run: |
+          echo "${PROMOTION}" | jq . > one-promotion.json          
+          kosli attest generic \
+            --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}" \
+            --fingerprint "${{ matrix.incoming_fingerprint }}" \
+            --name "compliant-${KOSLI_AWS_PROD}" \
+            --user-data one-promotion.json          
 
 
   approve:
