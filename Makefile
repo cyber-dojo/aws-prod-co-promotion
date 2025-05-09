@@ -4,6 +4,3 @@ promotions:
 
 run_tests:
 	@${PWD}/tests/run_tests.sh
-
-json_files:
-	@${PWD}/bin/create_json_files.sh

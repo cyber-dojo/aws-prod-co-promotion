@@ -83,17 +83,14 @@ jobs:
 
       - name: Generate JSON for each Artifact promotion for use in the following job's strategy:matrix:include
         id: vars
-        run: |
-          # The make promotions target also creates the annotations.txt file
-          make promotions > all-promotions.json
-          echo "promotions=$(jq --raw-output --compact-output . all-promotions.json)" >> ${GITHUB_OUTPUT}
+        run:
+          echo "promotions=$(make promotions | jq --raw-output --compact-output .)" >> ${GITHUB_OUTPUT}
 
       - name: Attest promotion summary to Kosli
         run:
           kosli attest generic 
             --name all-promotions
-            --user-data all-promotions.json
-            $(cat all-annotations.txt)
+            $(cat docs/all-annotations.txt)
 
 
   sdlc-control-gate:
@@ -134,6 +131,7 @@ jobs:
             --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}"
             --fingerprint "${{ matrix.incoming_fingerprint }}"
             --name compliant-"${KOSLI_AWS_BETA}"
+            --user-data "docs/${{ matrix.incoming_flow }}.json
 
       - name: Assert Artifact is compliant for aws-prod
         run:
@@ -147,6 +145,7 @@ jobs:
             --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}"
             --fingerprint "${{ matrix.incoming_fingerprint }}"
             --name compliant-"${KOSLI_AWS_PROD}"
+            --user-data "docs/${{ matrix.incoming_flow }}.json
 
 
   approve:
