@@ -90,7 +90,7 @@ jobs:
         run:
           kosli attest generic 
             --name all-promotions
-            $(cat docs/all-annotations.txt)
+            $(cat all-annotations.txt)
 
 
   sdlc-control-gate:
