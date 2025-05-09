@@ -130,7 +130,7 @@ jobs:
           kosli attest generic
             --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}"
             --fingerprint "${{ matrix.incoming_fingerprint }}"
-            --name compliant-"${KOSLI_AWS_BETA}"
+            --name "compliant-${KOSLI_AWS_BETA}"
             --user-data "docs/${{ matrix.incoming_flow }}.json
 
       - name: Assert Artifact is compliant for aws-prod
@@ -144,7 +144,7 @@ jobs:
           kosli attest generic
             --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}"
             --fingerprint "${{ matrix.incoming_fingerprint }}"
-            --name compliant-"${KOSLI_AWS_PROD}"
+            --name "compliant-${KOSLI_AWS_PROD}"
             --user-data "docs/${{ matrix.incoming_flow }}.json
 
 
