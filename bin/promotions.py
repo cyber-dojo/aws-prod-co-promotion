@@ -134,7 +134,8 @@ def prefixed_artifact(kind, artifact):
 def write_annotations_file(services):
     annotations = []
     for service in services:
-        key = service["incoming_repo_name"]
+        # Annotation keys can contain only [A-Za-z0-9_]
+        key = service["incoming_repo_name"].replace("-", "_")
         diff_url = service["deployment_diff_url"]
         quote = '"'
         annotations.append(f"--annotate {quote}{key}_diff_URL={diff_url}{quote}")
