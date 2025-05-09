@@ -130,6 +130,7 @@ jobs:
           echo "${PROMOTION}" | jq . > one-promotion.json
           kosli attest generic \
             --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}" \
+            --annotate snapshot_URL="${{ matrix.incoming_snapshot_url }}" \
             --fingerprint "${{ matrix.incoming_fingerprint }}" \
             --name "compliant-${KOSLI_AWS_BETA}" \
             --user-data one-promotion.json
@@ -145,6 +146,7 @@ jobs:
           echo "${PROMOTION}" | jq . > one-promotion.json          
           kosli attest generic \
             --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}" \
+            --annotate snapshot_URL="${{ matrix.incoming_snapshot_url }}" \
             --fingerprint "${{ matrix.incoming_fingerprint }}" \
             --name "compliant-${KOSLI_AWS_PROD}" \
             --user-data one-promotion.json          

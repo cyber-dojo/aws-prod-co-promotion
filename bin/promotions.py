@@ -9,14 +9,15 @@ def print_help():
         Writes (to stdout) a JSON array with one dict for each Artifact to be promoted.
         This JSON can be used as the source for a Github Action strategy:matrix:include to run a parallel job for each Artifact.
         If a blue-green deployment is in progress in aws-beta or aws-prod, the script will exit with a non-zero value.
-        Also creates an docs/all-annotations.txt file containing --annotation flags to be used in a Kosli attestation.
-        Also creates a docs/{FLOW_NAME}.json file for each Artifact.
+        Also creates an all-annotations.txt file containing --annotation flags to be used in a Kosli attestation.
 
         Example:
 
           $ ./bin/create_snapshot_diff_json.sh | python3 ./bin/promotions.py    
           [
               {
+                  "incoming_snapshot_id": "aws-beta#5088",
+                  "incoming_snapshot_url": "https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/5088?fingerprint=0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1"
                   "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:fa32058@sha256:0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
                   "incoming_fingerprint": "0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
                   "incoming_repo_url": "https://github.com/cyber-dojo/nginx/",
@@ -53,13 +54,14 @@ def promotions():
     exit_non_zero_if_mid_blue_green_deployment(incoming_env_id, incoming_flow_names + common_flow_names)
     exit_non_zero_if_mid_blue_green_deployment(outgoing_env_id, outgoing_flow_names + common_flow_names)
 
+    snapshot_info = {a["flow"]: get_snapshot_info(incoming_env_id, a) for a in incoming["artifacts"]}
     outgoing_artifacts = {a["flow"]: prefixed_artifact("outgoing", a) for a in outgoing["artifacts"]}
     incoming_artifacts = {a["flow"]: prefixed_artifact("incoming", a) for a in incoming["artifacts"]}
     matching_outgoing = {a["flow"]: blanked_artifact(a["flow"], outgoing_artifacts) for a in incoming["artifacts"]}
 
     deployment_diff_urls = {flow: deployment_diff_url(incoming_artifacts[flow], matching_outgoing[flow]) for flow in incoming_artifacts.keys()}
 
-    return [incoming_snapshot_url(incoming_env_id) | incoming_artifacts[flow] | matching_outgoing[flow] | deployment_diff_urls[flow]
+    return [snapshot_info[flow] | incoming_artifacts[flow] | matching_outgoing[flow] | deployment_diff_urls[flow]
             for flow in incoming_artifacts.keys()]
 
 
@@ -85,12 +87,13 @@ def deployment_diff_url(incoming_artifact, outgoing_artifact):
     return {"deployment_diff_url": url}
 
 
-def incoming_snapshot_url(incoming_env_id):
+def get_snapshot_info(incoming_env_id, incoming_artifact):
     # eg incoming_env_id == aws-beta#5081
-    env, id = incoming_env_id.split("#")
+    env, sid = incoming_env_id.split("#")
+    fingerprint = incoming_artifact["fingerprint"]
     return {
         "incoming_snapshot_id": incoming_env_id,
-        "incoming_snapshot_url": f"https://app.kosli.com/cyber-dojo/environments/{env}/snapshots/{id}"
+        "incoming_snapshot_url": f"https://app.kosli.com/cyber-dojo/environments/{env}/snapshots/{sid}?fingerprint={fingerprint}"
     }
 
 
@@ -136,15 +139,8 @@ def write_annotations_file(services):
         quote = '"'
         annotations.append(f"--annotate {quote}{key}_diff_URL={diff_url}{quote}")
 
-    with open("docs/all-annotations.txt", "w") as file:
+    with open("all-annotations.txt", "w") as file:
         file.write(" ".join(annotations))
-
-
-def write_json_files(services):
-    for service in services:
-        name = service["incoming_repo_name"]
-        with open(f"docs/{name}.json", "w") as file:
-            file.write(json.dumps(service, indent=2))
 
 
 def ci_system(artifact):
@@ -191,4 +187,3 @@ if __name__ == "__main__":  # pragma: no cover
         info = promotions()
         print(json.dumps(info, indent=2))
         write_annotations_file(info)
-        write_json_files(info)
