@@ -131,7 +131,7 @@ jobs:
             --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}"
             --fingerprint "${{ matrix.incoming_fingerprint }}"
             --name "compliant-${KOSLI_AWS_BETA}"
-            --user-data "docs/${{ matrix.incoming_flow }}.json"
+            --user-data "docs/${{ matrix.incoming_repo_name }}.json"
 
       - name: Assert Artifact is compliant for aws-prod
         run:
@@ -145,7 +145,7 @@ jobs:
             --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}"
             --fingerprint "${{ matrix.incoming_fingerprint }}"
             --name "compliant-${KOSLI_AWS_PROD}"
-            --user-data "docs/${{ matrix.incoming_flow }}.json"
+            --user-data "docs/${{ matrix.incoming_repo_name }}.json"
 
 
   approve:
