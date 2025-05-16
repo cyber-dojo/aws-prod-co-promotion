@@ -158,11 +158,25 @@ jobs:
     environment:
       name: production
       url:  https://cyber-dojo.org
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
     steps:
-      - name: Approve to production
-        run: |
-          echo Kosli release/promotion Trail
-          echo "https://app.kosli.com/cyber-dojo/flows/production-promotion/trails/${KOSLI_TRAIL}"
+      - name: Setup Kosli CLI
+        uses: kosli-dev/setup-cli-action@v2
+        with:
+          version: ${{ vars.KOSLI_CLI_VERSION }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Report approval to Kosli
+        run:
+          kosli report approval
+            --fingerprint="${{ matrix.incoming_fingerprint }}"          
+            --approver="${{ github.actor }}"
+            --environment="${KOSLI_AWS_PROD}"
 
 
   deploy-to-prod:
