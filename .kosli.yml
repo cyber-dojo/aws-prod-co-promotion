@@ -4,5 +4,3 @@ trail:
   attestations:
     - name: all-promotions
       type: generic
-    - name: all-approved
-      type: generic

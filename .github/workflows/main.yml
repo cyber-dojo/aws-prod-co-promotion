@@ -71,7 +71,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       promotions: "${{ steps.vars.outputs.promotions }}"
-      annotations: "${{ steps.vars.outputs.annotations }}"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -84,9 +83,8 @@ jobs:
 
       - name: Generate JSON for each Artifact promotion for use in the following job's strategy:matrix:include
         id: vars
-        run: |
+        run:
           echo "promotions=$(make promotions | jq --raw-output --compact-output .)" >> ${GITHUB_OUTPUT}
-          echo "annotations=$(cat all-annotations.txt)" >> ${GITHUB_OUTPUT}
 
       - name: Attest promotion summary to Kosli
         run:
@@ -161,16 +159,10 @@ jobs:
       name: production
       url:  https://cyber-dojo.org
     steps:
-      - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v2
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
-
-      - name: Attest promotion summary to Kosli
-        run:
-          kosli attest generic 
-            --name all-approved
-            ${{ needs.find-promotions.outputs.annotations }}
+      - name: Approve to production
+        run: |
+          echo Kosli release/promotion Trail
+          echo "https://app.kosli.com/cyber-dojo/flows/production-promotion/trails/${KOSLI_TRAIL}"
 
 
   deploy-to-prod:
