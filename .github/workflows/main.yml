@@ -170,7 +170,7 @@ jobs:
         run:
           kosli attest generic 
             --name all-approved
-            ${{ find-promotions.outputs.annotations }}
+            ${{ needs.find-promotions.outputs.annotations }}
 
 
   deploy-to-prod:
