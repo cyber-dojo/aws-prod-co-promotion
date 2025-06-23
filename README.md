@@ -78,3 +78,8 @@ make promotions
 ```json
 []
 ```
+
+The promotions run in parallel, but these deployments are all to the _same_ EC2 instance (to save money).
+This means when deploying a lot of services at the same time, some of them become blocked, as they can’t update the network routes. 
+As some of the services successfully deploy, the networking routes become available, and the blocked services complete.
+If they do not unblock in time (there are various timeouts), then a deployment can fail.
