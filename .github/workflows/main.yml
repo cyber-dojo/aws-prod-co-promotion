@@ -56,7 +56,7 @@ jobs:
 
       - name: Tag Kosli Flow
         run:
-          kosli tag flow "${{ env.KOSLI_FLOW }}"
+          kosli tag flow "${KOSLI_FLOW}"
             --set repo_url=https://github.com/cyber-dojo/aws-prod-co-promotion
             --set ci=github
 
@@ -64,6 +64,11 @@ jobs:
         run:
           kosli begin trail "${KOSLI_TRAIL}"
             --template-file .kosli.yml
+
+      - name: Write Trail URL to GitHub Step Summary
+        run: |
+          url="https://app.kosli.com}/${KOSLI_ORG}/flows/${KOSLI_FLOW}/${KOSLI_TRAIL}"
+          echo "[Promotion Trail](${url)" > "${GITHUB_STEP_SUMMARY}"
 
 
   find-promotions:
