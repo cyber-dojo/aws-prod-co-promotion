@@ -57,7 +57,8 @@ jobs:
       - name: Tag Kosli Flow
         run:
           kosli tag flow "${KOSLI_FLOW}"
-            --set repo_url=https://github.com/cyber-dojo/aws-prod-co-promotion
+            --set kind=release
+            --set repo_url="${{ github.server_url }}/${{ github.repository }}"
             --set ci=github
 
       - name: Begin Kosli Trail
@@ -140,6 +141,7 @@ jobs:
             --name "compliant-${KOSLI_AWS_BETA}" \
             --user-data one-promotion.json
 
+      # [kosli attest artifact] should not be necessary here, but currently it is.
       - name: Assert Artifact is compliant for aws-prod
         run:
           kosli assert artifact
