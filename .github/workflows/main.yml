@@ -114,9 +114,23 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+      # - uses: actions/checkout@v4
+      #   with:
+      #     fetch-depth: 1
+
+      - name: Assert Artifact is compliant in aws-beta
+        run: |
+          unset KOSLI_FLOW
+          kosli assert artifact
+            --fingerprint "${{ matrix.incoming_fingerprint }}"
+            --environment "${KOSLI_AWS_BETA}"
+
+      - name: Assert Artifact is compliant for aws-prod
+        run: |
+          unset KOSLI_FLOW
+          kosli assert artifact
+            --fingerprint "${{ matrix.incoming_fingerprint }}"
+            --environment "${KOSLI_AWS_PROD}"
 
       # [kosli attest artifact] should not be necessary here, but currently it is.
       - name: Attest artifact to Kosli
@@ -124,12 +138,6 @@ jobs:
           kosli attest artifact "${{ matrix.incoming_image_name }}"
             --fingerprint "${{ matrix.incoming_fingerprint }}"
             --name "${{ matrix.incoming_repo_name }}"
-
-      - name: Assert Artifact is compliant in aws-beta
-        run:
-          kosli assert artifact
-            --fingerprint "${{ matrix.incoming_fingerprint }}"
-            --environment "${KOSLI_AWS_BETA}"
 
       - name: Attest aws-beta compliance
         run: |
@@ -140,13 +148,6 @@ jobs:
             --fingerprint "${{ matrix.incoming_fingerprint }}" \
             --name "compliant-${KOSLI_AWS_BETA}" \
             --user-data one-promotion.json
-
-      # [kosli attest artifact] should not be necessary here, but currently it is.
-      - name: Assert Artifact is compliant for aws-prod
-        run:
-          kosli assert artifact
-            --fingerprint "${{ matrix.incoming_fingerprint }}"
-            --environment "${KOSLI_AWS_PROD}"
 
       - name: Attest aws-prod compliance
         run: |
