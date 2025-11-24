@@ -121,15 +121,15 @@ jobs:
       - name: Assert Artifact is compliant in aws-beta
         run: |
           unset KOSLI_FLOW
-          kosli assert artifact
-            --fingerprint "${{ matrix.incoming_fingerprint }}"
+          kosli assert artifact \
+            --fingerprint "${{ matrix.incoming_fingerprint }}" \
             --environment "${KOSLI_AWS_BETA}"
 
       - name: Assert Artifact is compliant for aws-prod
         run: |
           unset KOSLI_FLOW
-          kosli assert artifact
-            --fingerprint "${{ matrix.incoming_fingerprint }}"
+          kosli assert artifact \
+            --fingerprint "${{ matrix.incoming_fingerprint }}" \
             --environment "${KOSLI_AWS_PROD}"
 
       # [kosli attest artifact] should not be necessary here, but currently it is.
