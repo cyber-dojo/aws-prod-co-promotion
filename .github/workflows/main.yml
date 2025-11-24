@@ -119,11 +119,11 @@ jobs:
           fetch-depth: 1
 
       # [kosli attest artifact] should not be necessary here, but currently it is.
-      - name: Attest artifact to Kosli
-        run:
-          kosli attest artifact "${{ matrix.incoming_image_name }}"
-            --fingerprint "${{ matrix.incoming_fingerprint }}"
-            --name "${{ matrix.incoming_repo_name }}"
+      # - name: Attest artifact to Kosli
+      #   run:
+      #     kosli attest artifact "${{ matrix.incoming_image_name }}"
+      #       --fingerprint "${{ matrix.incoming_fingerprint }}"
+      #       --name "${{ matrix.incoming_repo_name }}"
 
       - name: Assert Artifact is compliant in aws-beta
         run:
