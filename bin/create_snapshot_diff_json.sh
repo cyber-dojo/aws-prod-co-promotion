@@ -23,10 +23,5 @@ diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
     --debug=false \
     --output=json)"
 
-# Temporary edit till Kosli CLI multi-host mode bug is fixed.
-fix="$(echo "${diff}" | sed 1d)"
-jq --raw-output . <<< "${fix}"
-
-# Restore this when bug fixed.
-# jq --raw-output . <<< "${diff}"
+jq --raw-output . <<< "${diff}"
 
