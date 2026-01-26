@@ -23,5 +23,6 @@ diff="$(kosli diff snapshots "${KOSLI_AWS_BETA}" "${KOSLI_AWS_PROD}" \
     --debug=false \
     --output=json)"
 
-jq --raw-output . <<< "${diff}"
+fix="$(echo "${diff}" | sed 1d)"
 
+jq --raw-output . <<< "${diff}"
