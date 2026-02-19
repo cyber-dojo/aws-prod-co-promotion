@@ -54,6 +54,12 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
+      - name: Create Kosli Flow
+        run:
+          kosli create flow "${KOSLI_FLOW}"
+            --description="Promotes sets of Artifacts from aws-beta to aws-prod"
+            --template-file=.kosli.yml
+
       - name: Tag Kosli Flow
         run:
           kosli tag flow "${KOSLI_FLOW}"
