@@ -1,12 +1,14 @@
 import json
+import os
 import sys
 from collections import Counter
 
 
 def print_help():
     print("""
-        Reads (from stdin) the result of a 'kosli diff snapshots aws-beta aws-prod --org=cyber-dojo ... --output=json'.
+        Reads (from stdin) the result of a 'kosli diff snapshots aws-beta aws-prod --org=cyber-dojo ... --output=json'.          
         Writes (to stdout) a JSON array with one dict for each Artifact to be promoted.
+        If the env-var CYBER_DOJO_PROMOTE_FLOW is set it names the single Flow that is to be promoted.
         This JSON can be used as the source for a Github Action strategy:matrix:include to run a parallel job for each Artifact.
         If a blue-green deployment is in progress in aws-beta or aws-prod, the script will exit with a non-zero value.
         Also creates an all-annotations.txt file containing --annotation flags to be used in a Kosli attestation.
@@ -61,8 +63,15 @@ def promotions():
 
     deployment_diff_urls = {flow: deployment_diff_url(incoming_artifacts[flow], matching_outgoing[flow]) for flow in incoming_artifacts.keys()}
 
-    return [snapshot_info[flow] | incoming_artifacts[flow] | matching_outgoing[flow] | deployment_diff_urls[flow]
+    all = [snapshot_info[flow] | incoming_artifacts[flow] | matching_outgoing[flow] | deployment_diff_urls[flow]
             for flow in incoming_artifacts.keys()]
+    
+    named_flow = os.environ.get('CYBER_DOJO_PROMOTE_FLOW', None)
+    if named_flow:
+        all = [artifact for artifact in all
+               if artifact['incoming_flow'] == f"{named_flow}-ci"]
+
+    return all
 
 
 def deployment_diff_url(incoming_artifact, outgoing_artifact):

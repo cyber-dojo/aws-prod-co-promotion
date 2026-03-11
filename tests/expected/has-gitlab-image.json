@@ -1,5 +1,7 @@
 [
   {
+    "incoming_snapshot_id": "aws-beta#4939",
+    "incoming_snapshot_url": "https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/4939?fingerprint=9e2ce48f5b3a5845ddd52f5fdb8ddac35357c2c4ab9c502f444389de9088b308",
     "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/runner:0faf0d3@sha256:9e2ce48f5b3a5845ddd52f5fdb8ddac35357c2c4ab9c502f444389de9088b308",
     "incoming_fingerprint": "9e2ce48f5b3a5845ddd52f5fdb8ddac35357c2c4ab9c502f444389de9088b308",
     "incoming_repo_url": "https://github.com/cyber-dojo/runner",
@@ -17,6 +19,8 @@
     "deployment_diff_url": "https://github.com/cyber-dojo/runner/compare/637a881287c71f11c9da81d331baac7d59d6974d...0faf0d33cd3a7797bd5d5e15a208f10b428fb88c"
   },
   {
+    "incoming_snapshot_id": "aws-beta#4939",
+    "incoming_snapshot_url": "https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/4939?fingerprint=c94d6bd2e54ac0fbde2c94d1b2862fea6a4637e6c26eecbe75aa2139c386e81f",
     "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/creator:b0c9c4f@sha256:c94d6bd2e54ac0fbde2c94d1b2862fea6a4637e6c26eecbe75aa2139c386e81f",
     "incoming_fingerprint": "c94d6bd2e54ac0fbde2c94d1b2862fea6a4637e6c26eecbe75aa2139c386e81f",
     "incoming_repo_url": "https://gitlab.com/cyber-dojo/creator",
@@ -34,6 +38,8 @@
     "deployment_diff_url": "https://gitlab.com/cyber-dojo/creator/compare/63739c64c04437b29e3fe082d699fb757846e0f0...b0c9c4f68e341e40fa0b08be56fa1014236c9550"
   },
   {
+    "incoming_snapshot_id": "aws-beta#4939",
+    "incoming_snapshot_url": "https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/4939?fingerprint=dc0d054dab6e74909055522f10e9c7145c9033ee7d07dbb45db72e83e993192a",
     "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:d8ce054@sha256:dc0d054dab6e74909055522f10e9c7145c9033ee7d07dbb45db72e83e993192a",
     "incoming_fingerprint": "dc0d054dab6e74909055522f10e9c7145c9033ee7d07dbb45db72e83e993192a",
     "incoming_repo_url": "https://github.com/cyber-dojo/web",

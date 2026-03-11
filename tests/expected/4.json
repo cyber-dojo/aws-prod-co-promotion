@@ -1,5 +1,7 @@
 [
   {
+    "incoming_snapshot_id": "aws-beta#4754",
+    "incoming_snapshot_url": "https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/4754?fingerprint=0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
     "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:fa32058@sha256:0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
     "incoming_fingerprint": "0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
     "incoming_repo_url": "https://github.com/cyber-dojo/nginx",
@@ -17,6 +19,8 @@
     "deployment_diff_url": "https://github.com/cyber-dojo/nginx/compare/e92d83d1bf0b1de46205d5e19131f1cee2b6b3da...fa32058a046015786d1589e16af7da0973f2e726"
   },
   {
+    "incoming_snapshot_id": "aws-beta#4754",
+    "incoming_snapshot_url": "https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/4754?fingerprint=337fa91d02fa59729aca2941bbfebf999d1c5ae74b1492a4c99a33a925c7f052",
     "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/web:ed1878b@sha256:337fa91d02fa59729aca2941bbfebf999d1c5ae74b1492a4c99a33a925c7f052",
     "incoming_fingerprint": "337fa91d02fa59729aca2941bbfebf999d1c5ae74b1492a4c99a33a925c7f052",
     "incoming_repo_url": "https://github.com/cyber-dojo/web",
@@ -34,6 +38,8 @@
     "deployment_diff_url": "https://github.com/cyber-dojo/web/compare/5db3d66084de99c0b9b3847680de78ea01f63643...ed1878bd4aba3cada1e6ae7bc510f6354c61c484"
   },
   {
+    "incoming_snapshot_id": "aws-beta#4754",
+    "incoming_snapshot_url": "https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/4754?fingerprint=47849582a3804b2091b68e97dab36789e2346229df6d2c398c256a51c884e5ce",
     "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/custom-start-points:df95ef1@sha256:47849582a3804b2091b68e97dab36789e2346229df6d2c398c256a51c884e5ce",
     "incoming_fingerprint": "47849582a3804b2091b68e97dab36789e2346229df6d2c398c256a51c884e5ce",
     "incoming_repo_url": "https://github.com/cyber-dojo/custom-start-points",
@@ -51,6 +57,8 @@
     "deployment_diff_url": "https://github.com/cyber-dojo/custom-start-points/compare/0a4a8953918f5be854e424946201e98820d9c789...df95ef1e16c367e9c1bda5de2b67c168ab17174b"
   },
   {
+    "incoming_snapshot_id": "aws-beta#4754",
+    "incoming_snapshot_url": "https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/4754?fingerprint=8fc546c2adeec10f8a52201e8e7fea854a804a929ab692275b61cbce141c9182",
     "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/languages-start-points:9c27069@sha256:8fc546c2adeec10f8a52201e8e7fea854a804a929ab692275b61cbce141c9182",
     "incoming_fingerprint": "8fc546c2adeec10f8a52201e8e7fea854a804a929ab692275b61cbce141c9182",
     "incoming_repo_url": "https://github.com/cyber-dojo/languages-start-points",

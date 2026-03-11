@@ -1,0 +1,14 @@
+
+1. Update main.yml and production_promotion.yml 
+   so it is just one workflow.
+
+2. extract all jobs after finding-promotions 
+   into lib-workflow (with matrix input) and call it
+   in promote-all.yml workflow 
+
+3. refactor bin/promotions.py so you can filter 
+   the output to select one service based on env-var
+
+4. add new workflow to promote a single workflow
+   using 2. and 3. with env-var set from workflow-input
+
