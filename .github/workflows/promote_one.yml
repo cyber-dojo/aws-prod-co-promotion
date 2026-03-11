@@ -106,7 +106,9 @@ jobs:
 
   sdlc-control-gate:
     if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
-    needs: [find-promotions]
+    needs:
+      - setup
+      - find-promotions
     runs-on: ubuntu-latest
     strategy:
       matrix:
