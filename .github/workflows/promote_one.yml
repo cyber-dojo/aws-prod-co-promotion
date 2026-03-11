@@ -1,4 +1,4 @@
-name: Deploy one service
+name: Promote one artifacts to production
 
 on:
   workflow_dispatch:
@@ -6,7 +6,9 @@ on:
       service:
         description: "The name of the service to deploy"
         type: choice
+        required: true
         options:
+          - CHOOSE-ONE-FROM-THE-LIST
           - creator
           - custom-start-points
           - dashboard
@@ -27,7 +29,6 @@ env:
   KOSLI_HOST:      ${{ vars.KOSLI_HOST }}              # https://app.kosli.com
   KOSLI_ORG:       ${{ vars.KOSLI_ORG }}               # cyber-dojo
   KOSLI_FLOW:      ${{ vars.KOSLI_FLOW }}              # production-promotion
-  KOSLI_TRAIL:     ${{ inputs.KOSLI_TRAIL }} <<<<<<<
 
   AWS_ECR_ID:          ${{ vars.AWS_ECR_ID }}
   AWS_REGION:          ${{ vars.AWS_REGION }}
@@ -56,22 +57,18 @@ jobs:
           echo "ecr_registry=${ECR_REGISTRY}"                   >> ${GITHUB_OUTPUT}
           echo "aws_region=${AWS_REGION}"                       >> ${GITHUB_OUTPUT}
           echo "gh_actions_iam_role_name=gh_actions_services"   >> ${GITHUB_OUTPUT}
-          kosli_trail="promotion-${{ github.run_number }}"
+          kosli_trail="promotion-one-${{ github.run_number }}"
           echo "kosli_trail=${kosli_trail}" >> ${GITHUB_OUTPUT}
-          echo "kosli_trail=${kosli_trail}" >> ${GITHUB_ENV}
+          echo "KOSLI_TRAIL=${kosli_trail}" >> ${GITHUB_ENV}
 
       - name: Begin Kosli Trail
         if: ${{ github.ref == 'refs/heads/main' }}
-        env:
-          KOSLI_TRAIL: ${{ env.KOSLI_TRAIL }}
         uses: cyber-dojo/kosli-begin-trail@main
         with:
           cli_version: "${{ vars.KOSLI_CLI_VERSION }}"
           flow_description: "Promotes sets of Artifacts from aws-beta to aws-prod"
 
       - name: Tag Kosli Flow
-        env:
-          KOSLI_TRAIL: ${{ env.KOSLI_TRAIL }}
         run:
           kosli tag flow "${KOSLI_FLOW}"
             --set kind=release
@@ -81,6 +78,8 @@ jobs:
   find-promotions:
     needs: [setup]
     runs-on: ubuntu-latest
+    env:
+      KOSLI_TRAIL: ${{ needs.setup.outputs.kosli_trail }}
     outputs:
       promotions: "${{ steps.vars.outputs.promotions }}"
     steps:
@@ -95,13 +94,14 @@ jobs:
 
       - name: Generate JSON for each Artifact promotion for use in the following job's strategy:matrix:include
         id: vars
-        run:
+        run: |
+          export CYBER_DOJO_PROMOTE_FLOW="${{ inputs.service }}"
           echo "promotions=$(make promotions | jq --raw-output --compact-output .)" >> ${GITHUB_OUTPUT}
 
       - name: Attest promotion summary to Kosli
         run:
           kosli attest generic 
-            --name all-promotions
+            --name one-promotion
             $(cat all-annotations.txt)
 
   sdlc-control-gate:
@@ -112,6 +112,7 @@ jobs:
       matrix:
         include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
     env:
+      KOSLI_TRAIL: ${{ needs.setup.outputs.kosli_trail }}
       PROMOTION: ${{ toJSON(matrix) }}
     steps:
       - name: Setup Kosli CLI
@@ -167,7 +168,10 @@ jobs:
 
   approve:
     if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
-    needs: [find-promotions, sdlc-control-gate]
+    needs:
+      - setup
+      - find-promotions
+      - sdlc-control-gate
     runs-on: ubuntu-latest
     environment:
       name: production
@@ -175,6 +179,8 @@ jobs:
     strategy:
       matrix:
         include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
+    env:
+      KOSLI_TRAIL: ${{ needs.setup.outputs.kosli_trail }}
     steps:
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
