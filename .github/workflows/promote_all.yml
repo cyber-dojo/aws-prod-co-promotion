@@ -8,7 +8,7 @@ env:
   KOSLI_AWS_BETA:  ${{ vars.KOSLI_AWS_BETA }}          # aws-beta
   KOSLI_AWS_PROD:  ${{ vars.KOSLI_AWS_PROD }}          # aws-prod
   KOSLI_DEBUG:     ${{ vars.KOSLI_DEBUG }}             # true/false
-  KOSLI_DRY_RUN:   true # ${{ vars.KOSLI_DRY_RUN }}           # true/false
+  KOSLI_DRY_RUN:   ${{ vars.KOSLI_DRY_RUN }}           # true/false
   KOSLI_HOST:      ${{ vars.KOSLI_HOST }}              # https://app.kosli.com
   KOSLI_ORG:       ${{ vars.KOSLI_ORG }}               # cyber-dojo
   KOSLI_FLOW:      ${{ vars.KOSLI_FLOW }}              # production-promotion
@@ -45,22 +45,14 @@ jobs:
           echo "kosli_trail=${kosli_trail}" >> ${GITHUB_OUTPUT}
           echo "KOSLI_TRAIL=${kosli_trail}" >> ${GITHUB_ENV}
 
-      - name: Test env-var
-        run:
-          echo "KOSLI_TRAIL=:${KOSLI_TRAIL}:"
-
       - name: Begin Kosli Trail
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: cyber-dojo/kosli-begin-trail@main
-        #env:
-        #  KOSLI_TRAIL: ${{ env.KOSLI_TRAIL }}
         with:
           cli_version: "${{ vars.KOSLI_CLI_VERSION }}"
           flow_description: "Promotes sets of Artifacts from aws-beta to aws-prod"
 
       - name: Tag Kosli Flow
-        #env:
-        #  KOSLI_TRAIL: ${{ env.KOSLI_TRAIL }}
         run:
           kosli tag flow "${KOSLI_FLOW}"
             --set kind=release
@@ -194,28 +186,28 @@ jobs:
             --environment="${KOSLI_AWS_PROD}"
 
 
-  # deploy-to-prod:
-  #   if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
-  #   needs: [setup, find-promotions, approve]
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
-  #   permissions:
-  #     id-token: write
-  #     contents: write
-  #   uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.26
-  #   with:
-  #     checkout_ci:            ${{ matrix.incoming_ci }}
-  #     checkout_repository:    "cyber-dojo/${{ matrix.incoming_repo_name }}"
-  #     checkout_commit_sha:    ${{ matrix.incoming_commit_sha }}
-  #     checkout_fetch_depth:   1
-  #     aws_region:             ${{ needs.setup.outputs.aws_region }}
-  #     aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
-  #     aws_default_region:     ${{ needs.setup.outputs.aws_region }}
-  #     aws_role_duration:      900
-  #     working_directory:      deployment/terraform/
-  #     tf_apply:               true
-  #     tf_version:             v1.9.1
-  #     tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.incoming_image_name }}"}'
+  deploy-to-prod:
+    if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
+    needs: [setup, find-promotions, approve]
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
+    permissions:
+      id-token: write
+      contents: write
+    uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.26
+    with:
+      checkout_ci:            ${{ matrix.incoming_ci }}
+      checkout_repository:    "cyber-dojo/${{ matrix.incoming_repo_name }}"
+      checkout_commit_sha:    ${{ matrix.incoming_commit_sha }}
+      checkout_fetch_depth:   1
+      aws_region:             ${{ needs.setup.outputs.aws_region }}
+      aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
+      aws_default_region:     ${{ needs.setup.outputs.aws_region }}
+      aws_role_duration:      900
+      working_directory:      deployment/terraform/
+      tf_apply:               true
+      tf_version:             v1.9.1
+      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.incoming_image_name }}"}'
 
