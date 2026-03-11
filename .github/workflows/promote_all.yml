@@ -50,6 +50,7 @@ jobs:
         with:
           cli_version: "${{ vars.KOSLI_CLI_VERSION }}"
           flow_description: "Promotes sets of Artifacts from aws-beta to aws-prod"
+          template_filename: ".kosli.all.yml"
 
       - name: Tag Kosli Flow
         run:
