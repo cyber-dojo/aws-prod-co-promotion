@@ -45,7 +45,7 @@ jobs:
       gh_actions_iam_role_name: ${{ steps.vars.outputs.gh_actions_iam_role_name }}
       kosli_trail:              ${{ steps.vars.outputs.kosli_trail }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
@@ -84,7 +84,7 @@ jobs:
     outputs:
       promotions: "${{ steps.vars.outputs.promotions }}"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
@@ -138,7 +138,7 @@ jobs:
             --environment "${KOSLI_AWS_PROD}"
 
       # [kosli attest artifact] requires a git repo
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
@@ -190,7 +190,7 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
