@@ -1,4 +1,4 @@
-name: Promote one artifacts to production
+name: Promote one artifact to production
 
 on:
   workflow_dispatch:
