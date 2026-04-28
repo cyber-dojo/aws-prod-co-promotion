@@ -5,7 +5,6 @@ on:
 
 env:
   KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
-  KOSLI_AWS_BETA:  ${{ vars.KOSLI_AWS_BETA }}          # aws-beta
   KOSLI_AWS_PROD:  ${{ vars.KOSLI_AWS_PROD }}          # aws-prod
   KOSLI_DEBUG:     ${{ vars.KOSLI_DEBUG }}             # true/false
   KOSLI_DRY_RUN:   ${{ vars.KOSLI_DRY_RUN }}           # true/false
@@ -89,11 +88,34 @@ jobs:
             $(cat all-annotations.txt)
 
 
+  snyk-scan:
+    if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
+    needs:
+      - setup
+      - find-promotions
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
+    uses: cyber-dojo/snyk-scanning/.github/workflows/artifact_snyk_test.yml@main
+    with:
+      artifact_name:          ${{ matrix.incoming_image_name }}
+      kosli_flow:             ${{ vars.KOSLI_FLOW }}
+      kosli_trail:            ${{ needs.setup.outputs.kosli_trail }}
+      kosli_attestation_name: ${{ matrix.incoming_repo_name }}.snyk-scan
+      kosli_env:              ${{ vars.KOSLI_AWS_PROD }}
+      repo_name:              ${{ matrix.incoming_repo_name }}
+      raw_snyk_policy_url:    https://raw.githubusercontent.com/cyber-dojo/${{ matrix.incoming_repo_name }}/${{ matrix.incoming_commit_sha }}/.snyk
+    secrets:
+      snyk_token:      ${{ secrets.SNYK_TOKEN }}
+      kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
+
+
   sdlc-control-gate:
     if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
     needs:
       - setup
       - find-promotions
+      - snyk-scan
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -106,13 +128,6 @@ jobs:
         uses: kosli-dev/setup-cli-action@v2
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
-
-      - name: Assert Artifact is compliant in aws-beta
-        run: |
-          unset KOSLI_FLOW
-          kosli assert artifact \
-            --fingerprint "${{ matrix.incoming_fingerprint }}" \
-            --environment "${KOSLI_AWS_BETA}"
 
       - name: Assert Artifact is compliant for aws-prod
         run: |
@@ -132,16 +147,6 @@ jobs:
           kosli attest artifact "${{ matrix.incoming_image_name }}"
             --fingerprint "${{ matrix.incoming_fingerprint }}"
             --name "${{ matrix.incoming_repo_name }}"
-
-      - name: Attest aws-beta compliance
-        run: |
-          echo "${PROMOTION}" | jq . > one-promotion.json
-          kosli attest generic \
-            --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}" \
-            --annotate snapshot_URL="${{ matrix.incoming_snapshot_url }}" \
-            --fingerprint "${{ matrix.incoming_fingerprint }}" \
-            --name "compliant-${KOSLI_AWS_BETA}" \
-            --user-data one-promotion.json
 
       - name: Attest aws-prod compliance
         run: |
