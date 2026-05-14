@@ -118,7 +118,8 @@ def blanked_artifact(flow_name, outgoing_artifact):
             f"{kind}_repo_name": "",
             f"{kind}_commit_sha": "",
             f"{kind}_flow": "",
-            f"{kind}_ci": ""
+            f"{kind}_ci": "",
+            f"{kind}_raw_snyk_policy_url": ""
         }
 
 
@@ -132,11 +133,12 @@ def prefixed_artifact(kind, artifact):
     return {
         f"{kind}_image_name": image_name,
         f"{kind}_fingerprint": fingerprint,
-        f"{kind}_repo_url": repo_url(artifact),    # https://github.com/cyber-dojo/saver
-        f"{kind}_repo_name": repo_name(artifact),  # saver
+        f"{kind}_repo_url": repo_url(artifact),               # https://github.com/cyber-dojo/saver
+        f"{kind}_repo_name": repo_name(artifact),             # saver
         f"{kind}_commit_sha": commit_sha,
         f"{kind}_flow": flow,
-        f"{kind}_ci": ci_system(artifact)
+        f"{kind}_ci": ci_system(artifact),
+        f"{kind}_raw_snyk_policy_url": raw_snyk_policy_url(artifact)
     }
 
 
@@ -171,6 +173,17 @@ def repo_url(artifact):
 
 def repo_name(artifact):
     return repo_url(artifact).split('/')[-1]
+
+
+def raw_snyk_policy_url(artifact):
+    """Return the URL to fetch the .snyk policy file at the artifact's commit."""
+    commit_sha = artifact["commit_url"][-40:]
+    ci = ci_system(artifact)
+    if ci == "github":
+        suffix = repo_url(artifact)[len("https://github.com/"):]
+        return f"https://raw.githubusercontent.com/{suffix}/{commit_sha}/.snyk"
+    elif ci == "gitlab":
+        return f"{repo_url(artifact)}/-/raw/{commit_sha}/.snyk"
 
 
 def exit_non_zero_if_mid_blue_green_deployment(env_id, flow_names):

@@ -104,7 +104,7 @@ jobs:
       kosli_attestation_name: ${{ matrix.incoming_repo_name }}.snyk-scan
       kosli_env:              ${{ vars.KOSLI_AWS_PROD }}
       repo_name:              ${{ matrix.incoming_repo_name }}
-      raw_snyk_policy_url:    https://raw.githubusercontent.com/cyber-dojo/${{ matrix.incoming_repo_name }}/${{ matrix.incoming_commit_sha }}/.snyk
+      raw_snyk_policy_url:    ${{ matrix.incoming_raw_snyk_policy_url }}
     secrets:
       snyk_token:      ${{ secrets.SNYK_TOKEN }}
       kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
