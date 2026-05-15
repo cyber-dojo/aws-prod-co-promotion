@@ -160,7 +160,10 @@ jobs:
 
   deploy-to-prod:
     if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
-    needs: [setup, find-promotions]
+    needs:
+      - setup
+      - find-promotions
+      - sdlc-control-gate
     strategy:
       fail-fast: false
       matrix:
