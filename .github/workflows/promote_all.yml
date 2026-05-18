@@ -158,12 +158,29 @@ jobs:
             --user-data one-promotion.json          
 
 
+  approve:
+    if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
+    needs:
+      - find-promotions
+      - sdlc-control-gate
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url:  https://cyber-dojo.org
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
+    steps:
+      - name: Await manual approval
+        run: echo "Approved"
+
+
   deploy-to-prod:
     if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
     needs:
       - setup
       - find-promotions
-      - sdlc-control-gate
+      - approve
     strategy:
       fail-fast: false
       matrix:
