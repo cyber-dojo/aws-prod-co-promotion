@@ -64,7 +64,7 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: cyber-dojo/kosli-begin-trail@main
         with:
-          cli_version: "${{ vars.KOSLI_CLI_VERSION }}"
+          cli_version: latest
           flow_description: "Promotes sets of Artifacts from aws-beta to aws-prod"
           template_filename: ".kosli.one.yml"
 
@@ -88,9 +88,9 @@ jobs:
           fetch-depth: 1
 
       - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v3
+        uses: kosli-dev/setup-cli-action@v5
         with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
+          version: latest
 
       - name: Generate JSON for each Artifact promotion for use in the following job's strategy:matrix:include
         id: vars
@@ -141,9 +141,9 @@ jobs:
       PROMOTION: ${{ toJSON(matrix) }}
     steps:
       - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v3
+        uses: kosli-dev/setup-cli-action@v5
         with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
+          version: latest
 
       - name: Assert Artifact is compliant for aws-prod
         run: |
