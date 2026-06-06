@@ -54,6 +54,7 @@ jobs:
       - name: Tag Kosli Flow
         run:
           kosli tag flow "${KOSLI_FLOW}"
+            --set env=${KOSLI_AWS_PROD}
             --set kind=release
             --set repo_url="${{ github.server_url }}/${{ github.repository }}"
             --set ci=github
