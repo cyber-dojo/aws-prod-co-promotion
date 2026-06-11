@@ -1,0 +1,23 @@
+[
+  {
+    "incoming_snapshot_id": "aws-beta#4960",
+    "incoming_snapshot_url": "https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/4960?fingerprint=f69c37793f13cbaf192b1dd85f3be178727fba0332924539b3034fa9fffe153c",
+    "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/creator:0a67f8e@sha256:f69c37793f13cbaf192b1dd85f3be178727fba0332924539b3034fa9fffe153c",
+    "incoming_fingerprint": "f69c37793f13cbaf192b1dd85f3be178727fba0332924539b3034fa9fffe153c",
+    "incoming_repo_url": "https://github.com/cyber-dojo/creator",
+    "incoming_repo_name": "creator",
+    "incoming_commit_sha": "0a67f8eb06230de46536c00c158f67840b444a99",
+    "incoming_flow": "creator-ci",
+    "incoming_ci": "github",
+    "incoming_raw_snyk_policy_url": "https://raw.githubusercontent.com/cyber-dojo/creator/0a67f8eb06230de46536c00c158f67840b444a99/.snyk",
+    "outgoing_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/creator:63739c6@sha256:55a3107ee0d32008cf3cc231ebad625cdbbb8d54daca529fe4e4572a8abba2f6",
+    "outgoing_fingerprint": "55a3107ee0d32008cf3cc231ebad625cdbbb8d54daca529fe4e4572a8abba2f6",
+    "outgoing_repo_url": "https://gitlab.com/cyber-dojo/creator",
+    "outgoing_repo_name": "creator",
+    "outgoing_commit_sha": "63739c64c04437b29e3fe082d699fb757846e0f0",
+    "outgoing_flow": "creator-ci",
+    "outgoing_ci": "gitlab",
+    "outgoing_raw_snyk_policy_url": "https://gitlab.com/cyber-dojo/creator/-/raw/63739c64c04437b29e3fe082d699fb757846e0f0/.snyk",
+    "deployment_diff_url": "https://github.com/cyber-dojo/creator/commit/0a67f8eb06230de46536c00c158f67840b444a99"
+  }
+]

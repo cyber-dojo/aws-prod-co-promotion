@@ -75,20 +75,37 @@ def promotions():
 
 
 def deployment_diff_url(incoming_artifact, outgoing_artifact):
+    """Return the URL showing what is changing in this Artifact's deployment.
+
+    Normally a {repo_url}/compare/{old_sha}...{new_sha} link.
+    When there is no outgoing Artifact, or the repo has just been migrated to a
+    different CI host (so a cross-host compare is impossible), fall back to the
+    incoming {repo_url}/commit/{sha} link instead.
+    """
     incoming_flow = incoming_artifact["incoming_flow"]
     outgoing_flow = outgoing_artifact["outgoing_flow"]
     incoming_repo_url = incoming_artifact["incoming_repo_url"]
     outgoing_repo_url = outgoing_artifact["outgoing_repo_url"]
     incoming_commit_sha = incoming_artifact["incoming_commit_sha"]
     outgoing_commit_sha = outgoing_artifact["outgoing_commit_sha"]
+    incoming_ci = incoming_artifact["incoming_ci"]
+    outgoing_ci = outgoing_artifact["outgoing_ci"]
 
     if outgoing_flow == "":
         url = f"{incoming_repo_url}/commit/{incoming_commit_sha}"
     elif incoming_repo_url != outgoing_repo_url:
-        stderr(f"In Flow {incoming_flow} repo_url entries are different.")
-        stderr(f"Incoming repo_url={incoming_repo_url}")
-        stderr(f"Outgoing repo_url={outgoing_repo_url}")
-        sys.exit(42)
+        if incoming_ci != outgoing_ci:
+            # The repo was migrated to a different CI host (eg GitLab to
+            # GitHub). The outgoing (prod) Artifact still points at the old
+            # host, so a cross-host compare URL is impossible. Fall back to the
+            # incoming commit URL. Once an Artifact from the new host reaches
+            # prod, future promotions match again.
+            url = f"{incoming_repo_url}/commit/{incoming_commit_sha}"
+        else:
+            stderr(f"In Flow {incoming_flow} repo_url entries are different.")
+            stderr(f"Incoming repo_url={incoming_repo_url}")
+            stderr(f"Outgoing repo_url={outgoing_repo_url}")
+            sys.exit(42)
     else:
         assert incoming_flow == outgoing_flow
         url = f"{incoming_repo_url}/compare/{outgoing_commit_sha}...{incoming_commit_sha}"

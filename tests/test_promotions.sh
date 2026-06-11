@@ -49,6 +49,15 @@ test___SUCCESS_has_gitlab_image()
   assert_stderr_equals ""
 }
 
+test___SUCCESS_repo_migrated_gitlab_to_github()
+{
+  local -r filename="migrated-gitlab-to-github.json"
+  create_promotions "${filename}"
+  assert_status_equals 0
+  assert_stdout_equals "$(cat "${my_dir}/expected/${filename}")"
+  assert_stderr_equals ""
+}
+
 test___SUCCESS_env_var_set_matched()
 {
   local -r filename="multiple-artifacts-env-var-set-matched.json"
