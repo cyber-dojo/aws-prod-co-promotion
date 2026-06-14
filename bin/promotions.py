@@ -15,18 +15,19 @@ def print_help():
 
         Example:
 
-          $ ./bin/create_snapshot_diff_json.sh | python3 ./bin/promotions.py    
+          $ ./bin/create_snapshot_diff_json.sh | python3 ./bin/promotions.py
           [
               {
-                  "incoming_snapshot_id": "aws-beta#5088",
-                  "incoming_snapshot_url": "https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/5088?fingerprint=0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1"
+                  "incoming_snapshot_id": "aws-beta#4754",
+                  "incoming_snapshot_url": "https://app.kosli.com/cyber-dojo/environments/aws-beta/snapshots/4754?fingerprint=0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
                   "incoming_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:fa32058@sha256:0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
                   "incoming_fingerprint": "0fd1eae4a2ab75d4d08106f86af3945a9e95b60693a4b9e4e44b59cc5887fdd1",
-                  "incoming_repo_url": "https://github.com/cyber-dojo/nginx/",
+                  "incoming_repo_url": "https://github.com/cyber-dojo/nginx",
                   "incoming_repo_name": "nginx",
                   "incoming_commit_sha": "fa32058a046015786d1589e16af7da0973f2e726",
                   "incoming_flow": "nginx-ci",
                   "incoming_ci": "github",
+                  "incoming_raw_snyk_policy_url": "https://raw.githubusercontent.com/cyber-dojo/nginx/fa32058a046015786d1589e16af7da0973f2e726/.snyk",
                   "outgoing_image_name": "244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:e92d83d@sha256:0f803b05be83006c77e8c371b1f999eaabfb2feca9abef64332633362b36ca94",
                   "outgoing_fingerprint": "0f803b05be83006c77e8c371b1f999eaabfb2feca9abef64332633362b36ca94",
                   "outgoing_repo_url": "https://github.com/cyber-dojo/nginx",
@@ -34,7 +35,8 @@ def print_help():
                   "outgoing_commit_sha": "e92d83d1bf0b1de46205d5e19131f1cee2b6b3da",
                   "outgoing_flow": "nginx-ci",
                   "outgoing_ci": "github",
-                  "deployment_diff_url": "https://github.com/cyber-dojo/nginx/compare/fa32058a046015786d1589e16af7da0973f2e726...e92d83d1bf0b1de46205d5e19131f1cee2b6b3da"
+                  "outgoing_raw_snyk_policy_url": "https://raw.githubusercontent.com/cyber-dojo/nginx/e92d83d1bf0b1de46205d5e19131f1cee2b6b3da/.snyk",
+                  "deployment_diff_url": "https://github.com/cyber-dojo/nginx/compare/e92d83d1bf0b1de46205d5e19131f1cee2b6b3da...fa32058a046015786d1589e16af7da0973f2e726"
               },
               ...
           ]
@@ -42,6 +44,25 @@ def print_help():
 
 
 def promotions():
+    # This function keys every artifact by its single "flow" field and assumes a
+    # 1-to-1 mapping of running artifact to flow within a snapshot. In reality a
+    # running artifact (fingerprint) often has provenance in more than one Kosli
+    # flow, eg its build flow "<service>-ci" AND a live scanning flow such as
+    # "snyk-aws-beta-per-artifact". This 1-to-1 assumption is safe ONLY because
+    # the upstream "kosli diff snapshots" output collapses each artifact to a
+    # single "flow", and that value is the build (-ci) flow.
+    #
+    # Why it is the build flow: when an artifact belongs to several flows, Kosli
+    # reports the flow whose attestation is earliest in time. The build flow
+    # attests the artifact at build time, before it is deployed and later
+    # scanned, so it is earliest and is the one that surfaces here. This is a
+    # purely temporal choice; nothing identifies a "build flow" by name or type.
+    #
+    # Consequence: if Kosli ever changed diff to emit one row per (artifact, flow),
+    # or if a non-build flow attested an artifact earlier than its -ci flow, this
+    # code would emit duplicate matrix entries and double-promote. The blue-green
+    # guard below would not catch it, because it dedups on flow NAMES (which
+    # differ between the build and scanning flows), not on fingerprints.
     diff = json.loads(sys.stdin.read())
     incoming = diff["snappish1"]
     outgoing = diff["snappish2"]
