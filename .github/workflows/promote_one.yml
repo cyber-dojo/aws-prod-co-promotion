@@ -255,7 +255,8 @@ jobs:
       aws_role_arn:                  arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
       environment:                   prod
       tf_version:                    v1.14.9
-      tf_additional_env_vars:        '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.incoming_image_name }}"}'
+      tf_vars: |
+        TF_VAR_TAGGED_IMAGE=${{ matrix.incoming_image_name }}
       kosli_host:                    ${{ vars.KOSLI_HOST }}
       kosli_org:                     ${{ vars.KOSLI_ORG }}
       kosli_template_file:           flow-templates/kosli-apply.yml
