@@ -67,7 +67,7 @@ jobs:
       KOSLI_TRAIL: ${{ needs.setup.outputs.kosli_trail }}
     outputs:
       promotions:        "${{ steps.vars.outputs.promotions }}"
-      promotions_differ: "${{ steps.vars.outputs.promotions_differ }}"
+      promotions_tf_sh:  "${{ steps.vars.outputs.promotions_tf_sh }}"
       promotions_tf:     "${{ steps.vars.outputs.promotions_tf }}"
     steps:
       - uses: actions/checkout@v6
@@ -84,11 +84,11 @@ jobs:
         run: |
           promotions="$(make promotions | jq --raw-output --compact-output .)"
           echo "promotions=${promotions}" >> ${GITHUB_OUTPUT}
-          # "differ" cannot yet deploy with the Kosli "tf" tooling, so it is promoted
-          # via the older FiveXL job (deploy-to-prod) while everything else uses the
-          # newer Kosli "tf" job (deploy-to-prod-tf).
-          echo "promotions_differ=$(echo "${promotions}" | jq --compact-output '[.[] | select(.incoming_repo_name == "differ")]')" >> ${GITHUB_OUTPUT}
-          echo "promotions_tf=$(echo "${promotions}" | jq --compact-output '[.[] | select(.incoming_repo_name != "differ")]')" >> ${GITHUB_OUTPUT}
+          # "differ" and "saver" cannot yet deploy with the Kosli "tf" tooling, so they
+          # are promoted via the older "tf.sh" FiveXL job (deploy-to-prod) while
+          # everything else uses the newer Kosli "tf" job (deploy-to-prod-tf).
+          echo "promotions_tf_sh=$(echo "${promotions}" | jq --compact-output '[.[] | select(.incoming_repo_name == "differ" or .incoming_repo_name == "saver")]')" >> ${GITHUB_OUTPUT}
+          echo "promotions_tf=$(echo "${promotions}" | jq --compact-output '[.[] | select(.incoming_repo_name != "differ" and .incoming_repo_name != "saver")]')" >> ${GITHUB_OUTPUT}
 
       - name: Attest promotion summary to Kosli
         run:
@@ -185,9 +185,10 @@ jobs:
 
 
   deploy-to-prod:
-    # "differ" cannot yet deploy with the Kosli "tf" tooling, so it is promoted here
-    # via the older FiveXL job. Everything else uses deploy-to-prod-tf below.
-    if: ${{ needs.find-promotions.outputs.promotions_differ != '[]' }}
+    # "differ" and "saver" cannot yet deploy with the Kosli "tf" tooling, so they are
+    # promoted here via the older "tf.sh" FiveXL job. Everything else uses
+    # deploy-to-prod-tf below.
+    if: ${{ needs.find-promotions.outputs.promotions_tf_sh != '[]' }}
     needs:
       - setup
       - find-promotions
@@ -195,7 +196,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJSON(needs.find-promotions.outputs.promotions_differ) }}
+        include: ${{ fromJSON(needs.find-promotions.outputs.promotions_tf_sh) }}
     permissions:
       id-token: write
       contents: write
@@ -215,7 +216,7 @@ jobs:
       tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.incoming_image_name }}"}'
 
   deploy-to-prod-tf:
-    # Everything except "differ" promotes using the newer Kosli "tf" tooling.
+    # Everything except "differ" and "saver" promotes using the newer Kosli "tf" tooling.
     if: ${{ needs.find-promotions.outputs.promotions_tf != '[]' }}
     needs:
       - setup
