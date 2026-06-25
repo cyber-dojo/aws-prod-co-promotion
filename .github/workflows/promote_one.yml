@@ -219,3 +219,35 @@ jobs:
       tf_apply:               true
       tf_version:             v1.9.1
       tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.incoming_image_name }}"}'
+
+  deploy-to-prod-tf:
+    if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
+    needs:
+      - setup
+      - find-promotions
+      - approve
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: read
+    uses: kosli-dev/tf/.github/workflows/apply.yml@main
+    name: "Prod apply ${{ matrix.incoming_repo_name }}"
+    with:
+      github_repository_to_checkout: "cyber-dojo/${{ matrix.incoming_repo_name }}"
+      ref:                           ${{ matrix.incoming_commit_sha }}
+      working_directory:             deployment/terraform/
+      aws_region:                    eu-central-1
+      aws_role_arn:                  arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
+      environment:                   prod
+      tf_version:                    v1.14.9
+      tf_additional_env_vars:        '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.incoming_image_name }}"}'
+      kosli_host:                    ${{ vars.KOSLI_HOST }}
+      kosli_org:                     ${{ vars.KOSLI_ORG }}
+      kosli_template_file:           flow-templates/kosli-apply.yml
+    secrets:
+      kosli_api_token:    "${{ secrets.KOSLI_API_TOKEN}}"
+      kosli_github_token: "${{ secrets.GITHUB_TOKEN }}"
