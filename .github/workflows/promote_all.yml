@@ -248,5 +248,3 @@ jobs:
       kosli_template_file:           flow-templates/kosli-apply.yml
     secrets:
       kosli_api_token:    "${{ secrets.KOSLI_API_TOKEN}}"
-      kosli_github_token: "${{ secrets.GITHUB_TOKEN }}"
-
