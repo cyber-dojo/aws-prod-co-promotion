@@ -236,6 +236,7 @@ jobs:
       github_repository_to_checkout: "cyber-dojo/${{ matrix.incoming_repo_name }}"
       github_repository_name:        ${{ matrix.incoming_repo_name }}
       ref:                           ${{ matrix.incoming_commit_sha }}
+      pass_commit_to_kosli_commands: true
       working_directory:             deployment/terraform/
       aws_region:                    eu-central-1
       aws_role_arn:                  arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
