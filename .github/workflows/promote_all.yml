@@ -66,9 +66,7 @@ jobs:
     env:
       KOSLI_TRAIL: ${{ needs.setup.outputs.kosli_trail }}
     outputs:
-      promotions:        "${{ steps.vars.outputs.promotions }}"
-      promotions_tf_sh:  "${{ steps.vars.outputs.promotions_tf_sh }}"
-      promotions_tf:     "${{ steps.vars.outputs.promotions_tf }}"
+      promotions: "${{ steps.vars.outputs.promotions }}"
     steps:
       - uses: actions/checkout@v6
         with:
@@ -84,11 +82,6 @@ jobs:
         run: |
           promotions="$(make promotions | jq --raw-output --compact-output .)"
           echo "promotions=${promotions}" >> ${GITHUB_OUTPUT}
-          # "differ" cannot yet deploy with the Kosli "tf" tooling, so it is
-          # promoted via the older "tf.sh" FiveXL job (deploy-to-prod) while
-          # everything else uses the newer Kosli "tf" job (deploy-to-prod-tf).
-          echo "promotions_tf_sh=$(echo "${promotions}" | jq --compact-output '[.[] | select(.incoming_repo_name == "differ")]')" >> ${GITHUB_OUTPUT}
-          echo "promotions_tf=$(echo "${promotions}" | jq --compact-output '[.[] | select(.incoming_repo_name != "differ")]')" >> ${GITHUB_OUTPUT}
 
       - name: Attest promotion summary to Kosli
         run:
@@ -185,10 +178,7 @@ jobs:
 
 
   deploy-to-prod:
-    # "differ" cannot yet deploy with the Kosli "tf" tooling, so it is
-    # promoted here via the older "tf.sh" FiveXL job. Everything else uses
-    # deploy-to-prod-tf below.
-    if: ${{ needs.find-promotions.outputs.promotions_tf_sh != '[]' }}
+    if: ${{ needs.find-promotions.outputs.promotions != '[]' }}
     needs:
       - setup
       - find-promotions
@@ -196,36 +186,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJSON(needs.find-promotions.outputs.promotions_tf_sh) }}
-    permissions:
-      id-token: write
-      contents: write
-    uses: fivexl/gh-workflow-tf-plan-apply/.github/workflows/base.yml@v0.0.26
-    with:
-      checkout_ci:            ${{ matrix.incoming_ci }}
-      checkout_repository:    "cyber-dojo/${{ matrix.incoming_repo_name }}"
-      checkout_commit_sha:    ${{ matrix.incoming_commit_sha }}
-      checkout_fetch_depth:   1
-      aws_region:             ${{ needs.setup.outputs.aws_region }}
-      aws_role_arn:           arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
-      aws_default_region:     ${{ needs.setup.outputs.aws_region }}
-      aws_role_duration:      900
-      working_directory:      deployment/terraform/
-      tf_apply:               true
-      tf_version:             v1.9.1
-      tf_additional_env_vars: '{"TF_VAR_TAGGED_IMAGE": "${{ matrix.incoming_image_name }}"}'
-
-  deploy-to-prod-tf:
-    # Everything except "differ" promotes using the newer Kosli "tf" tooling.
-    if: ${{ needs.find-promotions.outputs.promotions_tf != '[]' }}
-    needs:
-      - setup
-      - find-promotions
-      - approve
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJSON(needs.find-promotions.outputs.promotions_tf) }}
+        include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
     permissions:
       id-token: write
       contents: write
