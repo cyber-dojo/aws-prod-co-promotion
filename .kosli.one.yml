@@ -3,4 +3,4 @@ version: 1
 trail:
   attestations:
     - name: one-promotion
-      type: decision
+      type: generic
