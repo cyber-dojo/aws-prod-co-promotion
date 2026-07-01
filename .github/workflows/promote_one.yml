@@ -160,10 +160,10 @@ jobs:
             echo "compliant=false" >> "${GITHUB_OUTPUT}"
           fi
 
-      # [kosli attest artifact] requires a git repo
-      # - uses: actions/checkout@v6
-      #   with:
-      #     fetch-depth: 1
+      # [kosli attest decision] requires a git repo
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
 
       # [kosli attest artifact] should not be necessary here, but currently it is.
       # - name: Attest artifact to Kosli
