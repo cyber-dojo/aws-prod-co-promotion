@@ -132,34 +132,46 @@ jobs:
           version: latest
 
       - name: Assert Artifact is compliant for aws-prod
+        id: assert-compliance
         run: |
           unset KOSLI_FLOW
-          kosli assert artifact \
+          if kosli assert artifact \
             --fingerprint "${{ matrix.incoming_fingerprint }}" \
-            --environment "${KOSLI_AWS_PROD}"
+            --environment "${KOSLI_AWS_PROD}"; 
+          then
+            echo "compliant=true"  >> "${GITHUB_OUTPUT}"
+          else
+            echo "compliant=false" >> "${GITHUB_OUTPUT}"
+          fi
 
       # [kosli attest artifact] requires a git repo
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 1
+      # - uses: actions/checkout@v6
+      #   with:
+      #     fetch-depth: 1
 
       # [kosli attest artifact] should not be necessary here, but currently it is.
-      - name: Attest artifact to Kosli
-        run:
-          kosli attest artifact "${{ matrix.incoming_image_name }}"
-            --fingerprint "${{ matrix.incoming_fingerprint }}"
-            --name "${{ matrix.incoming_repo_name }}"
+      # - name: Attest artifact to Kosli
+      #   run:
+      #     kosli attest artifact "${{ matrix.incoming_image_name }}"
+      #       --fingerprint "${{ matrix.incoming_fingerprint }}"
+      #       --name "${{ matrix.incoming_repo_name }}"
 
       - name: Attest aws-prod compliance
         run: |
           echo "${PROMOTION}" | jq . > one-promotion.json          
           kosli attest decision \
-            --compliant=true \
+            --compliant=${{ steps.assert-compliance.outputs.compliant }} \
             --control SDLC-CTRL-0013 \
             --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}" \
             --fingerprint "${{ matrix.incoming_fingerprint }}" \
             --name "compliant-${KOSLI_AWS_PROD}" \
-            --user-data one-promotion.json          
+            --user-data one-promotion.json
+
+      - name: Abort promotion if Artifact is not compliant
+        if: ${{ steps.assert-compliance.outputs.compliant != 'true' }}
+        run: |
+          echo "Artifact ${{ matrix.incoming_repo_name }} is not compliant for ${KOSLI_AWS_PROD}; aborting promotion." >&2
+          exit 1
 
 
   approve:
