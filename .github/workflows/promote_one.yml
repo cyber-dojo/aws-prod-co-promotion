@@ -169,7 +169,9 @@ jobs:
       - name: Attest aws-prod compliance
         run: |
           echo "${PROMOTION}" | jq . > one-promotion.json          
-          kosli attest generic \
+          kosli attest decision \
+            --compliant=true \
+            --control SDLC-CTRL-0013 \
             --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}" \
             --fingerprint "${{ matrix.incoming_fingerprint }}" \
             --name "compliant-${KOSLI_AWS_PROD}" \
