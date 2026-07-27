@@ -18,6 +18,7 @@ on:
           - nginx
           - runner
           - saver
+          - spooler
           - web
 
 env:
