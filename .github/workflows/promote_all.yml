@@ -153,7 +153,7 @@ jobs:
         run: |
           echo "${PROMOTION}" | jq . > one-promotion.json          
           kosli attest decision \
-            --compliant=${{ steps.assert-compliance.outputs.compliant }} \
+            --compliant ${{ steps.assert-compliance.outputs.compliant }} \
             --control SDLC-CTRL-0013 \
             --annotate deployment_diff_URL="${{ matrix.deployment_diff_url }}" \
             --fingerprint "${{ matrix.incoming_fingerprint }}" \
