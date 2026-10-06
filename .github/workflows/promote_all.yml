@@ -80,6 +80,7 @@ jobs:
       - name: Generate JSON for each Artifact promotion for use in the following job's strategy:matrix:include
         id: vars
         run: |
+          set -o pipefail
           promotions="$(make promotions | jq --raw-output --compact-output .)"
           echo "promotions=${promotions}" >> ${GITHUB_OUTPUT}
 
