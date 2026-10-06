@@ -98,6 +98,7 @@ jobs:
         id: vars
         run: |
           export CYBER_DOJO_PROMOTE_FLOW="${{ inputs.service }}"
+          set -o pipefail
           promotions="$(make promotions | jq --raw-output --compact-output .)"
           echo "promotions=${promotions}" >> ${GITHUB_OUTPUT}
 

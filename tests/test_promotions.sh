@@ -58,6 +58,15 @@ test___SUCCESS_repo_migrated_gitlab_to_github()
   assert_stderr_equals ""
 }
 
+test___SUCCESS_repo_urls_are_different()
+{
+  local -r filename="different-repo-urls.json"
+  create_promotions "${filename}"
+  assert_status_equals 0
+  assert_stdout_equals "$(cat "${my_dir}/expected/${filename}")"
+  assert_stderr_equals ""
+}
+
 test___SUCCESS_env_var_set_matched()
 {
   local -r filename="multiple-artifacts-env-var-set-matched.json"
@@ -96,15 +105,6 @@ test___FAILURE_blue_green_aws_beta()
 test___FAILURE_blue_green_aws_prod()
 {
   local -r filename="blue-green-aws-prod"
-  create_promotions "${filename}.json"
-  assert_status_not_equals 0
-  assert_stdout_equals ""
-  assert_stderr_equals "$(cat "${my_dir}/expected/${filename}.txt")"
-}
-
-test___FAILURE_repo_urls_are_different()
-{
-  local -r filename="different-repo-urls"
   create_promotions "${filename}.json"
   assert_status_not_equals 0
   assert_stdout_equals ""
