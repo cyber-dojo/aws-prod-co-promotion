@@ -200,13 +200,14 @@ jobs:
       contents: write
       pull-requests: read
     uses: kosli-dev/tf/.github/workflows/apply.yml@main
-    name: "Prod apply ${{ matrix.incoming_repo_name }}"
+    name: "Prod apply ${{ matrix.incoming_component_name }}"
     with:
       github_repository_to_checkout: "cyber-dojo/${{ matrix.incoming_repo_name }}"
       github_repository_name:        ${{ matrix.incoming_repo_name }}
+      component_name:                ${{ matrix.incoming_component_name }}
       ref:                           ${{ matrix.incoming_commit_sha }}
       pass_commit_to_kosli_commands: true
-      working_directory:             deployment/terraform-${{ matrix.incoming_repo_name }}/
+      working_directory:             deployment/terraform-${{ matrix.incoming_component_name }}/
       aws_region:                    eu-central-1
       aws_role_arn:                  arn:aws:iam::${{ needs.setup.outputs.aws_account_id_prod }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
       environment:                   prod
