@@ -148,6 +148,7 @@ def blanked_artifact(flow_name, outgoing_artifact):
             f"{kind}_repo_name": "",
             f"{kind}_commit_sha": "",
             f"{kind}_flow": "",
+            f"{kind}_component_name": "",
             f"{kind}_ci": "",
             f"{kind}_raw_snyk_policy_url": ""
         }
@@ -167,6 +168,7 @@ def prefixed_artifact(kind, artifact):
         f"{kind}_repo_name": repo_name(artifact),             # saver
         f"{kind}_commit_sha": commit_sha,
         f"{kind}_flow": flow,
+        f"{kind}_component_name": flow.removesuffix("-ci"),  # saver
         f"{kind}_ci": ci_system(artifact),
         f"{kind}_raw_snyk_policy_url": raw_snyk_policy_url(artifact)
     }
@@ -176,7 +178,7 @@ def write_annotations_file(services):
     annotations = []
     for service in services:
         # Annotation keys can contain only [A-Za-z0-9_]
-        key = service["incoming_repo_name"].replace("-", "_")
+        key = service["incoming_component_name"].replace("-", "_")
         diff_url = service["deployment_diff_url"]
         quote = '"'
         annotations.append(f"--annotate {quote}{key}_diff_URL={diff_url}{quote}")
