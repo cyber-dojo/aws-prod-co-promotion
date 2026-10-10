@@ -45,6 +45,18 @@ jobs:
       gh_actions_iam_role_name: ${{ steps.vars.outputs.gh_actions_iam_role_name }}
       kosli_trail:              ${{ steps.vars.outputs.kosli_trail }}
     steps:
+      # GitHub always preselects the first option, so a dispatch made without
+      # choosing a service arrives as the placeholder. Failing here makes that
+      # a red run rather than a green one that promoted nothing.
+      - name: Require a service to be chosen
+        env:
+          SERVICE: ${{ inputs.service }}
+        run: |
+          if [ "${SERVICE}" = CHOOSE-ONE-FROM-THE-LIST ]; then
+            echo "::error::No service chosen. Re-run and pick one from the service list."
+            exit 42
+          fi
+
       - uses: actions/checkout@v6
         with:
           fetch-depth: 1
