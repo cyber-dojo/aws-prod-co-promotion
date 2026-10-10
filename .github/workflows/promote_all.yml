@@ -191,8 +191,12 @@ jobs:
       - setup
       - find-promotions
       - approve
+    # Every service shares the prod ECS hosts. Capping the rollouts at three
+    # keeps new tasks from queueing for capacity past the services' 10m
+    # steady-state timeout.
     strategy:
       fail-fast: false
+      max-parallel: 3
       matrix:
         include: ${{ fromJSON(needs.find-promotions.outputs.promotions) }}
     permissions:
